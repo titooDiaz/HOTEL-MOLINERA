@@ -5,102 +5,382 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Moderno — Panel de Administración</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        navy: {
-                            900: '#12172b',
-                            800: '#171d35',
-                            700: '#1c2340',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* =========================================================
+           Paleta de colores (tomada del theme.extend.colors original
+           + la paleta estándar de Tailwind para blue/emerald/violet/
+           orange/amber/rose/slate, que Bootstrap no trae por defecto)
+           ========================================================= */
+        :root {
+            --navy-900: #12172b;
+            --navy-800: #171d35;
+            --navy-700: #1c2340;
+
+            --rose-50: #fff1f2;
+            --rose-200: #fecdd3;
+            --rose-500: #f43f5e;
+            --rose-600: #e11d48;
+
+            --blue-50: #eff6ff;
+            --blue-400: #60a5fa;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+
+            --emerald-50: #ecfdf5;
+            --emerald-500: #10b981;
+            --emerald-600: #059669;
+
+            --violet-50: #f5f3ff;
+            --violet-500: #8b5cf6;
+            --violet-600: #7c3aed;
+
+            --orange-50: #fff7ed;
+            --orange-500: #f97316;
+            --orange-600: #ea580c;
+
+            --amber-50: #fffbeb;
+            --amber-600: #d97706;
+
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--slate-50);
+            color: var(--slate-800);
+            -webkit-font-smoothing: antialiased;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+
+        /* Helpers que Bootstrap no cubre con un valor exacto */
+        .min-w-0 { min-width: 0; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        .z-40 { z-index: 40; }
+
+        /* ---------- Overlay móvil ---------- */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+        @media (min-width: 992px) {
+            .sidebar-overlay { display: none !important; }
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 999px;
+        /* ---------- Sidebar ---------- */
+        #sidebar {
+            width: 16rem;
+            background-color: var(--navy-900);
+            color: var(--slate-300);
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform .2s ease-in-out;
         }
+        #sidebar.sidebar-open { transform: translateX(0); }
+        @media (min-width: 992px) {
+            #sidebar { position: static; transform: translateX(0); }
+        }
+
+        #sidebar .brand-block {
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+        #sidebar .logo-box {
+            width: 2.5rem; height: 2.5rem;
+            border-radius: .75rem;
+            background: linear-gradient(to bottom right, var(--rose-500), var(--orange-500));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 600; color: #fff; letter-spacing: .025em;
+            flex-shrink: 0;
+        }
+        #sidebar .brand-title { color: #fff; font-weight: 600; font-size: .875rem; line-height: 1.25; margin: 0; }
+        #sidebar .brand-subtitle { color: var(--slate-400); font-size: .75rem; line-height: 1.25; margin: 0; }
+
+        #sidebar nav { margin-top: 1rem; padding: 0 .75rem; }
+
+        #sidebar .nav-link-item {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .625rem .75rem; border-radius: .5rem;
+            font-size: .875rem; color: var(--slate-300); text-decoration: none;
+            margin-bottom: .25rem;
+        }
+        #sidebar .nav-link-item:hover { background-color: rgba(255,255,255,.05); color: var(--slate-300); }
+        #sidebar .nav-link-item.active { background-color: var(--rose-500); color: #fff; font-weight: 500; }
+        #sidebar .nav-link-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        #sidebar .logout-wrap { padding: 0 .75rem 1.25rem; }
+        #sidebar .logout-link { color: var(--slate-400); }
+
+        /* ---------- Topbar ---------- */
+        .topbar { background: #fff; border-bottom: 1px solid var(--slate-200); }
+        .topbar-inner { gap: .75rem; padding: .75rem 1rem; }
+        @media (min-width: 576px) { .topbar-inner { padding: .75rem 1.5rem; } }
+
+        .icon-btn {
+            padding: .5rem; margin-left: -.5rem; border-radius: .5rem;
+            border: 0; background: none; color: var(--slate-800);
+        }
+        .icon-btn:hover { background: var(--slate-100); }
+
+        .search-wrap { max-width: 28rem; }
+        .search-icon { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400); pointer-events: none; }
+        .search-input {
+            width: 100%; background: var(--slate-100); border: 0; border-radius: 9999px;
+            padding: .5rem 1rem .5rem 2.25rem; font-size: .875rem;
+        }
+        .search-input::placeholder { color: var(--slate-400); }
+        .search-input:focus { outline: 0; box-shadow: 0 0 0 3px var(--rose-200); }
+
+        .notif-btn { position: relative; padding: .5rem; border-radius: 9999px; border: 0; background: none; }
+        .notif-btn:hover { background: var(--slate-100); }
+        .notif-dot {
+            position: absolute; top: .25rem; right: .375rem; width: .5rem; height: .5rem;
+            background: var(--rose-500); border-radius: 9999px; box-shadow: 0 0 0 2px #fff;
+        }
+
+        .avatar-circle {
+            width: 2rem; height: 2rem; border-radius: 9999px; background: var(--slate-200);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ---------- Contenido ---------- */
+        .dashboard-main { padding: 1rem; }
+        @media (min-width: 576px) { .dashboard-main { padding: 1.5rem; } }
+
+        .card-panel {
+            background: #fff; border: 1px solid var(--slate-200);
+            border-radius: 1rem; padding: 1rem;
+        }
+        @media (min-width: 576px) { .card-panel { padding: 1.25rem; } }
+
+        .icon-badge {
+            width: 2.25rem; height: 2.25rem; border-radius: .75rem;
+            display: flex; align-items: center; justify-content: center; margin-bottom: .75rem;
+        }
+        .icon-badge-blue    { background: var(--blue-50);    color: var(--blue-500); }
+        .icon-badge-emerald { background: var(--emerald-50); color: var(--emerald-500); }
+        .icon-badge-violet  { background: var(--violet-50);  color: var(--violet-500); }
+        .icon-badge-rose    { background: var(--rose-50);    color: var(--rose-500); }
+
+        .progress-track    { height: .375rem; background: var(--slate-100); border-radius: 9999px; overflow: hidden; }
+        .progress-track-lg { height: .5rem;   background: var(--slate-100); border-radius: 9999px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 9999px; }
+        .bg-blue-400    { background-color: var(--blue-400); }
+        .bg-emerald-500 { background-color: var(--emerald-500); }
+
+        .stat-trend { font-size: .75rem; margin-top: 2rem; display: flex; align-items: center; gap: .25rem; }
+
+        .quick-action-btn {
+            width: 100%; display: flex; align-items: center; gap: .625rem;
+            color: #fff; font-size: .875rem; font-weight: 500; border-radius: .75rem;
+            padding: .625rem 1rem; border: 0; transition: background-color .15s ease-in-out;
+        }
+        .quick-action-btn--rose    { background: var(--rose-500); }
+        .quick-action-btn--rose:hover    { background: var(--rose-600); }
+        .quick-action-btn--blue    { background: var(--blue-500); }
+        .quick-action-btn--blue:hover    { background: var(--blue-600); }
+        .quick-action-btn--emerald { background: var(--emerald-500); }
+        .quick-action-btn--emerald:hover { background: var(--emerald-600); }
+        .quick-action-btn--violet  { background: var(--violet-500); }
+        .quick-action-btn--violet:hover  { background: var(--violet-600); }
+
+        .legend-dot { width: .625rem; height: .625rem; border-radius: 9999px; display: inline-block; }
+
+        .activity-icon {
+            width: 2rem; height: 2rem; border-radius: 9999px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .activity-icon-emerald { background: var(--emerald-50); color: var(--emerald-500); }
+        .activity-icon-blue    { background: var(--blue-50);    color: var(--blue-500); }
+        .activity-icon-orange  { background: var(--orange-50);  color: var(--orange-500); }
+        .activity-icon-rose    { background: var(--rose-50);    color: var(--rose-500); }
+        .activity-icon-violet  { background: var(--violet-50);  color: var(--violet-500); }
+
+        .table-scroll { overflow-x: auto; margin: 0 -1rem; }
+        @media (min-width: 576px) { .table-scroll { margin: 0 -1.25rem; } }
+
+        .tw-table { width: 100%; font-size: .875rem; min-width: 640px; border-collapse: collapse; }
+        .tw-table thead tr { text-align: left; color: var(--slate-400); font-size: .75rem; border-bottom: 1px solid var(--slate-100); }
+        .tw-table th { font-weight: 500; padding: .5rem .75rem; }
+        .tw-table th:first-child, .tw-table td:first-child { padding-left: 1rem; }
+        .tw-table th:last-child, .tw-table td:last-child { padding-right: 1rem; text-align: right; }
+        @media (min-width: 576px) {
+            .tw-table th:first-child, .tw-table td:first-child { padding-left: 1.25rem; }
+            .tw-table th:last-child, .tw-table td:last-child { padding-right: 1.25rem; }
+        }
+        .tw-table td { padding: .75rem; border-bottom: 1px solid var(--slate-100); }
+        .tw-table tbody tr:last-child td { border-bottom: 0; }
+
+        .badge-pill { display: inline-block; font-size: .75rem; font-weight: 500; padding: .25rem .625rem; border-radius: 9999px; }
+        .badge-pill-emerald { background: var(--emerald-50); color: var(--emerald-600); }
+        .badge-pill-amber   { background: var(--amber-50);   color: var(--amber-600); }
+        .badge-pill-orange  { background: var(--orange-50);  color: var(--orange-600); }
+
+        .filter-select {
+            font-size: .75rem; border: 1px solid var(--slate-200); border-radius: .5rem;
+            padding: .375rem .625rem; color: var(--slate-500);
+        }
+        .filter-select:focus { outline: 0; }
+
+        .text-slate-400 { color: var(--slate-400); }
+        .text-slate-500 { color: var(--slate-500); }
+        .text-slate-600 { color: var(--slate-600); }
+        .text-slate-700 { color: var(--slate-700); }
+        .text-slate-800 { color: var(--slate-800); }
+        .text-rose-500  { color: var(--rose-500); }
+        .text-rose-500:hover { color: var(--rose-600); }
+        .text-emerald-500 { color: var(--emerald-500); }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body>
 
-    <div class="flex min-h-screen">
+    <div class="d-flex min-vh-100">
 
         <!-- Overlay para móvil -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-30 hidden lg:hidden"></div>
+        <div id="sidebar-overlay" class="sidebar-overlay z-30"></div>
 
         <!-- Sidebar -->
-        {% comment %} load to sidebar.html {% endcomment %}
-        {% include 'admin/components/navbar.html' %}
+        <aside id="sidebar" class="d-flex flex-column justify-content-between">
+            <div>
+                <!-- Logo -->
+                <div class="d-flex align-items-center gap-3 brand-block">
+                    <div class="logo-box">logo</div>
+                    <div>
+                        <p class="brand-title">Hotel Moderno</p>
+                        <p class="brand-subtitle">Panel de Administración</p>
+                    </div>
+                </div>
+
+                <!-- Nav -->
+                <nav class="d-flex flex-column">
+                    <a href="#" class="nav-link-item active">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <path d="M9 22V12h6v10" />
+                        </svg>
+                        Inicio
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="7" width="18" height="13" rx="2" />
+                            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Habitaciones
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <path d="M16 2v4M8 2v4M3 10h18" />
+                        </svg>
+                        Reservas
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Clientes
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 2v7c0 1.1.9 2 2 2h1v11M7 2v20M11 2v7a2 2 0 0 0 2 2h0M14 2v20" />
+                            <path d="M17 2c-2 3-2 6 0 9v11" />
+                        </svg>
+                        Restaurante
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <rect x="7" y="12" width="3" height="6" />
+                            <rect x="12" y="8" width="3" height="10" />
+                            <rect x="17" y="5" width="3" height="13" />
+                        </svg>
+                        Reportes
+                    </a>
+                    <a href="#" class="nav-link-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        Configuración
+                    </a>
+                </nav>
+            </div>
+
+            <div class="logout-wrap">
+                <a href="#" class="nav-link-item logout-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Cerrar sesión
+                </a>
+            </div>
+        </aside>
 
         <!-- Contenido principal -->
-        <div class="flex-1 min-w-0 flex flex-col">
+        <div class="flex-grow-1 min-w-0 d-flex flex-column">
 
             <!-- Topbar -->
-            <header class="sticky top-0 z-20 bg-white border-b border-slate-200">
-                <div class="flex items-center gap-3 px-4 sm:px-6 py-3">
-                    <button id="sidebar-toggle" class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-slate-100">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <header class="topbar position-sticky top-0 z-20">
+                <div class="d-flex align-items-center topbar-inner">
+                    <button id="sidebar-toggle" class="d-lg-none icon-btn">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12" />
                             <line x1="3" y1="6" x2="21" y2="6" />
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
 
-                    <div class="flex-1 max-w-md relative hidden sm:block">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
+                    <div class="flex-grow-1 search-wrap position-relative d-none d-sm-block">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8" />
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        <input type="text" placeholder="Buscar reservas, clientes, habitaciones..."
-                            class="w-full bg-slate-100 rounded-full pl-9 pr-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200">
+                        <input type="text" placeholder="Buscar reservas, clientes, habitaciones..." class="search-input">
                     </div>
 
-                    <div class="flex-1 sm:hidden"></div>
+                    <div class="flex-grow-1 d-sm-none"></div>
 
-                    <div class="flex items-center gap-4 ml-auto">
-                        <button class="relative p-2 rounded-full hover:bg-slate-100">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="d-flex align-items-center gap-3 ms-auto">
+                        <button class="notif-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                             </svg>
-                            <span
-                                class="absolute top-1 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+                            <span class="notif-dot"></span>
                         </button>
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                     <circle cx="12" cy="7" r="4" />
                                 </svg>
                             </div>
-                            <div class="hidden md:block leading-tight">
-                                <p class="text-sm font-medium text-slate-700">Admin</p>
-                                <p class="text-xs text-slate-400">Administrador</p>
+                            <div class="d-none d-md-block">
+                                <p class="mb-0 fw-medium text-slate-700" style="font-size:.875rem;line-height:1.25">Admin</p>
+                                <p class="mb-0 text-slate-400" style="font-size:.75rem;line-height:1.25">Administrador</p>
                             </div>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden md:block">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="d-none d-md-block">
                                 <polyline points="6 9 12 15 18 9" />
                             </svg>
                         </div>
@@ -109,26 +389,24 @@
             </header>
 
             <!-- Body -->
-            <main class="flex-1 p-4 sm:p-6 space-y-6">
+            <main class="flex-grow-1 dashboard-main">
 
                 <!-- Bienvenida -->
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-4">
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-semibold text-slate-800">¡Bienvenido, Admin!</h1>
-                        <p class="text-sm text-slate-500 mt-1">Aquí tienes un resumen del estado del hotel hoy.</p>
+                        <h1 class="fw-semibold text-slate-800 mb-0" style="font-size:1.375rem">¡Bienvenido, Admin!</h1>
+                        <p class="text-slate-500 mt-1 mb-0" style="font-size:.875rem">Aquí tienes un resumen del estado del hotel hoy.</p>
                     </div>
-                    <div class="flex items-center gap-4 text-sm text-slate-500 shrink-0">
-                        <div class="flex items-center gap-1.5">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="d-flex align-items-center gap-3 text-slate-500 flex-shrink-0" style="font-size:.875rem">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" />
                                 <path d="M16 2v4M8 2v4M3 10h18" />
                             </svg>
                             Lun, 9 de Jun de 2025
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <polyline points="12 6 12 12 16 14" />
                             </svg>
@@ -138,446 +416,398 @@
                 </div>
 
                 <!-- Stat cards + Acciones rápidas -->
-                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+                <div class="row g-3 mb-4">
 
-                    <div class="xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <!-- Habitaciones ocupadas -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 4v16" />
-                                    <path d="M2 8h18a2 2 0 0 1 2 2v10" />
-                                    <path d="M2 17h20" />
-                                    <path d="M6 8v9" />
-                                </svg>
+                    <div class="col-12 col-xl-9">
+                        <div class="row g-3">
+                            <!-- Habitaciones ocupadas -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <div class="card-panel h-100">
+                                    <div class="icon-badge icon-badge-blue">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M2 4v16" />
+                                            <path d="M2 8h18a2 2 0 0 1 2 2v10" />
+                                            <path d="M2 17h20" />
+                                            <path d="M6 8v9" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-slate-500 mb-0" style="font-size:.875rem">Habitaciones ocupadas</p>
+                                    <p class="fw-semibold text-slate-800 mb-0 mt-1" style="font-size:1.5rem">18 / 24</p>
+                                    <div class="progress-track mt-3">
+                                        <div class="progress-fill bg-blue-400" style="width:75%"></div>
+                                    </div>
+                                    <p class="mt-2 mb-0" style="font-size:.75rem;color:var(--blue-500)">75% de ocupación</p>
+                                </div>
                             </div>
-                            <p class="text-sm text-slate-500">Habitaciones ocupadas</p>
-                            <p class="text-2xl font-semibold text-slate-800 mt-0.5">18 / 24</p>
-                            <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-400 rounded-full" style="width:75%"></div>
-                            </div>
-                            <p class="text-xs text-blue-500 mt-2">75% de ocupación</p>
-                        </div>
 
-                        <!-- Reservas hoy -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                                    <path d="M16 2v4M8 2v4M3 10h18" />
-                                </svg>
+                            <!-- Reservas hoy -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <div class="card-panel h-100">
+                                    <div class="icon-badge icon-badge-emerald">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                                            <path d="M16 2v4M8 2v4M3 10h18" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-slate-500 mb-0" style="font-size:.875rem">Reservas hoy</p>
+                                    <p class="fw-semibold text-slate-800 mb-0 mt-1" style="font-size:1.5rem">7</p>
+                                    <p class="stat-trend text-emerald-500 mb-0">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="19" x2="12" y2="5" />
+                                            <polyline points="5 12 12 5 19 12" />
+                                        </svg>
+                                        40% vs ayer
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-sm text-slate-500">Reservas hoy</p>
-                            <p class="text-2xl font-semibold text-slate-800 mt-0.5">7</p>
-                            <p class="text-xs text-emerald-500 mt-8 flex items-center gap-1">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="19" x2="12" y2="5" />
-                                    <polyline points="5 12 12 5 19 12" />
-                                </svg>
-                                40% vs ayer
-                            </p>
-                        </div>
 
-                        <!-- Ingresos de hoy -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-violet-50 text-violet-500 flex items-center justify-center mb-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="1" x2="12" y2="23" />
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                </svg>
+                            <!-- Ingresos de hoy -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <div class="card-panel h-100">
+                                    <div class="icon-badge icon-badge-violet">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="1" x2="12" y2="23" />
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-slate-500 mb-0" style="font-size:.875rem">Ingresos de hoy</p>
+                                    <p class="fw-semibold text-slate-800 mb-0 mt-1" style="font-size:1.5rem">$2.340.000</p>
+                                    <p class="stat-trend text-emerald-500 mb-0">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="19" x2="12" y2="5" />
+                                            <polyline points="5 12 12 5 19 12" />
+                                        </svg>
+                                        32% vs ayer
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-sm text-slate-500">Ingresos de hoy</p>
-                            <p class="text-2xl font-semibold text-slate-800 mt-0.5">$2.340.000</p>
-                            <p class="text-xs text-emerald-500 mt-8 flex items-center gap-1">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="19" x2="12" y2="5" />
-                                    <polyline points="5 12 12 5 19 12" />
-                                </svg>
-                                32% vs ayer
-                            </p>
-                        </div>
 
-                        <!-- Clientes activos -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
+                            <!-- Clientes activos -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <div class="card-panel h-100">
+                                    <div class="icon-badge icon-badge-rose">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-slate-500 mb-0" style="font-size:.875rem">Clientes activos</p>
+                                    <p class="fw-semibold text-slate-800 mb-0 mt-1" style="font-size:1.5rem">32</p>
+                                    <p class="stat-trend text-emerald-500 mb-0">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="19" x2="12" y2="5" />
+                                            <polyline points="5 12 12 5 19 12" />
+                                        </svg>
+                                        12% vs ayer
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-sm text-slate-500">Clientes activos</p>
-                            <p class="text-2xl font-semibold text-slate-800 mt-0.5">32</p>
-                            <p class="text-xs text-emerald-500 mt-8 flex items-center gap-1">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="19" x2="12" y2="5" />
-                                    <polyline points="5 12 12 5 19 12" />
-                                </svg>
-                                12% vs ayer
-                            </p>
                         </div>
                     </div>
 
                     <!-- Acciones rápidas -->
-                    <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
-                        <h2 class="text-sm font-semibold text-slate-700 mb-3">Acciones rápidas</h2>
-                        <div class="space-y-2.5">
-                            <button
-                                class="w-full flex items-center gap-2.5 bg-rose-500 hover:bg-rose-600 transition text-white text-sm font-medium rounded-xl px-4 py-2.5">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                                    <path d="M16 2v4M8 2v4M3 10h18" />
-                                    <line x1="12" y1="14" x2="12" y2="18" />
-                                    <line x1="10" y1="16" x2="14" y2="16" />
-                                </svg>
-                                Nueva reserva
-                            </button>
-                            <button
-                                class="w-full flex items-center gap-2.5 bg-blue-500 hover:bg-blue-600 transition text-white text-sm font-medium rounded-xl px-4 py-2.5">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 4v16" />
-                                    <path d="M2 8h18a2 2 0 0 1 2 2v10" />
-                                    <path d="M2 17h20" />
-                                    <path d="M6 8v9" />
-                                </svg>
-                                Gestionar habitaciones
-                            </button>
-                            <button
-                                class="w-full flex items-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 transition text-white text-sm font-medium rounded-xl px-4 py-2.5">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                    <circle cx="12" cy="7" r="4" />
-                                </svg>
-                                Registrar cliente
-                            </button>
-                            <button
-                                class="w-full flex items-center gap-2.5 bg-violet-500 hover:bg-violet-600 transition text-white text-sm font-medium rounded-xl px-4 py-2.5">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 2v7c0 1.1.9 2 2 2h1v11M7 2v20M11 2v7a2 2 0 0 0 2 2h0M14 2v20" />
-                                    <path d="M17 2c-2 3-2 6 0 9v11" />
-                                </svg>
-                                Gestionar restaurante
-                            </button>
+                    <div class="col-12 col-xl-3">
+                        <div class="card-panel h-100 d-flex flex-column">
+                            <h2 class="fw-semibold text-slate-700 mb-3" style="font-size:.875rem">Acciones rápidas</h2>
+                            <div class="d-flex flex-column gap-2">
+                                <button class="quick-action-btn quick-action-btn--rose">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                                        <path d="M16 2v4M8 2v4M3 10h18" />
+                                        <line x1="12" y1="14" x2="12" y2="18" />
+                                        <line x1="10" y1="16" x2="14" y2="16" />
+                                    </svg>
+                                    Nueva reserva
+                                </button>
+                                <button class="quick-action-btn quick-action-btn--blue">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M2 4v16" />
+                                        <path d="M2 8h18a2 2 0 0 1 2 2v10" />
+                                        <path d="M2 17h20" />
+                                        <path d="M6 8v9" />
+                                    </svg>
+                                    Gestionar habitaciones
+                                </button>
+                                <button class="quick-action-btn quick-action-btn--emerald">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    Registrar cliente
+                                </button>
+                                <button class="quick-action-btn quick-action-btn--violet">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 2v7c0 1.1.9 2 2 2h1v11M7 2v20M11 2v7a2 2 0 0 0 2 2h0M14 2v20" />
+                                        <path d="M17 2c-2 3-2 6 0 9v11" />
+                                    </svg>
+                                    Gestionar restaurante
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Charts + Actividad -->
-                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+                <div class="row g-3 mb-4">
 
                     <!-- Ocupación de habitaciones (line chart) -->
-                    <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-sm font-semibold text-slate-700">Ocupación de habitaciones</h2>
-                            <select
-                                class="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-500 focus:outline-none">
-                                <option>Últimos 7 días</option>
-                                <option>Últimos 30 días</option>
-                            </select>
+                    <div class="col-12 col-xl-6">
+                        <div class="card-panel h-100">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h2 class="fw-semibold text-slate-700 mb-0" style="font-size:.875rem">Ocupación de habitaciones</h2>
+                                <select class="filter-select">
+                                    <option>Últimos 7 días</option>
+                                    <option>Últimos 30 días</option>
+                                </select>
+                            </div>
+                            <svg viewBox="0 0 560 220" class="w-100 h-auto" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35" />
+                                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0" />
+                                    </linearGradient>
+                                </defs>
+                                <g stroke="#eef2f7" stroke-width="1">
+                                    <line x1="40" y1="10" x2="550" y2="10" />
+                                    <line x1="40" y1="60" x2="550" y2="60" />
+                                    <line x1="40" y1="110" x2="550" y2="110" />
+                                    <line x1="40" y1="160" x2="550" y2="160" />
+                                    <line x1="40" y1="200" x2="550" y2="200" />
+                                </g>
+                                <g font-size="11" fill="#94a3b8" font-family="inherit">
+                                    <text x="0" y="14">100%</text>
+                                    <text x="8" y="64">75%</text>
+                                    <text x="8" y="114">50%</text>
+                                    <text x="8" y="164">25%</text>
+                                    <text x="18" y="204">0%</text>
+                                </g>
+                                <path d="M50,120 L130,135 L210,145 L290,110 L370,105 L450,90 L530,75 L530,200 L50,200 Z" fill="url(#areaFill)" />
+                                <polyline points="50,120 130,135 210,145 290,110 370,105 450,90 530,75" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <g fill="#3b82f6">
+                                    <circle cx="50" cy="120" r="3.5" />
+                                    <circle cx="130" cy="135" r="3.5" />
+                                    <circle cx="210" cy="145" r="3.5" />
+                                    <circle cx="290" cy="110" r="3.5" />
+                                    <circle cx="370" cy="105" r="3.5" />
+                                    <circle cx="450" cy="90" r="3.5" />
+                                    <circle cx="530" cy="75" r="3.5" />
+                                </g>
+                                <g font-size="11" fill="#94a3b8">
+                                    <text x="38" y="216">3 Jun</text>
+                                    <text x="115" y="216">4 Jun</text>
+                                    <text x="195" y="216">5 Jun</text>
+                                    <text x="275" y="216">6 Jun</text>
+                                    <text x="355" y="216">7 Jun</text>
+                                    <text x="435" y="216">8 Jun</text>
+                                    <text x="515" y="216">9 Jun</text>
+                                </g>
+                            </svg>
                         </div>
-                        <svg viewBox="0 0 560 220" class="w-full h-auto" preserveAspectRatio="none">
-                            <defs>
-                                <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35" />
-                                    <stop offset="100%" stop-color="#60a5fa" stop-opacity="0" />
-                                </linearGradient>
-                            </defs>
-                            <!-- gridlines -->
-                            <g stroke="#eef2f7" stroke-width="1">
-                                <line x1="40" y1="10" x2="550" y2="10" />
-                                <line x1="40" y1="60" x2="550" y2="60" />
-                                <line x1="40" y1="110" x2="550" y2="110" />
-                                <line x1="40" y1="160" x2="550" y2="160" />
-                                <line x1="40" y1="200" x2="550" y2="200" />
-                            </g>
-                            <!-- y labels -->
-                            <g font-size="11" fill="#94a3b8" font-family="inherit">
-                                <text x="0" y="14">100%</text>
-                                <text x="8" y="64">75%</text>
-                                <text x="8" y="114">50%</text>
-                                <text x="8" y="164">25%</text>
-                                <text x="18" y="204">0%</text>
-                            </g>
-                            <!-- area -->
-                            <path d="M50,120 L130,135 L210,145 L290,110 L370,105 L450,90 L530,75 L530,200 L50,200 Z"
-                                fill="url(#areaFill)" />
-                            <!-- line -->
-                            <polyline points="50,120 130,135 210,145 290,110 370,105 450,90 530,75" fill="none"
-                                stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                            <!-- dots -->
-                            <g fill="#3b82f6">
-                                <circle cx="50" cy="120" r="3.5" />
-                                <circle cx="130" cy="135" r="3.5" />
-                                <circle cx="210" cy="145" r="3.5" />
-                                <circle cx="290" cy="110" r="3.5" />
-                                <circle cx="370" cy="105" r="3.5" />
-                                <circle cx="450" cy="90" r="3.5" />
-                                <circle cx="530" cy="75" r="3.5" />
-                            </g>
-                            <!-- x labels -->
-                            <g font-size="11" fill="#94a3b8">
-                                <text x="38" y="216">3 Jun</text>
-                                <text x="115" y="216">4 Jun</text>
-                                <text x="195" y="216">5 Jun</text>
-                                <text x="275" y="216">6 Jun</text>
-                                <text x="355" y="216">7 Jun</text>
-                                <text x="435" y="216">8 Jun</text>
-                                <text x="515" y="216">9 Jun</text>
-                            </g>
-                        </svg>
                     </div>
 
                     <!-- Tipo de habitaciones (donut) -->
-                    <div class="xl:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
-                        <h2 class="text-sm font-semibold text-slate-700 mb-4">Tipo de habitaciones</h2>
-                        <div class="flex items-center justify-center">
-                            <svg viewBox="0 0 120 120" width="150" height="150">
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#e2e8f0" stroke-width="16" />
-                                <!-- Doble 50% blue -->
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#3b82f6" stroke-width="16"
-                                    stroke-dasharray="141.4 282.7" stroke-dashoffset="0"
-                                    transform="rotate(-90 60 60)" />
-                                <!-- Semi doble 25% green -->
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" stroke-width="16"
-                                    stroke-dasharray="70.7 282.7" stroke-dashoffset="-141.4"
-                                    transform="rotate(-90 60 60)" />
-                                <!-- Suite 17% orange -->
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#f97316" stroke-width="16"
-                                    stroke-dasharray="48.1 282.7" stroke-dashoffset="-212.1"
-                                    transform="rotate(-90 60 60)" />
-                                <!-- Individual 8% violet -->
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#8b5cf6" stroke-width="16"
-                                    stroke-dasharray="22.6 282.7" stroke-dashoffset="-260.2"
-                                    transform="rotate(-90 60 60)" />
-                                <text x="60" y="57" text-anchor="middle" font-size="18" font-weight="600"
-                                    fill="#1e293b">24</text>
-                                <text x="60" y="72" text-anchor="middle" font-size="9" fill="#94a3b8">total</text>
-                            </svg>
+                    <div class="col-12 col-xl-3">
+                        <div class="card-panel h-100">
+                            <h2 class="fw-semibold text-slate-700 mb-4" style="font-size:.875rem">Tipo de habitaciones</h2>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <svg viewBox="0 0 120 120" width="150" height="150">
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#e2e8f0" stroke-width="16" />
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#3b82f6" stroke-width="16" stroke-dasharray="141.4 282.7" stroke-dashoffset="0" transform="rotate(-90 60 60)" />
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" stroke-width="16" stroke-dasharray="70.7 282.7" stroke-dashoffset="-141.4" transform="rotate(-90 60 60)" />
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#f97316" stroke-width="16" stroke-dasharray="48.1 282.7" stroke-dashoffset="-212.1" transform="rotate(-90 60 60)" />
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#8b5cf6" stroke-width="16" stroke-dasharray="22.6 282.7" stroke-dashoffset="-260.2" transform="rotate(-90 60 60)" />
+                                    <text x="60" y="57" text-anchor="middle" font-size="18" font-weight="600" fill="#1e293b">24</text>
+                                    <text x="60" y="72" text-anchor="middle" font-size="9" fill="#94a3b8">total</text>
+                                </svg>
+                            </div>
+                            <ul class="list-unstyled mt-4 mb-0" style="font-size:.875rem">
+                                <li class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center gap-2 text-slate-600"><span class="legend-dot" style="background:var(--blue-500)"></span>Doble</span>
+                                    <span class="text-slate-400">12 <span class="text-slate-300">|</span> 50%</span>
+                                </li>
+                                <li class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center gap-2 text-slate-600"><span class="legend-dot" style="background:var(--emerald-500)"></span>Semi doble</span>
+                                    <span class="text-slate-400">6 <span class="text-slate-300">|</span> 25%</span>
+                                </li>
+                                <li class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center gap-2 text-slate-600"><span class="legend-dot" style="background:var(--orange-500)"></span>Suite</span>
+                                    <span class="text-slate-400">4 <span class="text-slate-300">|</span> 17%</span>
+                                </li>
+                                <li class="d-flex align-items-center justify-content-between mb-0">
+                                    <span class="d-flex align-items-center gap-2 text-slate-600"><span class="legend-dot" style="background:var(--violet-500)"></span>Individual</span>
+                                    <span class="text-slate-400">2 <span class="text-slate-300">|</span> 8%</span>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="mt-4 space-y-2 text-sm">
-                            <li class="flex items-center justify-between">
-                                <span class="flex items-center gap-2 text-slate-600"><span
-                                        class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Doble</span>
-                                <span class="text-slate-400">12 <span class="text-slate-300">|</span> 50%</span>
-                            </li>
-                            <li class="flex items-center justify-between">
-                                <span class="flex items-center gap-2 text-slate-600"><span
-                                        class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Semi doble</span>
-                                <span class="text-slate-400">6 <span class="text-slate-300">|</span> 25%</span>
-                            </li>
-                            <li class="flex items-center justify-between">
-                                <span class="flex items-center gap-2 text-slate-600"><span
-                                        class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>Suite</span>
-                                <span class="text-slate-400">4 <span class="text-slate-300">|</span> 17%</span>
-                            </li>
-                            <li class="flex items-center justify-between">
-                                <span class="flex items-center gap-2 text-slate-600"><span
-                                        class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>Individual</span>
-                                <span class="text-slate-400">2 <span class="text-slate-300">|</span> 8%</span>
-                            </li>
-                        </ul>
                     </div>
 
                     <!-- Actividad reciente -->
-                    <div class="xl:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
-                        <h2 class="text-sm font-semibold text-slate-700 mb-4">Actividad reciente</h2>
-                        <ul class="space-y-4">
-                            <li class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm text-slate-700 font-medium leading-tight">Reserva #1042
-                                            confirmada</p>
-                                        <span class="text-xs text-slate-400 shrink-0">10:12</span>
+                    <div class="col-12 col-xl-3">
+                        <div class="card-panel h-100">
+                            <h2 class="fw-semibold text-slate-700 mb-4" style="font-size:.875rem">Actividad reciente</h2>
+                            <ul class="list-unstyled mb-0">
+                                <li class="d-flex mb-4" style="gap:.75rem">
+                                    <div class="activity-icon activity-icon-emerald">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">Habitación Doble · 2 huéspedes</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                        <circle cx="12" cy="7" r="4" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm text-slate-700 font-medium leading-tight">Nuevo cliente
-                                            registrado</p>
-                                        <span class="text-xs text-slate-400 shrink-0">09:48</span>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <p class="text-slate-700 fw-medium mb-0" style="font-size:.875rem;line-height:1.25">Reserva #1042 confirmada</p>
+                                            <span class="text-slate-400 flex-shrink-0" style="font-size:.75rem">10:12</span>
+                                        </div>
+                                        <p class="text-slate-400 mb-0 mt-1" style="font-size:.75rem">Habitación Doble · 2 huéspedes</p>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">Juan Pérez</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm text-slate-700 font-medium leading-tight">Check-in realizado
-                                        </p>
-                                        <span class="text-xs text-slate-400 shrink-0">08:32</span>
+                                </li>
+                                <li class="d-flex mb-4" style="gap:.75rem">
+                                    <div class="activity-icon activity-icon-blue">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                            <circle cx="12" cy="7" r="4" />
+                                        </svg>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">Habitación 302 · María López</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm text-slate-700 font-medium leading-tight">Check-out realizado
-                                        </p>
-                                        <span class="text-xs text-slate-400 shrink-0">07:15</span>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <p class="text-slate-700 fw-medium mb-0" style="font-size:.875rem;line-height:1.25">Nuevo cliente registrado</p>
+                                            <span class="text-slate-400 flex-shrink-0" style="font-size:.75rem">09:48</span>
+                                        </div>
+                                        <p class="text-slate-400 mb-0 mt-1" style="font-size:.75rem">Juan Pérez</p>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">Habitación 101 · Carlos Rojas</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 2v7c0 1.1.9 2 2 2h1v11M7 2v20M11 2v7a2 2 0 0 0 2 2h0M14 2v20" />
-                                    </svg>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm text-slate-700 font-medium leading-tight">Pedido en
-                                            restaurante</p>
-                                        <span class="text-xs text-slate-400 shrink-0">06:58</span>
+                                </li>
+                                <li class="d-flex mb-4" style="gap:.75rem">
+                                    <div class="activity-icon activity-icon-orange">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                        </svg>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-0.5">Mesa 5 · 2 personas</p>
-                                </div>
-                            </li>
-                        </ul>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <p class="text-slate-700 fw-medium mb-0" style="font-size:.875rem;line-height:1.25">Check-in realizado</p>
+                                            <span class="text-slate-400 flex-shrink-0" style="font-size:.75rem">08:32</span>
+                                        </div>
+                                        <p class="text-slate-400 mb-0 mt-1" style="font-size:.75rem">Habitación 302 · María López</p>
+                                    </div>
+                                </li>
+                                <li class="d-flex mb-4" style="gap:.75rem">
+                                    <div class="activity-icon activity-icon-rose">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <p class="text-slate-700 fw-medium mb-0" style="font-size:.875rem;line-height:1.25">Check-out realizado</p>
+                                            <span class="text-slate-400 flex-shrink-0" style="font-size:.75rem">07:15</span>
+                                        </div>
+                                        <p class="text-slate-400 mb-0 mt-1" style="font-size:.75rem">Habitación 101 · Carlos Rojas</p>
+                                    </div>
+                                </li>
+                                <li class="d-flex mb-0" style="gap:.75rem">
+                                    <div class="activity-icon activity-icon-violet">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 2v7c0 1.1.9 2 2 2h1v11M7 2v20M11 2v7a2 2 0 0 0 2 2h0M14 2v20" />
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <p class="text-slate-700 fw-medium mb-0" style="font-size:.875rem;line-height:1.25">Pedido en restaurante</p>
+                                            <span class="text-slate-400 flex-shrink-0" style="font-size:.75rem">06:58</span>
+                                        </div>
+                                        <p class="text-slate-400 mb-0 mt-1" style="font-size:.75rem">Mesa 5 · 2 personas</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Reservas recientes + Ocupación general -->
-                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+                <div class="row g-3">
 
                     <!-- Tabla -->
-                    <div class="xl:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 overflow-hidden">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-sm font-semibold text-slate-700">Reservas recientes</h2>
-                            <a href="#" class="text-xs font-medium text-rose-500 hover:text-rose-600">Ver todas</a>
-                        </div>
-                        <div class="overflow-x-auto -mx-4 sm:-mx-5">
-                            <table class="w-full text-sm min-w-[640px]">
-                                <thead>
-                                    <tr class="text-left text-slate-400 text-xs border-b border-slate-100">
-                                        <th class="font-medium px-4 sm:px-5 py-2"># Reserva</th>
-                                        <th class="font-medium px-3 py-2">Cliente</th>
-                                        <th class="font-medium px-3 py-2">Habitación</th>
-                                        <th class="font-medium px-3 py-2">Check-in</th>
-                                        <th class="font-medium px-3 py-2">Check-out</th>
-                                        <th class="font-medium px-3 py-2">Estado</th>
-                                        <th class="font-medium px-3 py-2 text-right pr-4 sm:pr-5">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <tr>
-                                        <td class="px-4 sm:px-5 py-3 font-medium text-slate-700">#1042</td>
-                                        <td class="px-3 py-3 text-slate-600">Laura Gómez</td>
-                                        <td class="px-3 py-3 text-slate-600">Doble (201)</td>
-                                        <td class="px-3 py-3 text-slate-500">09/06/2025</td>
-                                        <td class="px-3 py-3 text-slate-500">12/06/2025</td>
-                                        <td class="px-3 py-3"><span
-                                                class="inline-block text-xs font-medium bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">Confirmada</span>
-                                        </td>
-                                        <td class="px-3 py-3 text-right pr-4 sm:pr-5 text-slate-400">⋮</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-4 sm:px-5 py-3 font-medium text-slate-700">#1041</td>
-                                        <td class="px-3 py-3 text-slate-600">Andrés Ruiz</td>
-                                        <td class="px-3 py-3 text-slate-600">Suite (401)</td>
-                                        <td class="px-3 py-3 text-slate-500">08/06/2025</td>
-                                        <td class="px-3 py-3 text-slate-500">11/06/2025</td>
-                                        <td class="px-3 py-3"><span
-                                                class="inline-block text-xs font-medium bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">Confirmada</span>
-                                        </td>
-                                        <td class="px-3 py-3 text-right pr-4 sm:pr-5 text-slate-400">⋮</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-4 sm:px-5 py-3 font-medium text-slate-700">#1040</td>
-                                        <td class="px-3 py-3 text-slate-600">María Torres</td>
-                                        <td class="px-3 py-3 text-slate-600">Semi doble (305)</td>
-                                        <td class="px-3 py-3 text-slate-500">07/06/2025</td>
-                                        <td class="px-3 py-3 text-slate-500">10/06/2025</td>
-                                        <td class="px-3 py-3"><span
-                                                class="inline-block text-xs font-medium bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full">En
-                                                proceso</span></td>
-                                        <td class="px-3 py-3 text-right pr-4 sm:pr-5 text-slate-400">⋮</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-4 sm:px-5 py-3 font-medium text-slate-700">#1039</td>
-                                        <td class="px-3 py-3 text-slate-600">Camilo Vargas</td>
-                                        <td class="px-3 py-3 text-slate-600">Doble (102)</td>
-                                        <td class="px-3 py-3 text-slate-500">07/06/2025</td>
-                                        <td class="px-3 py-3 text-slate-500">09/06/2025</td>
-                                        <td class="px-3 py-3"><span
-                                                class="inline-block text-xs font-medium bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">Confirmada</span>
-                                        </td>
-                                        <td class="px-3 py-3 text-right pr-4 sm:pr-5 text-slate-400">⋮</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-4 sm:px-5 py-3 font-medium text-slate-700">#1038</td>
-                                        <td class="px-3 py-3 text-slate-600">Valentina Díaz</td>
-                                        <td class="px-3 py-3 text-slate-600">Individual (210)</td>
-                                        <td class="px-3 py-3 text-slate-500">06/06/2025</td>
-                                        <td class="px-3 py-3 text-slate-500">08/06/2025</td>
-                                        <td class="px-3 py-3"><span
-                                                class="inline-block text-xs font-medium bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full">Check-in</span>
-                                        </td>
-                                        <td class="px-3 py-3 text-right pr-4 sm:pr-5 text-slate-400">⋮</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="col-12 col-xl-9">
+                        <div class="card-panel h-100" style="overflow:hidden">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h2 class="fw-semibold text-slate-700 mb-0" style="font-size:.875rem">Reservas recientes</h2>
+                                <a href="#" class="text-rose-500 fw-medium text-decoration-none" style="font-size:.75rem">Ver todas</a>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="tw-table">
+                                    <thead>
+                                        <tr>
+                                            <th># Reserva</th>
+                                            <th>Cliente</th>
+                                            <th>Habitación</th>
+                                            <th>Check-in</th>
+                                            <th>Check-out</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="fw-medium text-slate-700">#1042</td>
+                                            <td class="text-slate-600">Laura Gómez</td>
+                                            <td class="text-slate-600">Doble (201)</td>
+                                            <td class="text-slate-500">09/06/2025</td>
+                                            <td class="text-slate-500">12/06/2025</td>
+                                            <td><span class="badge-pill badge-pill-emerald">Confirmada</span></td>
+                                            <td class="text-slate-400">⋮</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium text-slate-700">#1041</td>
+                                            <td class="text-slate-600">Andrés Ruiz</td>
+                                            <td class="text-slate-600">Suite (401)</td>
+                                            <td class="text-slate-500">08/06/2025</td>
+                                            <td class="text-slate-500">11/06/2025</td>
+                                            <td><span class="badge-pill badge-pill-emerald">Confirmada</span></td>
+                                            <td class="text-slate-400">⋮</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium text-slate-700">#1040</td>
+                                            <td class="text-slate-600">María Torres</td>
+                                            <td class="text-slate-600">Semi doble (305)</td>
+                                            <td class="text-slate-500">07/06/2025</td>
+                                            <td class="text-slate-500">10/06/2025</td>
+                                            <td><span class="badge-pill badge-pill-amber">En proceso</span></td>
+                                            <td class="text-slate-400">⋮</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium text-slate-700">#1039</td>
+                                            <td class="text-slate-600">Camilo Vargas</td>
+                                            <td class="text-slate-600">Doble (102)</td>
+                                            <td class="text-slate-500">07/06/2025</td>
+                                            <td class="text-slate-500">09/06/2025</td>
+                                            <td><span class="badge-pill badge-pill-emerald">Confirmada</span></td>
+                                            <td class="text-slate-400">⋮</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium text-slate-700">#1038</td>
+                                            <td class="text-slate-600">Valentina Díaz</td>
+                                            <td class="text-slate-600">Individual (210)</td>
+                                            <td class="text-slate-500">06/06/2025</td>
+                                            <td class="text-slate-500">08/06/2025</td>
+                                            <td><span class="badge-pill badge-pill-orange">Check-in</span></td>
+                                            <td class="text-slate-400">⋮</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Ocupación general -->
-                    <div class="xl:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
-                        <h2 class="text-sm font-semibold text-slate-700 mb-4">Ocupación general</h2>
-                        <p class="text-3xl font-semibold text-slate-800">75%</p>
-                        <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-emerald-500 rounded-full" style="width:75%"></div>
+                    <div class="col-12 col-xl-3">
+                        <div class="card-panel h-100">
+                            <h2 class="fw-semibold text-slate-700 mb-4" style="font-size:.875rem">Ocupación general</h2>
+                            <p class="fw-semibold text-slate-800 mb-0" style="font-size:1.875rem">75%</p>
+                            <div class="progress-track-lg mt-3">
+                                <div class="progress-fill bg-emerald-500" style="width:75%"></div>
+                            </div>
+                            <p class="text-slate-400 mt-2 mb-0" style="font-size:.75rem">18 de 24 habitaciones ocupadas</p>
                         </div>
-                        <p class="text-xs text-slate-400 mt-2">18 de 24 habitaciones ocupadas</p>
                     </div>
                 </div>
 
@@ -585,18 +815,19 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         const toggleBtn = document.getElementById('sidebar-toggle');
 
         function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
+            sidebar.classList.add('sidebar-open');
+            overlay.classList.add('show');
         }
         function closeSidebar() {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
+            sidebar.classList.remove('sidebar-open');
+            overlay.classList.remove('show');
         }
         toggleBtn.addEventListener('click', openSidebar);
         overlay.addEventListener('click', closeSidebar);
