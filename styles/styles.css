@@ -1,0 +1,91 @@
+body {
+        font-family: 'Poppins', sans-serif;
+}
+
+/* Font sizes matching Tailwind's text-xs / text-sm scale */
+        .fs-xs { font-size: 0.75rem; }
+        .fs-sm { font-size: 0.875rem; }
+
+        /* Rounded-full buttons/badges/avatars */
+        .rounded-pill-btn { border-radius: 9999px; }
+
+        /* Object-fit cover for images (Bootstrap 5.2+ has object-fit-cover, kept as fallback) */
+        .object-fit-cover { object-fit: cover; }
+
+        /* Simple transitions for hover states */
+        .transition { transition: background-color .2s ease, color .2s ease, opacity .2s ease; }
+
+        /* Hero gradient overlay */
+        .hero-gradient {
+            background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.25) 55%, rgba(0,0,0,0) 100%);
+        }
+
+        .hero-section {
+            height: 280px;
+            overflow: hidden;
+}
+
+        .hero-img {
+            object-fit: cover;
+        }
+
+        .letter-spacing-wide { letter-spacing: 0.03em; }
+        .lh-tight-custom { line-height: 1.15; }
+        .lh-relaxed-custom { line-height: 1.7; }
+
+        .opacity-90 { opacity: .9; }
+        .opacity-90:hover { opacity: 1; }
+
+        .thumb-img {
+            height: 4rem;
+            object-fit: cover;
+        }
+
+        .main-image-wrap {
+            height: 300px;
+        }
+
+                .btn-nav-circle {
+            width: 2rem;
+            height: 2rem;
+            background-color: rgba(255,255,255,0.9);
+        }
+        .btn-nav-circle:hover { background-color: #fff; }
+
+        .logo-circle {
+            width: 2.75rem;
+            height: 2.75rem;
+        }
+
+        .icon-feature {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--slate-400);
+            flex-shrink: 0;
+        }
+
+        .whatsapp-fab {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        /* Custom 3-column layout for the room detail grid, matching the original
+           1fr / 1.3fr / 0.85fr proportions on large screens */
+        .room-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+                .thumbs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            row-gap: 1rem;
+            column-gap: 1.5rem;
+        }

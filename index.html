@@ -7,8 +7,11 @@
 
     <title>Hotel Moderno y Confortable</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,16 +19,10 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
+    <link rel="stylesheet" href="./styles/colors.css">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/responsive.css">
 
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
 </head>
 
 <body>
@@ -33,27 +30,29 @@
     <div>
 
         <!-- NAVBAR -->
-        <header class="flex items-center justify-between px-5 md:px-10 py-4 bg-slate-50/70">
+        <header class="d-flex align-items-center justify-content-between px-3 px-md-5 py-3 bg-slate-50-70">
 
-            <div class="flex items-center gap-8">
+            <div class="d-flex align-items-center gap-4">
 
                 <!-- Logo -->
                 <div
-                    class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px] font-semibold shrink-0"
+                    class="logo-circle rounded-circle bg-slate-800 text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="font-size: 10px; font-weight: 600;"
                 >
                     logo
                 </div>
 
                 <!-- Navegación -->
-                <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-500">
+                <nav class="d-none d-lg-flex align-items-center gap-4 fs-sm fw-medium text-slate-500">
 
                     <a
                         href="#"
-                        class="flex items-center gap-2 text-red-500 border-b-2 border-red-500 pb-1"
+                        class="d-flex align-items-center gap-2 text-red-500 text-decoration-none pb-1"
+                        style="border-bottom: 2px solid var(--red-500);"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
+                            width="16" height="16"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >
@@ -65,11 +64,11 @@
 
                     <a
                         href="#"
-                        class="flex items-center gap-2 hover:text-slate-700 transition"
+                        class="d-flex align-items-center gap-2 text-slate-500 text-decoration-none transition hover-text-slate-700"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
+                            width="16" height="16"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >
@@ -81,11 +80,11 @@
 
                     <a
                         href="#"
-                        class="flex items-center gap-2 hover:text-slate-700 transition"
+                        class="d-flex align-items-center gap-2 text-slate-500 text-decoration-none transition hover-text-slate-700"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
+                            width="16" height="16"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >
@@ -99,11 +98,11 @@
 
                     <a
                         href="#"
-                        class="flex items-center gap-2 hover:text-slate-700 transition"
+                        class="d-flex align-items-center gap-2 text-slate-500 text-decoration-none transition hover-text-slate-700"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
+                            width="16" height="16"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >
@@ -120,7 +119,7 @@
 
             <!-- Botón reservar -->
             <button
-                class="bg-red-500 hover:bg-red-600 transition text-white font-semibold text-sm px-6 py-3 rounded-full whitespace-nowrap"
+                class="bg-red-500 transition text-white fw-semibold fs-sm px-4 py-2 rounded-pill-btn border-0 text-nowrap"
             >
                 RESERVAR
             </button>
@@ -129,36 +128,39 @@
 
 
         <!-- HERO -->
-        <section class="relative h-[280px] md:h-[380px] overflow-hidden">
+        <section class="position-relative hero-section">
 
             <img
-                src="https://laguiadehoteles.com.ve/wp-content/uploads/posada-la-molinera.avif"
+                src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1"
                 alt="Fachada del hotel"
-                class="absolute inset-0 w-full h-full object-cover"
+                class="position-absolute top-0 start-0 w-100 h-100 hero-img"
             >
 
             <div
-                class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent"
+                class="position-absolute top-0 start-0 w-100 h-100 hero-gradient"
             ></div>
 
             <div
-                class="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 max-w-xl"
+                class="position-relative h-100 d-flex flex-column justify-content-center px-4 px-md-5"
+                style="max-width: 36rem; z-index: 2;"
             >
 
                 <p
-                    class="text-white/90 text-xs md:text-sm font-semibold tracking-wide mb-2"
+                    class="text-white letter-spacing-wide fw-semibold fs-xs mb-2"
+                    style="opacity: .9;"
                 >
                     TU ESCAPADA PERFECTA
                 </p>
 
                 <h1
-                    class="text-white text-3xl md:text-5xl font-bold leading-tight mb-4"
+                    class="text-white fw-bold lh-tight-custom mb-3"
+                    style="font-size: 2rem;"
                 >
                     Hotel Moderno<br>
                     y Confortable
                 </h1>
 
-                <p class="text-white/85 text-sm md:text-base max-w-md">
+                <p class="text-white mb-0" style="opacity: .85; max-width: 28rem;">
                     Disfruta de una experiencia única en un entorno natural,
                     con todas las comodidades que necesitas.
                 </p>
@@ -166,47 +168,49 @@
             </div>
 
             <!-- Indicadores -->
-            <div class="absolute bottom-4 left-6 md:left-12 flex gap-2 z-10">
-                <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                <span class="w-2 h-2 rounded-full bg-white/60"></span>
-                <span class="w-2 h-2 rounded-full bg-white/60"></span>
+            <div class="position-absolute bottom-0 start-0 mb-4 ms-4 ms-md-5 d-flex gap-2" style="z-index: 2;">
+                <span class="rounded-circle bg-red-500" style="width:8px;height:8px;"></span>
+                <span class="rounded-circle bg-white" style="width:8px;height:8px;opacity:.6;"></span>
+                <span class="rounded-circle bg-white" style="width:8px;height:8px;opacity:.6;"></span>
             </div>
 
         </section>
 
 
         <!-- ROOM DETAIL -->
-        <section class="px-4 md:px-10 py-8">
+        <section class="px-3 px-md-5 py-4">
 
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr_0.85fr] gap-6">
+            <div class="room-grid">
 
                 <!-- GALERÍA -->
                 <div>
 
                     <div
-                        class="relative rounded-2xl overflow-hidden h-[300px] md:h-[380px] bg-slate-200"
+                        class="position-relative rounded-4 overflow-hidden bg-slate-200 main-image-wrap"
                     >
 
                         <img
                             id="main-image"
-                            src="https://images.example.com/hotel/habitacion1-principal.jpg"
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4VoP9LLtK1H6EIR1sxNbrFmnmcRYSZHC1JdgvG6fr6nTZJT0TDwd96T1Y&s=10"
                             alt="Habitación 1"
-                            class="w-full h-full object-cover"
+                            class="w-100 h-100 object-fit-cover"
                         >
 
                         <span
-                            class="absolute top-3 left-3 bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded-md"
+                            class="position-absolute top-0 start-0 mt-3 ms-3 text-white fs-xs fw-medium px-2 py-1 rounded-2"
+                            style="background-color: rgba(0,0,0,0.6);"
                         >
                             1 / 5
                         </span>
 
                         <!-- Botón anterior -->
                         <button
-                            class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow"
+                            class="position-absolute top-50 start-0 translate-middle-y ms-2 btn-nav-circle rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-slate-700"
+                                width="16" height="16"
+                                class="text-slate-700"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -218,11 +222,12 @@
 
                         <!-- Botón siguiente -->
                         <button
-                            class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow"
+                            class="position-absolute top-50 end-0 translate-middle-y me-2 btn-nav-circle rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-slate-700"
+                                width="16" height="16"
+                                class="text-slate-700"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -236,30 +241,34 @@
 
 
                     <!-- Miniaturas -->
-                    <div class="grid grid-cols-4 gap-2 mt-2">
+                    <div class="thumbs-grid mt-2">
 
                         <img
-                            src="https://images.example.com/hotel/habitacion1-sala.jpg"
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4VoP9LLtK1H6EIR1sxNbrFmnmcRYSZHC1JdgvG6fr6nTZJT0TDwd96T1Y&s=10"
                             alt="Miniatura sala"
-                            class="h-16 md:h-20 w-full object-cover rounded-lg ring-2 ring-red-500 cursor-pointer"
+                            class="thumb-img w-100 rounded-3"
+                            style="border: 2px solid var(--red-500); cursor: pointer;"
                         >
 
                         <img
-                            src="https://images.example.com/hotel/habitacion1-bano.jpg"
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3KOS4X4Y4yzcD2Yz4kx8rtWYJfeuIuTq5kipD0SwMDzwhaLCov0JHT0Q&s=10"
                             alt="Miniatura baño"
-                            class="h-16 md:h-20 w-full object-cover rounded-lg opacity-90 hover:opacity-100 cursor-pointer"
+                            class="thumb-img w-100 rounded-3 opacity-90 transition"
+                            style="cursor: pointer;"
                         >
 
                         <img
-                            src="https://images.example.com/hotel/habitacion1-piscina.jpg"
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQj7AGHgisyuSPIwIUYk-ivllgUQlHVjs-JxJH4qA5wKBAu6idd_RGvHbw&s=10"
                             alt="Miniatura piscina"
-                            class="h-16 md:h-20 w-full object-cover rounded-lg opacity-90 hover:opacity-100 cursor-pointer"
+                            class="thumb-img w-100 rounded-3 opacity-90 transition"
+                            style="cursor: pointer;"
                         >
 
                         <img
-                            src="https://images.example.com/hotel/habitacion1-vista.jpg"
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjscLbHuJ6F99F1BSw41ahbDOL0zPyP87-FeHDiD6NgIBJJOOwTrLFgg&s=10"
                             alt="Miniatura vista"
-                            class="h-16 md:h-20 w-full object-cover rounded-lg opacity-90 hover:opacity-100 cursor-pointer"
+                            class="thumb-img w-100 rounded-3 opacity-90 transition"
+                            style="cursor: pointer;"
                         >
 
                     </div>
@@ -271,28 +280,28 @@
                 <div>
 
                     <span
-                        class="inline-block bg-red-50 text-red-500 text-xs font-semibold px-3 py-1.5 rounded-full mb-3"
+                        class="d-inline-block bg-red-50 text-red-500 fs-xs fw-semibold px-3 py-2 rounded-pill-btn mb-3"
                     >
                         Habitación 1
                     </span>
 
-                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
+                    <h2 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">
                         Habitación 1
                     </h2>
 
-                    <p class="text-slate-500 text-sm mb-5">
+                    <p class="text-slate-500 fs-sm mb-4">
                         Ideal para parejas o viajeros de negocios
                     </p>
 
 
                     <!-- Características -->
-                    <div class="grid grid-cols-2 gap-y-4 gap-x-6 mb-6">
+                    <div class="features-grid mb-4">
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -303,7 +312,7 @@
                                 />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 2 camas Dobles (1.40 Mts)<br>
                                 ó 2 Camas Semidobles (1.20 Mts)
                             </span>
@@ -311,11 +320,11 @@
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -325,18 +334,18 @@
                                 <path d="M8 21h8M12 17v4" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 TV por cable
                             </span>
 
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -345,18 +354,18 @@
                                 <path d="M12 3a4 4 0 100 8 4 4 0 000-8zM6 21v-2a6 6 0 016-6h0a6 6 0 016 6v2" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 Aire acondicionado
                             </span>
 
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -366,18 +375,18 @@
                                 <path d="M8 12h.01M12 12h.01M16 12h.01" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 Caja de seguridad
                             </span>
 
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -386,18 +395,18 @@
                                 <path d="M5 12a7 7 0 0114 0M2 12h2M20 12h2M12 2v2M12 19v3" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 Wi-Fi
                             </span>
 
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -407,18 +416,18 @@
                                 <path d="M7 21h8M11 16v5" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 Estación de trabajo
                             </span>
 
                         </div>
 
 
-                        <div class="flex items-start gap-3">
+                        <div class="d-flex align-items-start gap-3">
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 text-slate-400 mt-0.5 shrink-0"
+                                class="icon-feature mt-1"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -427,7 +436,7 @@
                                 <path d="M4 4h16l-7 8v6l-2 2v-8L4 4z" />
                             </svg>
 
-                            <span class="text-sm text-slate-600">
+                            <span class="fs-sm text-slate-600">
                                 Mini bar
                             </span>
 
@@ -437,11 +446,11 @@
 
 
                     <!-- Descripción -->
-                    <h3 class="text-sm font-semibold text-slate-800 mb-2">
+                    <h3 class="fs-sm fw-semibold text-slate-800 mb-2">
                         Descripción
                     </h3>
 
-                    <p class="text-sm text-slate-500 leading-relaxed mb-5">
+                    <p class="fs-sm text-slate-500 lh-relaxed-custom mb-4">
                         Amplia y cómoda habitación con un diseño moderno,
                         ideal para descansar y disfrutar de tu estancia.
                         Cuenta con todas las comodidades para que te sientas
@@ -450,22 +459,22 @@
 
 
                     <!-- Etiquetas -->
-                    <div class="flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2">
 
                         <span
-                            class="flex items-center gap-1.5 bg-red-50 text-red-500 text-xs font-medium px-3 py-1.5 rounded-full"
+                            class="d-flex align-items-center gap-2 bg-red-50 text-red-500 fs-xs fw-medium px-3 py-2 rounded-pill-btn"
                         >
                             Hasta 4 personas
                         </span>
 
                         <span
-                            class="flex items-center gap-1.5 bg-red-50 text-red-500 text-xs font-medium px-3 py-1.5 rounded-full"
+                            class="d-flex align-items-center gap-2 bg-red-50 text-red-500 fs-xs fw-medium px-3 py-2 rounded-pill-btn"
                         >
                             30 m²
                         </span>
 
                         <span
-                            class="flex items-center gap-1.5 bg-red-50 text-red-500 text-xs font-medium px-3 py-1.5 rounded-full"
+                            class="d-flex align-items-center gap-2 bg-red-50 text-red-500 fs-xs fw-medium px-3 py-2 rounded-pill-btn"
                         >
                             No fumadores
                         </span>
@@ -477,30 +486,31 @@
 
                 <!-- TARJETA DE RESERVA -->
                 <div
-                    class="bg-slate-50 rounded-2xl p-5 md:p-6 h-fit border border-slate-100"
+                    class="bg-slate-50 rounded-4 p-4 p-md-4 border border-slate-100"
+                    style="height: fit-content;"
                 >
 
-                    <p class="text-sm text-slate-500 mb-1">
+                    <p class="fs-sm text-slate-500 mb-1">
                         Desde
                     </p>
 
-                    <p class="text-3xl font-bold text-slate-800">
+                    <p class="fw-bold text-slate-800 mb-0" style="font-size: 1.75rem;">
                         $120.000
                     </p>
 
-                    <p class="text-sm text-slate-500 mb-5">
+                    <p class="fs-sm text-slate-500 mb-4">
                         por noche
                     </p>
 
 
                     <button
-                        class="w-full bg-red-500 hover:bg-red-600 transition text-white font-semibold text-sm py-3.5 rounded-full flex items-center justify-center gap-2 mb-5"
+                        class="w-100 bg-red-500 transition text-white fw-semibold fs-sm py-3 rounded-pill-btn border-0 d-flex align-items-center justify-content-center gap-2 mb-4"
                     >
                         Reservar ahora
 
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
+                            width="16" height="16"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -514,15 +524,17 @@
 
                     <!-- Cancelación -->
                     <div
-                        class="flex items-start gap-3 pb-5 mb-5 border-b border-slate-200"
+                        class="d-flex align-items-start gap-3 pb-4 mb-4 border-bottom border-slate-200"
                     >
 
                         <div
-                            class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0"
+                            class="rounded-circle bg-emerald-100 d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 2rem; height: 2rem;"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-emerald-600"
+                                width="16" height="16"
+                                class="text-emerald-600"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
                             >
@@ -533,11 +545,11 @@
                         </div>
 
                         <div>
-                            <p class="text-sm font-semibold text-slate-800">
+                            <p class="fs-sm fw-semibold text-slate-800 mb-0">
                                 Cancelación gratuita
                             </p>
 
-                            <p class="text-xs text-slate-500">
+                            <p class="fs-xs text-slate-500 mb-0">
                                 Hasta 24h antes de la llegada
                             </p>
                         </div>
@@ -546,12 +558,13 @@
 
 
                     <!-- Información -->
-                    <div class="space-y-3.5 text-sm">
+                    <div class="d-flex flex-column gap-3 fs-sm">
 
-                        <div class="flex items-center gap-3 text-slate-600">
+                        <div class="d-flex align-items-center gap-3 text-slate-600">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-slate-400 shrink-0"
+                                width="16" height="16"
+                                class="text-slate-400 flex-shrink-0"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -565,10 +578,11 @@
                         </div>
 
 
-                        <div class="flex items-center gap-3 text-slate-600">
+                        <div class="d-flex align-items-center gap-3 text-slate-600">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-slate-400 shrink-0"
+                                width="16" height="16"
+                                class="text-slate-400 flex-shrink-0"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -582,10 +596,11 @@
                         </div>
 
 
-                        <div class="flex items-center gap-3 text-slate-600">
+                        <div class="d-flex align-items-center gap-3 text-slate-600">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="w-4 h-4 text-slate-400 shrink-0"
+                                width="16" height="16"
+                                class="text-slate-400 flex-shrink-0"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -612,11 +627,13 @@
     <!-- Botón flotante de WhatsApp -->
     <a
         href="#"
-        class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-500 hover:bg-emerald-600 transition rounded-full flex items-center justify-center shadow-lg z-50"
+        class="position-fixed bottom-0 end-0 mb-4 me-4 whatsapp-fab bg-emerald-500 transition rounded-circle d-flex align-items-center justify-content-center shadow-lg text-decoration-none"
+        style="z-index: 1050;"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-7 h-7 text-white"
+            width="28" height="28"
+            class="text-white"
             viewBox="0 0 24 24"
             fill="currentColor"
         >
@@ -625,6 +642,9 @@
             />
         </svg>
     </a>
+
+    <!-- Bootstrap JS (opcional, por si se agregan componentes interactivos más adelante) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
