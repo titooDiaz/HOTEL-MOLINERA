@@ -1,0 +1,10 @@
+.room-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--red-50);
+  color: var(--red-500);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+}

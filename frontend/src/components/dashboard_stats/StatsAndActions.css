@@ -1,0 +1,62 @@
+.icon-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .75rem;
+}
+
+.icon-badge-blue { background: var(--blue-50); color: var(--blue-500); }
+.icon-badge-emerald { background: var(--emerald-50); color: var(--emerald-500); }
+.icon-badge-violet { background: var(--violet-50); color: var(--violet-500); }
+.icon-badge-rose { background: var(--rose-50); color: var(--rose-500); }
+
+.progress-track {
+  height: .375rem;
+  background: var(--slate-100);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.bg-blue-400 { background-color: var(--blue-400); }
+
+.stat-trend {
+  font-size: .75rem;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.quick-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  color: #fff;
+  font-size: .875rem;
+  font-weight: 500;
+  border-radius: .75rem;
+  padding: .625rem 1rem;
+  border: 0;
+  transition: background-color .15s ease-in-out;
+}
+
+.quick-action-btn--rose { background: var(--rose-500); }
+.quick-action-btn--rose:hover { background: var(--rose-600); }
+.quick-action-btn--blue { background: var(--blue-500); }
+.quick-action-btn--blue:hover { background: var(--blue-600); }
+.quick-action-btn--emerald { background: var(--emerald-500); }
+.quick-action-btn--emerald:hover { background: var(--emerald-600); }
+.quick-action-btn--violet { background: var(--violet-500); }
+.quick-action-btn--violet:hover { background: var(--violet-600); }
+
+.dashboard-stat-label,
+.dashboard-stat-footer {
+  font-size: .875rem;
+}
+
+.dashboard-stat-value { font-size: 1.5rem; }
+.dashboard-stat-footer { font-size: .75rem; }

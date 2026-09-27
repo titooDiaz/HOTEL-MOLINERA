@@ -1,0 +1,32 @@
+.navbar-custom {
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.logo-circle {
+  width: 42px;
+  height: 42px;
+  background: var(--slate-800);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.nav-link-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--slate-500);
+  font-size: 14px;
+  font-weight: 500;
+  padding-bottom: 4px;
+  transition: .2s;
+}
+
+.nav-link-custom:hover {
+  color: var(--slate-800);
+}
+
+.nav-link-custom.active {
+  color: var(--red-500);
+  border-bottom: 2px solid var(--red-500);
+}

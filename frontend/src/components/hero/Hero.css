@@ -1,0 +1,54 @@
+.hero-section {
+  height: 390px;
+  overflow: hidden;
+}
+
+.hero-img {
+  object-fit: cover;
+}
+
+.hero-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, .72) 0%,
+    rgba(15, 23, 42, .42) 45%,
+    rgba(15, 23, 42, .05) 100%
+  );
+}
+
+.hero-content {
+  max-width: 36rem;
+  z-index: 2;
+}
+
+.letter-spacing-wide {
+  letter-spacing: 2px;
+}
+
+.hero-title {
+  font-size: 2rem;
+}
+
+.hero-description {
+  opacity: .85;
+  max-width: 28rem;
+}
+
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  opacity: .6;
+}
+
+.hero-dot.active {
+  background: var(--red-500);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    height: 350px;
+  }
+}

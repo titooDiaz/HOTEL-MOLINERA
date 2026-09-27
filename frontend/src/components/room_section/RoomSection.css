@@ -1,0 +1,17 @@
+.room-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .9fr) minmax(240px, .55fr);
+  gap: 28px;
+}
+
+@media (max-width: 1100px) {
+  .room-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-grid {
+    grid-template-columns: 1fr;
+  }
+}

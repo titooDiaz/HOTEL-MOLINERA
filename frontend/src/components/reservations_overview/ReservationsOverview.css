@@ -1,0 +1,59 @@
+.table-scroll { overflow-x: auto; margin: 0 -1rem; }
+
+@media (min-width: 576px) {
+  .table-scroll { margin: 0 -1.25rem; }
+}
+
+.tw-table {
+  width: 100%;
+  font-size: .875rem;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.tw-table thead tr {
+  text-align: left;
+  color: var(--slate-400);
+  font-size: .75rem;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.tw-table th { font-weight: 500; padding: .5rem .75rem; }
+.tw-table th:first-child,
+.tw-table td:first-child { padding-left: 1rem; }
+.tw-table th:last-child,
+.tw-table td:last-child { padding-right: 1rem; text-align: right; }
+
+@media (min-width: 576px) {
+  .tw-table th:first-child,
+  .tw-table td:first-child { padding-left: 1.25rem; }
+  .tw-table th:last-child,
+  .tw-table td:last-child { padding-right: 1.25rem; }
+}
+
+.tw-table td { padding: .75rem; border-bottom: 1px solid var(--slate-100); }
+.tw-table tbody tr:last-child td { border-bottom: 0; }
+
+.badge-pill {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 500;
+  padding: .25rem .625rem;
+  border-radius: 9999px;
+}
+
+.badge-pill-emerald { background: var(--emerald-50); color: var(--emerald-600); }
+.badge-pill-amber { background: var(--amber-50); color: var(--amber-600); }
+.badge-pill-orange { background: var(--orange-50); color: var(--orange-600); }
+
+.progress-track-lg {
+  height: .5rem;
+  background: var(--slate-100);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.reservations-panel { overflow: hidden; }
+.reservations-view-all { font-size: .75rem; }
+.reservations-occupancy-value { font-size: 1.875rem; }
+.reservations-occupancy-caption { font-size: .75rem; }
