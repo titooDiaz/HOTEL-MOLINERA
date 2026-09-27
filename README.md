@@ -1,5 +1,7 @@
 # HOTEL-MOLINERA
 
+npm install dotenv
+npm install cors
 
 cd frontend
 npm install

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
@@ -40,6 +40,18 @@ function Icon({ children, className = "", size = 24 }) {
 
 function App() {
   const [currentImage, setCurrentImage] = useState(0);
+  
+  // 1. Nuevo estado para guardar los datos del backend
+  const [hotelData, setHotelData] = useState(null);
+
+  // 2. useEffect para hacer la petición al backend cuando el componente cargue
+  useEffect(() => {
+    // Usamos la ruta relativa. Asegúrate de tener el proxy configurado en vite.config.js
+    fetch('/api/hotel') 
+      .then(response => response.json())
+      .then(data => setHotelData(data))
+      .catch(error => console.error("Error al conectar con el backend:", error));
+  }, []);
 
   const previousImage = () => {
     setCurrentImage((current) =>
@@ -56,8 +68,9 @@ function App() {
       {/* NAVBAR */}
       <header className="d-flex align-items-center justify-content-between px-3 px-md-5 py-3 navbar-custom">
         <div className="d-flex align-items-center gap-4">
-          <div className="logo-circle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
-            logo
+          <div className="logo-circle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-center fw-bold text-white small">
+            {/* 3. Mostrar las iniciales o nombre corto si ya cargó */}
+            {hotelData ? "HM" : "logo"}
           </div>
 
           <nav className="d-none d-lg-flex align-items-center gap-4 nav-links">
@@ -125,7 +138,8 @@ function App() {
           </p>
 
           <h1 className="text-white fw-bold lh-1 mb-3 hero-title">
-            Hotel Moderno
+            {/* 4. Usar los datos del backend para el título principal */}
+            {hotelData ? hotelData.name : "Cargando..."}
             <br />y Confortable
           </h1>
 

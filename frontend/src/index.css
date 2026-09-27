@@ -293,3 +293,49 @@ a {
     height: 280px;
   }
 }
+
+/* =========================================================
+    Paleta de colores (tomada del theme.extend.colors original
+    + la paleta estándar de Tailwind para blue/emerald/violet/
+    orange/amber/rose/slate, que Bootstrap no trae por defecto)
+    ========================================================= */
+:root {
+    --navy-900: #12172b;
+    --navy-800: #171d35;
+    --navy-700: #1c2340;
+
+    --rose-50: #fff1f2;
+    --rose-200: #fecdd3;
+    --rose-500: #f43f5e;
+    --rose-600: #e11d48;
+
+    --blue-50: #eff6ff;
+    --blue-400: #60a5fa;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+
+    --emerald-50: #ecfdf5;
+    --emerald-500: #10b981;
+    --emerald-600: #059669;
+
+    --violet-50: #f5f3ff;
+    --violet-500: #8b5cf6;
+    --violet-600: #7c3aed;
+
+    --orange-50: #fff7ed;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+
+    --amber-50: #fffbeb;
+    --amber-600: #d97706;
+
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+}
