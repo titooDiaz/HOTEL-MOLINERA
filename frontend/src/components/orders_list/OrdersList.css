@@ -1,0 +1,55 @@
+.orders-card {
+  border: 1px solid var(--hotel-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.orders-filter {
+  width: auto;
+  border-radius: 50px;
+}
+
+.order-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.order-item:hover {
+  background-color: #fafafa;
+}
+
+.order-image {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.order-paid {
+  background-color: #e7f7ee;
+  color: #1d9a5d;
+  font-weight: 500;
+}
+
+.order-pending {
+  background-color: #fef3d6;
+  color: #b7791f;
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .order-item {
+    align-items: flex-start !important;
+  }
+
+  .order-price,
+  .order-chevron {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .orders-filter {
+    max-width: 150px;
+  }
+}

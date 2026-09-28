@@ -1,0 +1,35 @@
+:root {
+  --hotel-red: #c0392b;
+  --hotel-dark: #1f2430;
+  --hotel-bg: #f5f6fa;
+  --hotel-border: #e9ecef;
+}
+
+/* GENERAL */
+
+body {
+  margin: 0;
+  background-color: var(--hotel-bg);
+  color: var(--hotel-dark);
+  font-family: Arial, sans-serif;
+}
+
+.hotel-layout {
+  background-color: var(--hotel-bg);
+}
+
+
+/* CONTENIDO */
+
+.main-content {
+  min-width: 0;
+}
+
+
+@media (max-width: 767px) {
+
+  .container-fluid {
+    padding: 16px !important;
+  }
+
+}

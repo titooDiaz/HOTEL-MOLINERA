@@ -1,0 +1,4 @@
+.reception-help {
+  border: 1px solid var(--hotel-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}

@@ -1,0 +1,16 @@
+.order-stat-card {
+  border: 1px solid var(--hotel-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.order-stat-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.order-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--hotel-dark);
+}

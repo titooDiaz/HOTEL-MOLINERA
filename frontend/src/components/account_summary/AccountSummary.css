@@ -1,0 +1,50 @@
+.account-summary {
+  border: 1px solid var(--hotel-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.account-total {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.account-total-payment {
+  padding: 14px;
+  border-radius: 10px;
+  background-color: #fbe9e7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--hotel-red);
+  font-weight: 600;
+}
+
+.account-total-payment span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-total-payment strong {
+  color: var(--hotel-red);
+}
+
+.account-button {
+  background-color: var(--hotel-red);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.account-button:hover {
+  background-color: #a93226;
+  color: white;
+}

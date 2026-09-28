@@ -1,0 +1,38 @@
+.guest-sidebar {
+  width: 260px;
+  min-width: 260px;
+}
+
+.guest-brand {
+  min-height: 90px;
+}
+
+.guest-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #7a1f2b;
+  color: white;
+  font-weight: bold;
+}
+
+.guest-nav-item {
+  padding: 10px 14px;
+  border-radius: 10px !important;
+  color: #6c757d;
+  border: none;
+}
+
+.guest-nav-item:hover {
+  background-color: #f8f9fa;
+  color: var(--hotel-red);
+}
+
+.guest-nav-active {
+  background-color: var(--hotel-red) !important;
+  color: white !important;
+  font-weight: 600;
+}
