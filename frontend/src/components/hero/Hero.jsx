@@ -15,7 +15,7 @@ export default function Hero({ hotelName }) {
           TU ESCAPADA PERFECTA
         </p>
         <h1 className="text-white fw-bold lh-1 mb-3 hero-title">
-          {hotelName || "Cargando..."}
+          {hotelName || "Hotel Moderno"}
           <br />y Confortable
         </h1>
         <p className="text-white mb-0 hero-description">

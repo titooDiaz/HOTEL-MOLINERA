@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./dashboard.css";
+import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import DashboardTopbar from "../../components/dashboard_topbar/DashboardTopbar.jsx";
