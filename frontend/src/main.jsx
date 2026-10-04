@@ -6,7 +6,7 @@ import './index.css'
 // Vistas de usuarios logueados
 import RoomRequests from './pages/users/RoomRequests.jsx'
 import HotelDashboard from './pages/admin/HotelDashboard.jsx'
-
+import MyRoom  from './pages/users/MyRoom.jsx';
 // Vistas de usuarios no logueados
 import App from './App.jsx'
 import Contacto from "./pages/main/Contacto.jsx";
@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<MyRoom />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/planes" element={<Planes />} />
         <Route path="/restaurante" element={<Restaurante />} />
