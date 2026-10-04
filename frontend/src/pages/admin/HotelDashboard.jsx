@@ -244,6 +244,55 @@ const RESERVATIONS = [
   { id: "#1038", client: "Valentina Díaz", room: "Individual (210)", checkin: "06/06/2025", checkout: "08/06/2025", status: "Check-in", statusClass: "badge-pill-orange" },
 ];
 
+const DASHBOARD_COPY = {
+  sidebar: {
+    brand: {
+      logoLabel: "logo",
+      name: "Hotel Moderno",
+      subtitle: "Panel de Administración",
+    },
+    logoutLabel: "Cerrar sesión",
+  },
+  topbar: {
+    menuLabel: "Abrir menú",
+    searchPlaceholder: "Buscar reservas, clientes, habitaciones...",
+    searchLabel: "Buscar reservas, clientes o habitaciones",
+    notificationsLabel: "Notificaciones",
+    adminName: "Admin",
+    adminRole: "Administrador",
+  },
+  quickActionsTitle: "Acciones rápidas",
+  analytics: {
+    occupancyTitle: "Ocupación de habitaciones",
+    defaultPeriod: "7",
+    periodLabel: "Período del gráfico",
+    periodOptions: [
+      { value: "7", label: "Últimos 7 días" },
+      { value: "30", label: "Últimos 30 días" },
+    ],
+    occupancyAxisLabels: ["100%", "75%", "50%", "25%", "0%"],
+    timelineLabels: ["3 Jun", "4 Jun", "5 Jun", "6 Jun", "7 Jun", "8 Jun", "9 Jun"],
+    roomTypesTitle: "Tipo de habitaciones",
+    roomCount: 24,
+    roomCountCaption: "total",
+    recentActivityTitle: "Actividad reciente",
+  },
+  reservations: {
+    title: "Reservas recientes",
+    viewAll: "Ver todas",
+    columns: {
+      reservation: "# Reserva",
+      client: "Cliente",
+      room: "Habitación",
+      checkIn: "Check-in",
+      checkOut: "Check-out",
+      status: "Estado",
+      actions: "Acciones",
+    },
+    occupancyTitle: "Ocupación general",
+  },
+};
+
 const Icon = DashboardIcon;
 
 export default function HotelDashboard() {
@@ -258,11 +307,16 @@ export default function HotelDashboard() {
         items={NAV_ITEMS}
         sidebarOpen={sidebarOpen}
         onClose={closeSidebar}
+        brand={DASHBOARD_COPY.sidebar.brand}
+        logoutLabel={DASHBOARD_COPY.sidebar.logoutLabel}
       />
 
       {/* Contenido principal */}
       <div className="flex-grow-1 min-w-0 d-flex flex-column">
-        <DashboardTopbar onOpenSidebar={openSidebar} />
+        <DashboardTopbar
+          onOpenSidebar={openSidebar}
+          labels={DASHBOARD_COPY.topbar}
+        />
 
         {/* Body */}
         <main className="flex-grow-1 dashboard-main">
@@ -294,10 +348,22 @@ export default function HotelDashboard() {
             </div>
           </div>
 
-          <StatsAndActions statCards={STAT_CARDS} quickActions={QUICK_ACTIONS} />
+          <StatsAndActions
+            statCards={STAT_CARDS}
+            quickActions={QUICK_ACTIONS}
+            quickActionsTitle={DASHBOARD_COPY.quickActionsTitle}
+          />
 
-          <DashboardAnalytics roomTypes={ROOM_TYPES} recentActivity={RECENT_ACTIVITY} />
-          <ReservationsOverview reservations={RESERVATIONS} />
+          <DashboardAnalytics
+            roomTypes={ROOM_TYPES}
+            recentActivity={RECENT_ACTIVITY}
+            labels={DASHBOARD_COPY.analytics}
+          />
+          <ReservationsOverview
+            reservations={RESERVATIONS}
+            labels={DASHBOARD_COPY.reservations}
+            occupancy={{ percent: 75, caption: "18 de 24 habitaciones ocupadas" }}
+          />
         </main>
       </div>
     </div>

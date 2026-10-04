@@ -1,7 +1,7 @@
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./DashboardTopbar.css";
 
-export default function DashboardTopbar({ onOpenSidebar }) {
+export default function DashboardTopbar({ onOpenSidebar, labels }) {
   return (
     <header className="topbar position-sticky top-0 z-20">
       <div className="d-flex align-items-center topbar-inner">
@@ -9,7 +9,7 @@ export default function DashboardTopbar({ onOpenSidebar }) {
           type="button"
           className="d-lg-none icon-btn"
           onClick={onOpenSidebar}
-          aria-label="Abrir menú"
+          aria-label={labels.menuLabel}
         >
           <DashboardIcon width={22} height={22}>
             <line x1="3" y1="12" x2="21" y2="12" />
@@ -25,16 +25,16 @@ export default function DashboardTopbar({ onOpenSidebar }) {
           </DashboardIcon>
           <input
             type="text"
-            placeholder="Buscar reservas, clientes, habitaciones..."
+            placeholder={labels.searchPlaceholder}
             className="search-input"
-            aria-label="Buscar reservas, clientes o habitaciones"
+            aria-label={labels.searchLabel}
           />
         </div>
 
         <div className="flex-grow-1 d-sm-none" />
 
         <div className="d-flex align-items-center gap-3 ms-auto">
-          <button type="button" className="notif-btn" aria-label="Notificaciones">
+          <button type="button" className="notif-btn" aria-label={labels.notificationsLabel}>
             <DashboardIcon width={20} height={20}>
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -50,10 +50,10 @@ export default function DashboardTopbar({ onOpenSidebar }) {
             </div>
             <div className="d-none d-md-block">
               <p className="mb-0 fw-medium text-slate-700 dashboard-admin-name">
-                Admin
+                {labels.adminName}
               </p>
               <p className="mb-0 text-slate-400 dashboard-admin-role">
-                Administrador
+                {labels.adminRole}
               </p>
             </div>
             <span className="d-none d-md-block">

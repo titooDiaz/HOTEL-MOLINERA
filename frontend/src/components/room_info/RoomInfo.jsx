@@ -2,7 +2,7 @@ import Feature from "../feature/Feature.jsx";
 import Tag from "../tag/Tag.jsx";
 import "./RoomInfo.css";
 
-export default function RoomInfo({ room }) {
+export default function RoomInfo({ room, descriptionLabel }) {
   return (
     <div>
       <span className="room-badge">{room.name}</span>
@@ -15,7 +15,7 @@ export default function RoomInfo({ room }) {
         ))}
       </div>
 
-      <h3 className="small fw-semibold text-dark mb-2">Descripción</h3>
+      <h3 className="small fw-semibold text-dark mb-2">{descriptionLabel}</h3>
       <p className="small text-secondary lh-lg mb-4">{room.description}</p>
 
       <div className="d-flex flex-wrap gap-2">

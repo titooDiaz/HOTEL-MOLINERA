@@ -2,7 +2,7 @@ import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
 import "./RoomGallery.css";
 
-export default function RoomGallery({ images }) {
+export default function RoomGallery({ images, labels }) {
   const [currentImage, setCurrentImage] = useState(0);
 
   const showPreviousImage = () => {
@@ -28,7 +28,7 @@ export default function RoomGallery({ images }) {
           type="button"
           onClick={showPreviousImage}
           className="position-absolute top-50 start-0 translate-middle-y ms-2 btn-nav-circle"
-          aria-label="Imagen anterior"
+          aria-label={labels.previousImage}
         >
           <Icon size={16}><path d="M15 18l-6-6 6-6" /></Icon>
         </button>
@@ -36,7 +36,7 @@ export default function RoomGallery({ images }) {
           type="button"
           onClick={showNextImage}
           className="position-absolute top-50 end-0 translate-middle-y me-2 btn-nav-circle"
-          aria-label="Imagen siguiente"
+          aria-label={labels.nextImage}
         >
           <Icon size={16}><path d="M9 18l6-6-6-6" /></Icon>
         </button>
@@ -49,7 +49,7 @@ export default function RoomGallery({ images }) {
             type="button"
             onClick={() => setCurrentImage(index)}
             className={`thumb-button ${currentImage === index ? "selected" : ""}`}
-            aria-label={`Ver imagen: ${image.alt}`}
+            aria-label={`${labels.viewImage}: ${image.alt}`}
             aria-pressed={currentImage === index}
           >
             <img src={image.src} alt="" className="thumb-img w-100 rounded-3" />

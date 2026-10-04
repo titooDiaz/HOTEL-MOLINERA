@@ -7,17 +7,18 @@ export default function AccountSummary({
     totalPagado,
     totalPendiente,
     formatCurrency,
+    labels,
     }) {
     return (
         <section className="account-summary bg-white rounded-4 p-4 mb-4">
-        <h6 className="fw-semibold mb-3">Resumen de tu cuenta</h6>
-        <div className="text-secondary small">Total consumos</div>
+        <h6 className="fw-semibold mb-3">{labels.title}</h6>
+        <div className="text-secondary small">{labels.totalLabel}</div>
         <div className="account-total">{formatCurrency(totalConsumos)}</div>
 
         <div className="account-row border-top">
             <InfoRow>
             <CheckCircle2 size={16} className="text-success" />
-            <span className="text-secondary small">Pagados</span>
+            <span className="text-secondary small">{labels.paidLabel}</span>
             </InfoRow>
             <strong>{formatCurrency(totalPagado)}</strong>
         </div>
@@ -25,7 +26,7 @@ export default function AccountSummary({
         <div className="account-row border-top">
             <InfoRow>
             <Clock size={16} className="text-warning" />
-            <span className="text-secondary small">Pendientes</span>
+            <span className="text-secondary small">{labels.pendingLabel}</span>
             </InfoRow>
             <strong>{formatCurrency(totalPendiente)}</strong>
         </div>
@@ -33,13 +34,13 @@ export default function AccountSummary({
         <div className="account-total-payment mt-3">
             <span>
             <Wallet size={18} />
-            Total a pagar
+            {labels.totalToPayLabel}
             </span>
             <strong>{formatCurrency(totalPendiente)}</strong>
         </div>
 
         <button type="button" className="btn account-button w-100 mt-3">
-            Ver detalle completo →
+            {labels.detailsButtonLabel}
         </button>
         </section>
     );

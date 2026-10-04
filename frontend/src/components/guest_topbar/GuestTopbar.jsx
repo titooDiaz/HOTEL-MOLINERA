@@ -1,13 +1,13 @@
 import { Bell, ChevronDown, User } from "lucide-react";
 import "./GuestTopbar.css";
 
-export default function GuestTopbar({ guest }) {
+export default function GuestTopbar({ guest, notificationLabel }) {
   return (
     <header className="guest-topbar bg-white border-bottom d-flex align-items-center justify-content-end gap-3 px-4 py-3">
       <button
         type="button"
         className="guest-notification-btn btn btn-light rounded-circle position-relative"
-        aria-label="Notificaciones"
+        aria-label={notificationLabel}
       >
         <Bell size={18} />
         <span className="guest-notification-dot" />

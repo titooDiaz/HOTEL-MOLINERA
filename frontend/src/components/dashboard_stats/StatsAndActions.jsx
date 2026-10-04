@@ -1,7 +1,7 @@
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./StatsAndActions.css";
 
-export default function StatsAndActions({ statCards, quickActions }) {
+export default function StatsAndActions({ statCards, quickActions, quickActionsTitle }) {
   return (
     <div className="row g-3 mb-4">
       <div className="col-12 col-xl-9">
@@ -51,7 +51,7 @@ export default function StatsAndActions({ statCards, quickActions }) {
       <div className="col-12 col-xl-3">
         <div className="card-panel h-100 d-flex flex-column">
           <h2 className="fw-semibold text-slate-700 mb-3 dashboard-section-title">
-            Acciones rápidas
+            {quickActionsTitle}
           </h2>
           <div className="d-flex flex-column gap-2">
             {quickActions.map((action) => (

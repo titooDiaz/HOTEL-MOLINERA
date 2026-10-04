@@ -1,37 +1,20 @@
-import {
-  BedDouble,
-  FileText,
-  Home,
-  LogOut,
-  Settings,
-  User,
-  Utensils,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import "./GuestSidebar.css";
 
-const NAV_ITEMS = [
-  { label: "Inicio", icon: Home },
-  { label: "Mi habitación", icon: BedDouble },
-  { label: "Alimentos y bebidas", icon: Utensils },
-  { label: "Mis consumos", icon: FileText },
-  { label: "Mi cuenta", icon: User },
-  { label: "Configuración", icon: Settings },
-];
-
-export default function GuestSidebar() {
+export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) {
   return (
     <aside className="guest-sidebar d-none d-lg-flex flex-column bg-white border-end">
       <div className="guest-brand d-flex align-items-center gap-2 px-4 py-4">
-        <div className="guest-logo">HM</div>
+        <div className="guest-logo">{brand.initials}</div>
         <div>
-          <div className="fw-semibold">Hotel Moderno</div>
-          <div className="text-secondary small">Tu estadía, nuestra prioridad</div>
+          <div className="fw-semibold">{brand.name}</div>
+          <div className="text-secondary small">{brand.tagline}</div>
         </div>
       </div>
 
       <nav className="flex-grow-1 px-3">
-        {NAV_ITEMS.map(({ label, icon: Icon }) => {
-          const active = label === "Alimentos y bebidas";
+        {items.map(({ label, icon: Icon }) => {
+          const active = label === activeItem;
 
           return (
             <button
@@ -54,7 +37,7 @@ export default function GuestSidebar() {
           className="guest-nav-item btn w-100 d-flex align-items-center gap-2 text-secondary"
         >
           <LogOut size={18} />
-          Cerrar sesión
+          {logoutLabel}
         </button>
       </div>
     </aside>

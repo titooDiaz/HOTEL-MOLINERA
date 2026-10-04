@@ -1,29 +1,29 @@
 import "./ReservationsOverview.css";
 
-export default function ReservationsOverview({ reservations }) {
+export default function ReservationsOverview({ reservations, labels, occupancy }) {
   return (
     <div className="row g-3">
       <div className="col-12 col-xl-9">
         <div className="card-panel h-100 reservations-panel">
           <div className="d-flex align-items-center justify-content-between mb-4">
             <h2 className="fw-semibold text-slate-700 mb-0 dashboard-section-title">
-              Reservas recientes
+              {labels.title}
             </h2>
             <a href="#" className="text-rose-500 fw-medium text-decoration-none reservations-view-all">
-              Ver todas
+              {labels.viewAll}
             </a>
           </div>
           <div className="table-scroll">
             <table className="tw-table">
               <thead>
                 <tr>
-                  <th># Reserva</th>
-                  <th>Cliente</th>
-                  <th>Habitación</th>
-                  <th>Check-in</th>
-                  <th>Check-out</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+                  <th>{labels.columns.reservation}</th>
+                  <th>{labels.columns.client}</th>
+                  <th>{labels.columns.room}</th>
+                  <th>{labels.columns.checkIn}</th>
+                  <th>{labels.columns.checkOut}</th>
+                  <th>{labels.columns.status}</th>
+                  <th>{labels.columns.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -51,16 +51,16 @@ export default function ReservationsOverview({ reservations }) {
       <div className="col-12 col-xl-3">
         <div className="card-panel h-100">
           <h2 className="fw-semibold text-slate-700 mb-4 dashboard-section-title">
-            Ocupación general
+            {labels.occupancyTitle}
           </h2>
           <p className="fw-semibold text-slate-800 mb-0 reservations-occupancy-value">
-            75%
+            {occupancy.percent}%
           </p>
           <div className="progress-track-lg mt-3">
-            <div className="progress-fill bg-emerald-500" style={{ width: "75%" }} />
+            <div className="progress-fill bg-emerald-500" style={{ width: `${occupancy.percent}%` }} />
           </div>
           <p className="text-slate-400 mt-2 mb-0 reservations-occupancy-caption">
-            18 de 24 habitaciones ocupadas
+            {occupancy.caption}
           </p>
         </div>
       </div>

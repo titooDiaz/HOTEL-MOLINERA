@@ -1,11 +1,11 @@
 import "./WhatsAppButton.css";
 
-export default function WhatsAppButton() {
+export default function WhatsAppButton({ ariaLabel }) {
   return (
     <a
       href="https://wa.me/"
       className="whatsapp-fab"
-      aria-label="Contactar por WhatsApp"
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

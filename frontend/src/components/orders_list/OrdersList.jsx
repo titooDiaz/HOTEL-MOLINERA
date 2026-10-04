@@ -1,30 +1,30 @@
 import { CalendarDays, ChevronRight } from "lucide-react";
 import "./OrdersList.css";
 
-function OrderStatus({ status }) {
+function OrderStatus({ status, labels }) {
   const paid = status === "pagado";
 
   return (
     <span className={`badge rounded-pill px-3 py-2 ${paid ? "order-paid" : "order-pending"}`}>
-      {paid ? "Pagado" : "Pendiente"}
+      {paid ? labels.paidStatus : labels.pendingStatus}
     </span>
   );
 }
 
-export default function OrdersList({ orders, filter, onFilterChange, formatCurrency }) {
+export default function OrdersList({ orders, filter, onFilterChange, formatCurrency, labels }) {
   return (
     <section className="orders-card bg-white rounded-4">
       <div className="p-4 d-flex align-items-center justify-content-between">
-        <h5 className="fw-semibold mb-0">Detalle de tus pedidos</h5>
+        <h5 className="fw-semibold mb-0">{labels.title}</h5>
         <select
           className="form-select form-select-sm orders-filter"
           value={filter}
           onChange={(event) => onFilterChange(event.target.value)}
-          aria-label="Filtrar pedidos por estado"
+          aria-label={labels.filterAriaLabel}
         >
-          <option value="todos">Todos los pedidos</option>
-          <option value="pagado">Pagados</option>
-          <option value="pendiente">Pendientes</option>
+          <option value="todos">{labels.allOrders}</option>
+          <option value="pagado">{labels.paidOrders}</option>
+          <option value="pendiente">{labels.pendingOrders}</option>
         </select>
       </div>
 
@@ -45,7 +45,7 @@ export default function OrdersList({ orders, filter, onFilterChange, formatCurre
             </div>
             <div className="order-price text-end">
               <div className="fw-semibold mb-1">{formatCurrency(order.monto)}</div>
-              <OrderStatus status={order.estado} />
+              <OrderStatus status={order.estado} labels={labels} />
             </div>
             <ChevronRight size={18} className="order-chevron text-secondary" />
           </li>

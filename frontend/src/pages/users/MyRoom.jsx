@@ -21,6 +21,9 @@ const HUESPED = {
     habitacion: "Habitación 101",
 };
 
+const IMAGEN_FONDO_PEDIDOS =
+    "https://peopleenespanol.com/thmb/lFB2yQjHVJ2q-FJcY2BfxMd5t24=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-905083708-2000-59fc054b9e5b4fad8be53a055f3eab2c.jpg";
+
 const TEXTO_PAGINA = {
     sidebar: {
         brand: {
@@ -132,7 +135,7 @@ const PEDIDOS = [
 
 const formatoCOP = (valor) => `$${valor.toLocaleString("es-CO")} COP`;
 
-export default function RoomRequests() {
+export default function MyRoom() {
     const [filtro, setFiltro] = useState("todos");
     const pedidosFiltrados =
         filtro === "todos"
@@ -158,7 +161,10 @@ export default function RoomRequests() {
             />
 
             <div className="container-fluid p-4">
-            <RoomRequestsHero {...TEXTO_PAGINA.hero} />
+            <RoomRequestsHero
+                {...TEXTO_PAGINA.hero}
+                imageUrl={IMAGEN_FONDO_PEDIDOS}
+            />
 
             <div className="row g-4">
                 <div className="col-12 col-lg-8">
