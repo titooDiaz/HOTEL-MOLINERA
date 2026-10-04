@@ -1,13 +1,27 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './index.css'
-import App from './App.jsx'
+
+// Vistas de usuarios logueados
 import RoomRequests from './pages/users/RoomRequests.jsx'
 import HotelDashboard from './pages/admin/HotelDashboard.jsx'
-import MyRoom from './pages/users/MyRoom.jsx'
 
-createRoot(document.getElementById('root')).render(
+// Vistas de usuarios no logueados
+import App from './App.jsx'
+import Contacto from "./pages/main/Contacto.jsx";
+import Planes from "./pages/main/Planes.jsx";
+import Restaurante from "./pages/main/Restaurante.jsx";
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <HotelDashboard />
-  </StrictMode>,
-)
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/planes" element={<Planes />} />
+        <Route path="/restaurante" element={<Restaurante />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>
+);

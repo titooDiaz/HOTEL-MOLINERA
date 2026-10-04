@@ -13,3 +13,6 @@ npm run dev
 comando contructor:
 
 npm run build
+
+
+npm list react-router-dom
