@@ -13,6 +13,7 @@ import AccountSummary from "../../components/account_summary/AccountSummary.jsx"
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 
 import "./RoomRequests.css";
+import "./MyRoom.css";
 
 
 const HUESPED = {
@@ -66,10 +67,10 @@ const TEXTO_PAGINA = {
 
 
     account: {
-        title: "Resumen de tu cuenta",
-        totalLabel: "Total consumos",
-        paidLabel: "Pagados",
-        pendingLabel: "Pendientes",
+        title: "Pago de tu habitación",
+        totalLabel: "Valor habitación",
+        paidLabel: "Pagado",
+        pendingLabel: "Pendiente",
         totalToPayLabel: "Total a pagar",
         detailsButtonLabel: "Ver detalle completo →",
     },
@@ -77,57 +78,20 @@ const TEXTO_PAGINA = {
 
     reception: {
         title: "¿Dudas con algún consumo?",
+
         description:
-            "Si crees que hay un error en tu pedido, por favor comunícate con recepción.",
+            "Si crees que hay un error en algún consumo de tu habitación, por favor comunícate con recepción.",
+
         buttonLabel: "Contactar recepción",
     },
 };
 
 
-const PEDIDOS = [
 
-    {
-        id: 1,
-        nombre: "Hamburguesa clásica",
-        monto: 28000,
-        estado: "pagado",
-    },
-
-    {
-        id: 2,
-        nombre: "Pizza margarita",
-        monto: 32000,
-        estado: "pagado",
-    },
-
-    {
-        id: 3,
-        nombre: "Ensalada de frutas",
-        monto: 12000,
-        estado: "pagado",
-    },
-
-    {
-        id: 4,
-        nombre: "Sándwich de pollo",
-        monto: 24000,
-        estado: "pendiente",
-    },
-
-    {
-        id: 5,
-        nombre: "Café americano",
-        monto: 8000,
-        estado: "pagado",
-    },
-
-    {
-        id: 6,
-        nombre: "Sándwich club",
-        monto: 28000,
-        estado: "pendiente",
-    },
-];
+const HABITACION = {
+    valor: 400000,
+    pagado: 300000,
+};
 
 
 const formatoCOP = (valor) => {
@@ -137,28 +101,13 @@ const formatoCOP = (valor) => {
 
 export default function MyRoom() {
 
-    const pagados = PEDIDOS.filter(
-        (pedido) => pedido.estado === "pagado"
-    );
 
-    const pendientes = PEDIDOS.filter(
-        (pedido) => pedido.estado === "pendiente"
-    );
+    const totalHabitacion = HABITACION.valor;
 
+    const totalPagado = HABITACION.pagado;
 
-    const totalPagado = pagados.reduce(
-        (total, pedido) => total + pedido.monto,
-        0
-    );
-
-
-    const totalPendiente = pendientes.reduce(
-        (total, pedido) => total + pedido.monto,
-        0
-    );
-
-
-    const totalConsumos = totalPagado + totalPendiente;
+    const totalPendiente =
+        totalHabitacion - totalPagado;
 
 
     return (
@@ -190,7 +139,9 @@ export default function MyRoom() {
 
                     <div className="row g-4">
 
-                        <div className="col-12 col-lg-8">
+                        {}
+
+                        <div className="col-12 col-lg-8 order-statistics-container">
 
                             <OrderStatistics
                                 items={[
@@ -214,22 +165,28 @@ export default function MyRoom() {
                                 ]}
                             />
 
+
+                            <div className="reception-help-container">
+
+                                <ReceptionHelp
+                                    labels={TEXTO_PAGINA.reception}
+                                />
+
+                            </div>
+
                         </div>
 
+
+                        { }
 
                         <div className="col-12 col-lg-4">
 
                             <AccountSummary
-                                totalConsumos={totalConsumos}
+                                totalConsumos={totalHabitacion}
                                 totalPagado={totalPagado}
                                 totalPendiente={totalPendiente}
                                 formatCurrency={formatoCOP}
                                 labels={TEXTO_PAGINA.account}
-                            />
-
-
-                            <ReceptionHelp
-                                labels={TEXTO_PAGINA.reception}
                             />
 
                         </div>

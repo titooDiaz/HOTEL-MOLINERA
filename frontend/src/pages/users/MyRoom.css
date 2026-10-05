@@ -1,0 +1,19 @@
+.order-statistics-container > * {
+    width: 100%;
+}
+
+.order-statistics-container .row > * {
+    width: 50%;
+}
+
+.reception-help-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reception-help-container > * {
+    width: 100%;
+    min-height: 100%;
+}

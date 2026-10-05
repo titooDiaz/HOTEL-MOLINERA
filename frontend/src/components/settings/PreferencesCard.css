@@ -1,0 +1,9 @@
+.settings-row-boxed {
+  border: 1px solid var(--set-border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.settings-row-boxed .settings-row-label {
+  font-weight: 500;
+}
