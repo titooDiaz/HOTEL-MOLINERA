@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import Navbar from "../../components/navbar/Navbar.jsx";
 import Hero from "../../components/hero/Hero.jsx";
+import ContactSection from "../../components/contact_section/ContactSection.jsx";
 import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx";
 
 
@@ -64,6 +65,9 @@ const TEXTOS_CONTACTO = {
     messagePlaceholder: "Escribe tu mensaje aquí...",
 
     submit: "Enviar mensaje",
+    sending: "Enviando...",
+    successMessage: "¡Gracias! Tu mensaje fue enviado, te responderemos pronto.",
+    errorMessage: "No pudimos enviar tu mensaje. Inténtalo de nuevo.",
   },
 
   whatsappLabel: "Contactar por WhatsApp",
@@ -71,27 +75,40 @@ const TEXTOS_CONTACTO = {
 
 function Contacto() {
   const [hotelData, setHotelData] = useState(null);
-  
-    useEffect(() => {
-      fetch("/api/hotel")
-        .then(response => response.json())
-        .then(data => setHotelData(data))
-        .catch(error =>
-          console.error("Error al conectar con el backend:", error)
-        );
-    }, []);
-  
-    return (
-      <div className="app">
-        <Navbar hotelName={hotelData?.name} labels={TEXTOS_CONTACTO.navbar} />
-        <Hero
-          hotelName={hotelData?.name}
-          imageUrl={TEXTOS_CONTACTO.hero.imageUrl}
-          labels={TEXTOS_CONTACTO.hero}
-        />
-        <WhatsAppButton ariaLabel={TEXTOS_CONTACTO.whatsappLabel} />
-      </div>
-    );
+
+  useEffect(() => {
+    fetch("/api/hotel")
+      .then(response => response.json())
+      .then(data => setHotelData(data))
+      .catch(error =>
+        console.error("Error al conectar con el backend:", error)
+      );
+  }, []);
+
+  // TODO: el backend aún no tiene la ruta POST /api/contact (ver backend/src/app.js)
+  const enviarMensaje = async (datos) => {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status} al enviar el mensaje`);
+    }
+  };
+
+  return (
+    <div className="app">
+      <Navbar hotelName={hotelData?.name} labels={TEXTOS_CONTACTO.navbar} />
+      <ContactSection
+        information={TEXTOS_CONTACTO.information}
+        form={TEXTOS_CONTACTO.form}
+        onSubmit={enviarMensaje}
+      />
+      <WhatsAppButton ariaLabel={TEXTOS_CONTACTO.whatsappLabel} />
+    </div>
+  );
 }
 
 export default Contacto;
