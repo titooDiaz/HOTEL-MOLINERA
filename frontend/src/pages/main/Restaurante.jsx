@@ -9,7 +9,7 @@ const TEXTO_PORTADA = {
   navbar: {
     brandInitials: "HM",
     logoFallback: "logo",
-    rooms: "Reservaciones",
+    rooms: "Habitaciones",
     plans: "Planes",
     restaurant: "Restaurante",
     contact: "Contacto",
