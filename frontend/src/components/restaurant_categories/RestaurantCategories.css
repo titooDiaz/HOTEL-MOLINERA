@@ -1,0 +1,51 @@
+.restaurant-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.restaurant-category {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 16px;
+
+  border: 1px solid #e8e8e8;
+  border-radius: 999px;
+
+  background: #ffffff;
+  color: #555;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+}
+
+.restaurant-category:hover {
+  border-color: #d0d0d0;
+  color: #222;
+  transform: translateY(-1px);
+}
+
+.restaurant-category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+
+  background: #f5f5f5;
+}
+
+.restaurant-category:hover .restaurant-category-icon {
+  background: #f1f1f1;
+}
