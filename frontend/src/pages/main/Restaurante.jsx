@@ -8,6 +8,7 @@ import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx"
 import RestaurantCategories from "../../components/restaurant_categories/RestaurantCategories.jsx";
 import FoodCard from "../../components/food_card/FoodCard.jsx";
 
+
 const TEXTO_PORTADA = {
   navbar: {
     brandInitials: "HM",
@@ -24,7 +25,8 @@ const TEXTO_PORTADA = {
       "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
     imageAlt: "Restaurante del hotel",
     eyebrow: "SABORES QUE COMPLEMENTAN TU ESTADÍA",
-    title: "Restaurante",
+    defaultHotelName: "Hotel Moderno",
+    titleSuffix: "y Confortable",
     description:
       "Disfruta de una propuesta gastronómica pensada para acompañar tu estadía, con platos preparados con ingredientes frescos y un ambiente agradable.",
   },

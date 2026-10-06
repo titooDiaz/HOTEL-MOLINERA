@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Navbar from "../../components/navbar/Navbar.jsx";
-import Hero from "../../components/hero/Hero.jsx";
 import ContactSection from "../../components/contact_section/ContactSection.jsx";
 import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx";
 
@@ -18,15 +17,6 @@ const TEXTOS_CONTACTO = {
     reserve: "RESERVAR",
   },
 
-  hero: {
-    imageUrl:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
-    imageAlt: "Hotel",
-    eyebrow: "ESTAMOS PARA AYUDARTE",
-    title: "Contacto",
-    description:
-      "¿Tienes alguna pregunta o necesitas más información? Estamos aquí para ayudarte a planear tu estadía.",
-  },
 
   information: {
     title: "Información de contacto",
