@@ -1,18 +1,27 @@
 # HOTEL-MOLINERA
 
-npm install dotenv
-npm install cors
+## Ejecución
 
+Desde la carpeta del proyecto:
+
+```bash
 cd frontend
 npm install
-cd ../backend
-npm install
 npm run dev
+```
 
+## Construcción
 
-comando contructor:
+Para generar la versión de producción:
 
+```bash
 npm run build
+```
 
+## Dependencias
 
-npm list react-router-dom
+Si no están instaladas, agregar:
+
+```bash
+npm install dotenv cors react-router-dom
+```
