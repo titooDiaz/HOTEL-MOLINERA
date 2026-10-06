@@ -36,9 +36,9 @@ const TEXTO_PAGINA = {
         },
 
         items: [
-            { label: "Mi habitación", icon: BedDouble },
-            { label: "Alimentos y bebidas", icon: Utensils },
-            { label: "Configuración", icon: SettingsIcon },
+            { label: "Mi habitación", icon: BedDouble, path: "/mi-habitacion" },
+            { label: "Alimentos y bebidas", icon: Utensils, path: "/pedidos" },
+            { label: "Configuración", icon: SettingsIcon, path: "/configuracion" },
         ],
 
         activeItem: "Configuración",

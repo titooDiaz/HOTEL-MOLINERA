@@ -29,9 +29,9 @@ const TEXTO_PAGINA = {
             tagline: "Tu estadía, nuestra prioridad",
         },
         items: [
-            { label: "Mi habitación", icon: BedDouble },
-            { label: "Alimentos y bebidas", icon: Utensils },
-            { label: "Configuración", icon: Settings },
+            { label: "Mi habitación", icon: BedDouble, path: "/mi-habitacion" },
+            { label: "Alimentos y bebidas", icon: Utensils, path: "/pedidos" },
+            { label: "Configuración", icon: Settings, path: "/configuracion" },
         ],
         activeItem: "Alimentos y bebidas",
         logoutLabel: "Cerrar sesión",

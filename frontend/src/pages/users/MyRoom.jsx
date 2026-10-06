@@ -39,14 +39,17 @@ const TEXTO_PAGINA = {
             {
                 label: "Mi habitación",
                 icon: BedDouble,
+                path: "/mi-habitacion",
             },
             {
                 label: "Alimentos y bebidas",
                 icon: Utensils,
+                path: "/pedidos",
             },
             {
                 label: "Configuración",
                 icon: Settings,
+                path: "/configuracion",
             },
         ],
 

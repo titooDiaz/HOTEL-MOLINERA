@@ -1,4 +1,5 @@
 import { LogOut } from "lucide-react";
+import { NavLink } from "react-router-dom";
 import "./GuestSidebar.css";
 
 export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) {
@@ -13,20 +14,20 @@ export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) 
       </div>
 
       <nav className="flex-grow-1 px-3">
-        {items.map(({ label, icon: Icon }) => {
-          const active = label === activeItem;
-
+        {items.map(({ label, icon: Icon, path }) => {
           return (
-            <button
+            <NavLink
               key={label}
-              type="button"
-              className={`guest-nav-item btn w-100 d-flex align-items-center gap-2 text-start mb-1 ${
-                active ? "guest-nav-active" : ""
-              }`}
+              to={path}
+              className={({ isActive }) =>
+                `guest-nav-item btn w-100 d-flex align-items-center gap-2 text-start mb-1 ${
+                  isActive || label === activeItem ? "guest-nav-active" : ""
+                }`
+              }
             >
               <Icon size={18} />
               <span>{label}</span>
-            </button>
+            </NavLink>
           );
         })}
       </nav>
