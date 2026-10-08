@@ -1,0 +1,533 @@
+/* ============ Overlay ============ */
+.reserve-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(14, 20, 33, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: reserveFade 0.25s ease;
+}
+
+/* ============ Modal ============ */
+.reserve-modal {
+  --gold: #b8924a;
+  --gold-soft: #f6efe1;
+  --ink: #1b2233;
+  --muted: #6b7385;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  width: 100%;
+  max-width: 880px;
+  max-height: 92vh;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  animation: reserveRise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ============ Botón cerrar ============ */
+.reserve-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.reserve-close:hover {
+  transform: rotate(90deg);
+  background: #fff;
+}
+
+/* ============ Lado visual ============ */
+.reserve-visual {
+  position: relative;
+  min-height: 520px;
+  background-size: cover;
+  background-position: center;
+}
+.reserve-visual-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(
+    to top,
+    rgba(14, 20, 33, 0.92) 0%,
+    rgba(14, 20, 33, 0.55) 45%,
+    rgba(14, 20, 33, 0.1) 100%
+  );
+}
+.reserve-stars {
+  color: #e6c47a;
+  letter-spacing: 4px;
+  font-size: 0.95rem;
+}
+.reserve-visual-name {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.9rem;
+  line-height: 1.15;
+}
+.reserve-perks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+.reserve-perks li::first-letter { color: #e6c47a; }
+
+.reserve-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.reserve-gallery img {
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ============ Lado contenido ============ */
+.reserve-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.75rem 2.5rem;
+  overflow-y: auto;
+}
+.reserve-eyebrow {
+  align-self: flex-start;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.reserve-title {
+  margin: 1rem 0 0.4rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.reserve-subtitle {
+  margin: 0 0 1.75rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* ============ Opciones ============ */
+.reserve-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.reserve-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.95rem 1.1rem;
+  border: 1.5px solid #e6e8ee;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease, background 0.2s ease;
+}
+.reserve-option:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 10px 24px rgba(27, 34, 51, 0.1);
+  color: var(--ink);
+}
+.reserve-option-icon {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.reserve-option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  line-height: 1.25;
+}
+.reserve-option-text strong { font-size: 1rem; }
+.reserve-option-text small { color: var(--muted); font-size: 0.82rem; }
+.reserve-option-arrow {
+  font-size: 1.25rem;
+  color: var(--gold);
+  transition: transform 0.2s ease;
+}
+.reserve-option:hover .reserve-option-arrow { transform: translateX(4px); }
+
+/* Principal (iniciar sesión) */
+.reserve-option--primary {
+  background: linear-gradient(135deg, #1b2233, #2c3752);
+  border-color: transparent;
+  color: #fff;
+}
+.reserve-option--primary:hover {
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 14px 30px rgba(27, 34, 51, 0.35);
+}
+.reserve-option--primary .reserve-option-icon {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e6c47a;
+}
+.reserve-option--primary small { color: rgba(255, 255, 255, 0.7); }
+.reserve-option--primary .reserve-option-arrow { color: #e6c47a; }
+
+/* WhatsApp */
+.reserve-option--whatsapp .reserve-option-icon {
+  background: #e7f9ee;
+  color: #25d366;
+}
+.reserve-option--whatsapp:hover {
+  border-color: #25d366;
+  background: #f5fff9;
+}
+.reserve-option--whatsapp:hover .reserve-option-icon {
+  background: #25d366;
+  color: #fff;
+}
+.reserve-option--whatsapp .reserve-option-arrow { color: #25d366; }
+
+/* Divisor */
+.reserve-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.reserve-divider::before,
+.reserve-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e6e8ee;
+}
+
+/* ============ Animaciones ============ */
+@keyframes reserveFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes reserveRise {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 767px) {
+  .reserve-modal {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    overflow-y: auto;
+  }
+  .reserve-visual { min-height: 170px; }
+  .reserve-visual-overlay { padding: 1.1rem 1.4rem; }
+  .reserve-visual-name { font-size: 1.35rem; }
+  .reserve-perks,
+  .reserve-gallery { display: none; }
+  .reserve-content { padding: 1.75rem 1.4rem 1.5rem; }
+  .reserve-title { font-size: 1.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reserve-overlay,
+  .reserve-modal { animation: none; }
+}
+
+/* =====================================================
+   FORMULARIOS (login / registro) en el panel izquierdo
+   ===================================================== */
+
+/* Transición al cambiar de panel */
+.reserve-swap {
+  animation: reserveSwap 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes reserveSwap {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Panel contenedor */
+.reserve-form-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fbf9f4;
+  border-right: 1px solid #efe8d8;
+}
+
+/* Banner superior con imagen */
+.reserve-form-banner {
+  position: relative;
+  flex-shrink: 0;
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+}
+.reserve-form-banner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(
+    to top,
+    rgba(14, 20, 33, 0.85) 0%,
+    rgba(14, 20, 33, 0.25) 100%
+  );
+}
+.reserve-form-banner-name {
+  color: #fff;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.2rem;
+}
+
+/* Cuerpo */
+.reserve-form-body {
+  padding: 1.25rem 1.75rem 1.75rem;
+}
+.reserve-back {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gold, #b8924a);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.reserve-back:hover { transform: translateX(-3px); }
+
+.reserve-form-title {
+  margin: 0.6rem 0 0.2rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.45rem;
+  color: var(--ink, #1b2233);
+}
+.reserve-form-subtitle {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  color: var(--muted, #6b7385);
+}
+
+/* Form */
+.reserve-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.reserve-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.reserve-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.reserve-field label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink, #1b2233);
+}
+.reserve-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.reserve-input-wrap input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid #e3dfd2;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink, #1b2233);
+  font-size: 0.92rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.reserve-input-wrap input::placeholder { color: #aab0bd; }
+.reserve-input-wrap input:focus {
+  border-color: var(--gold, #b8924a);
+  box-shadow: 0 0 0 4px rgba(184, 146, 74, 0.15);
+}
+.reserve-input-wrap input[type="password"],
+.reserve-input-wrap input[type="text"]#login-password,
+.reserve-input-wrap input#reg-password,
+.reserve-input-wrap input#reg-confirm,
+.reserve-input-wrap input#login-password {
+  padding-right: 4.2rem;
+}
+.reserve-toggle-pass {
+  position: absolute;
+  right: 0.6rem;
+  padding: 0.25rem 0.4rem;
+  border: none;
+  background: none;
+  color: var(--gold, #b8924a);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Fila recordarme / olvidé */
+.reserve-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.reserve-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted, #6b7385);
+  cursor: pointer;
+}
+.reserve-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gold, #b8924a);
+}
+.reserve-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gold, #b8924a);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reserve-link:hover { color: #8f6e30; }
+
+/* Error */
+.reserve-error {
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  background: #fdecec;
+  color: #b3261e;
+  font-size: 0.82rem;
+}
+
+/* Botón enviar */
+.reserve-submit {
+  margin-top: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1b2233, #2c3752);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.reserve-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(27, 34, 51, 0.3);
+}
+.reserve-submit:active { transform: translateY(0); }
+
+.reserve-switch {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--muted, #6b7385);
+}
+
+/* Opción activa en el panel derecho */
+.reserve-option.is-active {
+  border-color: var(--gold, #b8924a);
+  box-shadow: 0 0 0 4px rgba(184, 146, 74, 0.18);
+}
+.reserve-option--primary.is-active {
+  border-color: transparent;
+  box-shadow: 0 0 0 4px rgba(184, 146, 74, 0.35);
+}
+
+/* Evita que el contenido derecho desborde en pantallas bajas */
+.reserve-content { min-height: 0; }
+
+/* =====================================================
+   Responsive de los formularios
+   ===================================================== */
+@media (max-width: 767px) {
+  /* En móvil, al abrir un formulario ocultamos las opciones
+     y el usuario regresa con el botón "Volver" */
+  .reserve-modal--form .reserve-content { display: none; }
+
+  .reserve-form-panel {
+    max-height: none;
+    border-right: none;
+  }
+  .reserve-form-banner { height: 90px; }
+  .reserve-form-body { padding: 1rem 1.25rem 1.5rem; }
+  .reserve-grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reserve-swap { animation: none; }
+}

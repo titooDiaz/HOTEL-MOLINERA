@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './index.css'
+import { AuthProvider } from "./context/AuthContext.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 // Vistas de usuarios no logueados
 import App from './App.jsx'
@@ -19,22 +21,28 @@ import HotelDashboard from './pages/admin/HotelDashboard.jsx';
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* Públicas */}
-        <Route path="/" element={<App />} />
-        <Route path="/contacto" element={<Contacto />} />
-        <Route path="/planes" element={<Planes />} />
-        <Route path="/restaurante" element={<Restaurante />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Públicas */}
+          <Route path="/" element={<App />} />
+          <Route path="/contacto" element={<Contacto />} />
+          <Route path="/planes" element={<Planes />} />
+          <Route path="/restaurante" element={<Restaurante />} />
 
-        {/* Huésped */}
-        <Route path="/mi-habitacion" element={<MyRoom />} />
-        <Route path="/pedidos" element={<RoomRequests />} />
-        <Route path="/configuracion" element={<Settings />} />
+          {/* Huésped */}
+          <Route element={<ProtectedRoute allowedRole="guest" />}>
+            <Route path="/mi-habitacion" element={<MyRoom />} />
+            <Route path="/pedidos" element={<RoomRequests />} />
+            <Route path="/configuracion" element={<Settings />} />
+          </Route>
 
-        {/* Admin */}
-        <Route path="/admin" element={<HotelDashboard />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Admin */}
+          <Route element={<ProtectedRoute allowedRole="admin" />}>
+            <Route path="/admin" element={<HotelDashboard />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   </StrictMode>
 );
