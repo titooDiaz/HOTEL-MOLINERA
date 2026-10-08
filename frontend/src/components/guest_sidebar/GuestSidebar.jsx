@@ -1,8 +1,21 @@
 import { LogOut } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 import "./GuestSidebar.css";
 
 export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    if (!window.confirm("¿Seguro que quieres cerrar sesión?")) {
+      return;
+    }
+
+    logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <aside className="guest-sidebar d-none d-lg-flex flex-column bg-white border-end">
       <div className="guest-brand d-flex align-items-center gap-2 px-4 py-4">
@@ -36,6 +49,7 @@ export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) 
         <button
           type="button"
           className="guest-nav-item btn w-100 d-flex align-items-center gap-2 text-secondary"
+          onClick={handleLogout}
         >
           <LogOut size={18} />
           {logoutLabel}

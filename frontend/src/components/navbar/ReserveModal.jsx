@@ -15,6 +15,59 @@ const gallery = [
   "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=300&q=80",
 ];
 
+function FormHeader({ hotelName }) {
+  return (
+    <div
+      className="reserve-form-banner"
+      style={{ backgroundImage: `url(${FORM_BANNER})` }}
+    >
+      <div className="reserve-form-banner-overlay">
+        <span className="reserve-stars" aria-hidden="true">★★★★★</span>
+        <span className="reserve-form-banner-name">
+          {hotelName || "Nuestro Hotel"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  showPass,
+  onTogglePass,
+  showLabel,
+  hideLabel,
+}) {
+  return (
+    <div className="reserve-field">
+      <label htmlFor={id}>{label}</label>
+      <div className="reserve-input-wrap">
+        <input
+          id={id}
+          type={showPass ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          autoComplete={autoComplete}
+          placeholder="••••••••"
+          required
+          minLength={6}
+        />
+        <button
+          type="button"
+          className="reserve-toggle-pass"
+          onClick={onTogglePass}
+        >
+          {showPass ? hideLabel : showLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ReserveModal({
   isOpen,
   onClose,
@@ -150,46 +203,6 @@ export default function ReserveModal({
 
   const isForm = view !== "options";
 
-  /* ---------- Piezas reutilizables ---------- */
-  const FormHeader = ({ title, subtitle }) => (
-    <div
-      className="reserve-form-banner"
-      style={{ backgroundImage: `url(${FORM_BANNER})` }}
-    >
-      <div className="reserve-form-banner-overlay">
-        <span className="reserve-stars" aria-hidden="true">★★★★★</span>
-        <span className="reserve-form-banner-name">
-          {hotelName || "Nuestro Hotel"}
-        </span>
-      </div>
-    </div>
-  );
-
-  const PasswordField = ({ id, label, value, onChange, autoComplete }) => (
-    <div className="reserve-field">
-      <label htmlFor={id}>{label}</label>
-      <div className="reserve-input-wrap">
-        <input
-          id={id}
-          type={showPass ? "text" : "password"}
-          value={value}
-          onChange={onChange}
-          autoComplete={autoComplete}
-          placeholder="••••••••"
-          required
-          minLength={6}
-        />
-        <button
-          type="button"
-          className="reserve-toggle-pass"
-          onClick={() => setShowPass((s) => !s)}
-        >
-          {showPass ? t.hide : t.show}
-        </button>
-      </div>
-    </div>
-  );
-
   return createPortal(
     <div className="reserve-overlay" onClick={onClose} role="presentation">
       <div
@@ -246,7 +259,7 @@ export default function ReserveModal({
 
         {view === "login" && (
           <aside key="login" className="reserve-form-panel reserve-swap">
-            <FormHeader />
+            <FormHeader hotelName={hotelName} />
 
             <div className="reserve-form-body">
               <button
@@ -283,6 +296,10 @@ export default function ReserveModal({
                   label={t.password}
                   value={loginData.password}
                   autoComplete="current-password"
+                  showPass={showPass}
+                  onTogglePass={() => setShowPass((current) => !current)}
+                  showLabel={t.show}
+                  hideLabel={t.hide}
                   onChange={(e) =>
                     setLoginData({ ...loginData, password: e.target.value })
                   }
@@ -330,7 +347,7 @@ export default function ReserveModal({
 
         {view === "register" && (
           <aside key="register" className="reserve-form-panel reserve-swap">
-            <FormHeader />
+            <FormHeader hotelName={hotelName} />
 
             <div className="reserve-form-body">
               <button
@@ -413,6 +430,10 @@ export default function ReserveModal({
                     label={t.password}
                     value={registerData.password}
                     autoComplete="new-password"
+                    showPass={showPass}
+                    onTogglePass={() => setShowPass((current) => !current)}
+                    showLabel={t.show}
+                    hideLabel={t.hide}
                     onChange={(e) =>
                       setRegisterData({
                         ...registerData,
@@ -425,6 +446,10 @@ export default function ReserveModal({
                     label={t.confirmPassword}
                     value={registerData.confirm}
                     autoComplete="new-password"
+                    showPass={showPass}
+                    onTogglePass={() => setShowPass((current) => !current)}
+                    showLabel={t.show}
+                    hideLabel={t.hide}
                     onChange={(e) =>
                       setRegisterData({
                         ...registerData,

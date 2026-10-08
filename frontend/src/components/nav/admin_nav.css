@@ -49,4 +49,12 @@
 #sidebar .nav-link-item.active { background-color: var(--rose-500); color: #fff; font-weight: 500; }
 #sidebar .nav-link-item svg { width: 18px; height: 18px; flex-shrink: 0; }
 #sidebar .logout-wrap { padding: 0 .75rem 1.25rem; }
-#sidebar .logout-link { color: var(--slate-400); }
+#sidebar .logout-link {
+    color: var(--slate-400);
+    width: 100%;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}

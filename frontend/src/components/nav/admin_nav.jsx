@@ -1,7 +1,21 @@
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import "./admin_nav.css";
 
 export default function AdminNav({ items, sidebarOpen, onClose, brand, logoutLabel }) {
+	const navigate = useNavigate();
+	const { logout } = useAuth();
+
+	const handleLogout = () => {
+		if (!window.confirm("¿Seguro que quieres cerrar sesión?")) {
+			return;
+		}
+
+		logout();
+		navigate("/", { replace: true });
+	};
+
 	return (
 		<>
 			<div
@@ -38,14 +52,14 @@ export default function AdminNav({ items, sidebarOpen, onClose, brand, logoutLab
 				</div>
 
 				<div className="logout-wrap">
-					<a href="#" className="nav-link-item logout-link">
+					<button type="button" className="nav-link-item logout-link" onClick={handleLogout}>
 						<DashboardIcon>
 							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
 							<polyline points="16 17 21 12 16 7" />
 							<line x1="21" y1="12" x2="9" y2="12" />
 						</DashboardIcon>
 						{logoutLabel}
-					</a>
+					</button>
 				</div>
 			</aside>
 		</>
