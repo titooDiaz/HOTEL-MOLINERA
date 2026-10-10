@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./AdminViews.css";
+import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
 import DashboardTopbar from "../../components/dashboard_topbar/DashboardTopbar.jsx";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -147,7 +147,7 @@ const RESTAURANT_COPY = {
   },
 };
 
-export default function Restaurante() {
+export default function RestauranteAdmin() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => setSidebarOpen(true);

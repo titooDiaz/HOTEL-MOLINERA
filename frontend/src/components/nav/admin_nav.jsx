@@ -1,7 +1,17 @@
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import "./admin_nav.css";
+
+const ADMIN_PATHS = {
+	Inicio: "/admin",
+	Habitaciones: "/admin/habitaciones",
+	Reservas: "/admin/reservas",
+	Clientes: "/admin/clientes",
+	Restaurante: "/admin/restaurante",
+	Reportes: "/admin/reportes",
+	Configuración: "/admin/configuracion",
+};
 
 export default function AdminNav({ items, sidebarOpen, onClose, brand, logoutLabel }) {
 	const navigate = useNavigate();
@@ -39,14 +49,18 @@ export default function AdminNav({ items, sidebarOpen, onClose, brand, logoutLab
 
 					<nav className="d-flex flex-column">
 						{items.map((item) => (
-							<a
+							<NavLink
 								key={item.label}
-								href="#"
-								className={`nav-link-item${item.active ? " active" : ""}`}
+								to={ADMIN_PATHS[item.label]}
+								end={item.label === "Inicio"}
+								className={({ isActive }) =>
+									`nav-link-item${isActive ? " active" : ""}`
+								}
+								onClick={onClose}
 							>
 								<DashboardIcon>{item.icon}</DashboardIcon>
 								{item.label}
-							</a>
+							</NavLink>
 						))}
 					</nav>
 				</div>
