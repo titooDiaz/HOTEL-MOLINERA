@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./AdminViews.css";
+import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
 import DashboardTopbar from "../../components/dashboard_topbar/DashboardTopbar.jsx";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -146,7 +146,7 @@ export default function Reservas() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="admin-dashboard d-flex min-vh-100">
+    <div className="admin-dashboard admin-view d-flex min-vh-100">
       <AdminNav
         items={NAV_ITEMS}
         sidebarOpen={sidebarOpen}

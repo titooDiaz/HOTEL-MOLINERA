@@ -154,7 +154,7 @@ export default function RestauranteAdmin() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="admin-dashboard d-flex min-vh-100">
+    <div className="admin-dashboard admin-view d-flex min-vh-100">
       <AdminNav
         items={NAV_ITEMS}
         sidebarOpen={sidebarOpen}
