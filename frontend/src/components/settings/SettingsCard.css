@@ -8,7 +8,7 @@
   --set-muted: #5f5a5c;
 }
 
-body.dark-mode {
+body.guest-dark-mode {
   --set-surface: #231d20;
   --set-field: #2e2629;
   --set-border: #3d3337;

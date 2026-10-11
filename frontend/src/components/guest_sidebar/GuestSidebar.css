@@ -36,3 +36,22 @@
   color: white !important;
   font-weight: 600;
 }
+
+body.guest-dark-mode .guest-sidebar {
+  background-color: #211b1e !important;
+  border-color: #3d3337 !important;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-nav-item {
+  color: #c8bdc1;
+}
+
+body.guest-dark-mode .guest-nav-item:hover {
+  background-color: #30272b;
+  color: #fff;
+}
+
+body.guest-dark-mode .guest-sidebar .text-secondary {
+  color: #b7aeb1 !important;
+}

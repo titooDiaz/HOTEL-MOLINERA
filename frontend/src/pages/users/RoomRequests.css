@@ -25,6 +25,108 @@ body {
   min-width: 0;
 }
 
+body.guest-dark-mode {
+  --hotel-bg: #171214;
+  --hotel-dark: #f3eef0;
+  --hotel-border: #3d3337;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .hotel-layout,
+body.guest-dark-mode .main-content {
+  background-color: var(--hotel-bg);
+  color: var(--hotel-dark);
+}
+
+body.guest-dark-mode .guest-topbar {
+  background-color: #211b1e !important;
+  border-color: #3d3337 !important;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-notification-btn {
+  background-color: #30272b;
+  border-color: #3d3337;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-notification-btn:hover {
+  background-color: #3d3337;
+}
+
+body.guest-dark-mode .guest-profile-trigger {
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-profile-trigger:hover,
+body.guest-dark-mode .guest-profile-trigger[aria-expanded="true"] {
+  background-color: #30272b;
+}
+
+body.guest-dark-mode .guest-avatar {
+  background-color: #3d3337;
+  color: #d8cdd1;
+}
+
+body.guest-dark-mode .bg-white,
+body.guest-dark-mode .account-summary,
+body.guest-dark-mode .order-stat-card,
+body.guest-dark-mode .orders-card,
+body.guest-dark-mode .reception-help {
+  background-color: #231d20 !important;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .text-secondary {
+  color: #b7aeb1 !important;
+}
+
+body.guest-dark-mode .border-top,
+body.guest-dark-mode .border-bottom {
+  border-color: var(--hotel-border) !important;
+}
+
+body.guest-dark-mode .order-stat-value,
+body.guest-dark-mode .orders-card h5,
+body.guest-dark-mode .account-total,
+body.guest-dark-mode .account-summary h6,
+body.guest-dark-mode .reception-help h6 {
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .order-item:hover {
+  background-color: #30272b;
+}
+
+body.guest-dark-mode .orders-filter {
+  color: #f3eef0;
+  background-color: #2e2629;
+  border-color: #3d3337;
+}
+
+body.guest-dark-mode .guest-dropdown {
+  background-color: #231d20;
+  border-color: #3d3337;
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-dropdown-title,
+body.guest-dark-mode .guest-logout-action {
+  border-color: #3d3337 !important;
+}
+
+body.guest-dark-mode .guest-dropdown button {
+  color: #f3eef0;
+}
+
+body.guest-dark-mode .guest-dropdown button:hover {
+  background-color: #30272b;
+}
+
+body.guest-dark-mode .guest-dropdown button small {
+  color: #b7aeb1;
+}
+
 
 @media (max-width: 767px) {
 

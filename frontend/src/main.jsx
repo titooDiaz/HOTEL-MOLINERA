@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './index.css'
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 // Vistas de usuarios no logueados
@@ -28,8 +29,9 @@ import Configuracion from './pages/admin/Configuracion.jsx';
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
           {/* Públicas */}
           <Route path="/" element={<App />} />
           <Route path="/contacto" element={<Contacto />} />
@@ -53,8 +55,9 @@ createRoot(document.getElementById("root")).render(
             <Route path="/admin/reportes" element={<Reportes />} />
             <Route path="/admin/configuracion" element={<Configuracion />} />
           </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   </StrictMode>
 );

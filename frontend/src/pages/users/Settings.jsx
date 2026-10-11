@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     BedDouble,
     Settings as SettingsIcon,
@@ -12,6 +12,7 @@ import PersonalDataCard from "../../components/settings/PersonalDataCard.jsx";
 import SecurityCard from "../../components/settings/SecurityCard.jsx";
 import PreferencesCard from "../../components/settings/PreferencesCard.jsx";
 import ActivityHistoryCard from "../../components/settings/ActivityHistoryCard.jsx";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 import "./RoomRequests.css";
 
@@ -102,15 +103,8 @@ export default function Settings() {
     const [borrador, setBorrador] = useState(DATOS_INICIALES);
     const [editando, setEditando] = useState(false);
 
-    const [modoOscuro, setModoOscuro] = useState(false);
     const [dosPasos, setDosPasos] = useState(false);
-
-
-    // dark mode effect
-    useEffect(() => {
-        document.body.classList.toggle("dark-mode", modoOscuro);
-        return () => document.body.classList.remove("dark-mode");
-    }, [modoOscuro]);
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
 
     const iniciarEdicion = () => {
@@ -191,8 +185,8 @@ export default function Settings() {
 
                         <div className="col-12 col-lg-4 d-flex flex-column gap-4">
                             <PreferencesCard
-                                enabled={modoOscuro}
-                                onToggle={setModoOscuro}
+                                enabled={isDarkMode}
+                                onToggle={toggleDarkMode}
                                 title={TEXTO_PAGINA.preferences.title}
                                 label={TEXTO_PAGINA.preferences.darkModeLabel}
                             />

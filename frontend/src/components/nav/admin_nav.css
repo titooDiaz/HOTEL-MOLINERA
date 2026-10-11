@@ -11,6 +11,8 @@
 
 #sidebar {
     width: 16rem;
+    height: 100vh;
+    min-height: 100vh;
     background-color: var(--navy-900);
     color: var(--slate-300);
     position: fixed;
@@ -21,7 +23,7 @@
 }
 #sidebar.sidebar-open { transform: translateX(0); }
 @media (min-width: 992px) {
-    #sidebar { position: static; transform: translateX(0); }
+    #sidebar { position: sticky; top: 0; transform: translateX(0); }
 }
 
 #sidebar .brand-block {

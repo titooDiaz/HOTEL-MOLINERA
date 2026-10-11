@@ -70,6 +70,129 @@
   background: var(--slate-100);
 }
 
+.topbar-actions {
+  position: relative;
+}
+
+.topbar-menu {
+  position: relative;
+}
+
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .25rem;
+  border: 0;
+  border-radius: .625rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-trigger:hover,
+.profile-trigger[aria-expanded="true"] {
+  background: var(--slate-100);
+}
+
+.profile-chevron {
+  transition: transform .15s ease;
+}
+
+.profile-trigger[aria-expanded="true"] .profile-chevron {
+  transform: rotate(180deg);
+}
+
+.topbar-dropdown {
+  position: absolute;
+  top: calc(100% + .65rem);
+  right: 0;
+  z-index: 50;
+  width: 18rem;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: .75rem;
+  box-shadow: 0 .75rem 2rem rgba(15, 23, 42, .12);
+}
+
+.topbar-dropdown-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .9rem 1rem;
+  color: var(--slate-800);
+  border-bottom: 1px solid var(--slate-100);
+  font-size: .875rem;
+}
+
+.notification-count {
+  color: var(--rose-500);
+  font-size: .7rem;
+  font-weight: 600;
+}
+
+.notification-item,
+.profile-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  width: 100%;
+  padding: .8rem 1rem;
+  border: 0;
+  color: var(--slate-700);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  font-size: .8125rem;
+}
+
+.notification-item:hover,
+.profile-dropdown button:hover {
+  background: var(--slate-50);
+}
+
+.notification-item span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.notification-item strong {
+  font-size: .8125rem;
+  font-weight: 600;
+}
+
+.notification-item small {
+  color: var(--slate-400);
+  font-size: .7rem;
+}
+
+.notification-item-dot {
+  width: .5rem;
+  height: .5rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.notification-item-dot--rose { background: var(--rose-500); }
+.notification-item-dot--blue { background: #3b82f6; }
+
+.profile-dropdown {
+  width: 13rem;
+  padding: .35rem 0;
+}
+
+.profile-dropdown button {
+  gap: .6rem;
+}
+
+.profile-logout {
+  color: var(--rose-600) !important;
+  border-top: 1px solid var(--slate-100) !important;
+}
+
 .notif-dot {
   position: absolute;
   top: .25rem;

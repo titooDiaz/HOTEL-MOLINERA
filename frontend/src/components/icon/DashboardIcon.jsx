@@ -2,6 +2,7 @@ import Icon from "./Icon.jsx";
 
 export default function DashboardIcon({
   children,
+  className = "",
   width = 18,
   height = 18,
   stroke = "currentColor",
@@ -11,6 +12,7 @@ export default function DashboardIcon({
     <Icon
       width={width}
       height={height}
+      className={className}
       stroke={stroke}
       strokeWidth={strokeWidth}
       strokeLinecap="round"
