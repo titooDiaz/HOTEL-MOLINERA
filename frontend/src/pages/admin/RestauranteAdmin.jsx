@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
@@ -148,6 +149,7 @@ const RESTAURANT_COPY = {
 };
 
 export default function RestauranteAdmin() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => setSidebarOpen(true);
@@ -176,6 +178,7 @@ export default function RestauranteAdmin() {
             title={RESTAURANT_COPY.header.title}
             subtitle={RESTAURANT_COPY.header.subtitle}
             actionLabel={RESTAURANT_COPY.header.action}
+            onAction={() => navigate("/admin/restaurante/nuevo")}
           />
 
           <SummaryCards cards={SUMMARY_CARDS} columnClass="col-12 col-sm-4" />

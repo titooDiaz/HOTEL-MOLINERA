@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
@@ -140,6 +141,7 @@ const RESERVATIONS_COPY = {
 };
 
 export default function Reservas() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => setSidebarOpen(true);
@@ -168,6 +170,7 @@ export default function Reservas() {
             title={RESERVATIONS_COPY.header.title}
             subtitle={RESERVATIONS_COPY.header.subtitle}
             actionLabel={RESERVATIONS_COPY.header.action}
+            onAction={() => navigate("/admin/reservas/nueva")}
           />
 
           <SummaryCards cards={SUMMARY_CARDS} />

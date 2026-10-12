@@ -22,8 +22,11 @@ import HotelDashboard from './pages/admin/HotelDashboard.jsx';
 import Habitaciones from './pages/admin/Habitaciones.jsx';
 import NuevaHabitacion from './pages/admin/NuevaHabitacion.jsx';
 import Reservas from './pages/admin/Reservas.jsx';
+import NuevaReserva from './pages/admin/NuevaReserva.jsx';
 import Clientes from './pages/admin/Clientes.jsx';
+import NuevoCliente from './pages/admin/NuevoCliente.jsx';
 import RestauranteAdmin from './pages/admin/RestauranteAdmin.jsx';
+import NuevoPedido from './pages/admin/NuevoPedido.jsx';
 import Reportes from './pages/admin/Reportes.jsx';
 import Configuracion from './pages/admin/Configuracion.jsx';
 
@@ -52,8 +55,11 @@ createRoot(document.getElementById("root")).render(
             <Route path="/admin/habitaciones" element={<Habitaciones />} />
             <Route path="/admin/habitaciones/nueva" element={<NuevaHabitacion />} />
             <Route path="/admin/reservas" element={<Reservas />} />
+            <Route path="/admin/reservas/nueva" element={<NuevaReserva />} />
             <Route path="/admin/clientes" element={<Clientes />} />
+            <Route path="/admin/clientes/nuevo" element={<NuevoCliente />} />
             <Route path="/admin/restaurante" element={<RestauranteAdmin />} />
+            <Route path="/admin/restaurante/nuevo" element={<NuevoPedido />} />
             <Route path="/admin/reportes" element={<Reportes />} />
             <Route path="/admin/configuracion" element={<Configuracion />} />
           </Route>

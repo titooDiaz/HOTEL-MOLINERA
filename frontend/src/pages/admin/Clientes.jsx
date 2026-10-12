@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
@@ -128,6 +129,7 @@ const CLIENTS_COPY = {
 };
 
 export default function Clientes() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => setSidebarOpen(true);
@@ -156,6 +158,7 @@ export default function Clientes() {
             title={CLIENTS_COPY.header.title}
             subtitle={CLIENTS_COPY.header.subtitle}
             actionLabel={CLIENTS_COPY.header.action}
+            onAction={() => navigate("/admin/clientes/nuevo")}
           />
 
           <SummaryCards cards={SUMMARY_CARDS} columnClass="col-12 col-sm-4" />
