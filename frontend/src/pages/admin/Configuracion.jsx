@@ -8,6 +8,7 @@ import HotelInfoForm from "../../components/settings_panels/HotelInfoForm.jsx";
 import UsersTable from "../../components/settings_panels/UsersTable.jsx";
 import NotificationSettings from "../../components/settings_panels/NotificationSettings.jsx";
 import RegionalSettings from "../../components/settings_panels/RegionalSettings.jsx";
+import AppearanceSettings from "../../components/settings_panels/AppearanceSettings.jsx";
 
 const NAV_ITEMS = [
   {
@@ -173,6 +174,11 @@ const SETTINGS_COPY = {
   regional: {
     title: "Zona horaria y formato",
   },
+  appearance: {
+    title: "Apariencia",
+    description: "Personaliza cómo se ve el panel de administración.",
+    darkModeLabel: "Modo oscuro",
+  },
 };
 
 export default function Configuracion() {
@@ -214,6 +220,9 @@ export default function Configuracion() {
             </div>
 
             <div className="col-12 col-xl-5">
+              <div className="mb-3">
+                <AppearanceSettings labels={SETTINGS_COPY.appearance} />
+              </div>
               <div className="mb-3">
                 <NotificationSettings
                   options={NOTIFICATION_OPTIONS}

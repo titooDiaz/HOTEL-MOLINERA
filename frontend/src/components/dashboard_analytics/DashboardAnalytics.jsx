@@ -26,7 +26,7 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels }
                 <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <g stroke="#eef2f7" strokeWidth="1">
+            <g stroke="currentColor" strokeOpacity="0.08" strokeWidth="1">
               <line x1="40" y1="10" x2="550" y2="10" />
               <line x1="40" y1="60" x2="550" y2="60" />
               <line x1="40" y1="110" x2="550" y2="110" />
@@ -84,7 +84,7 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels }
               <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" strokeWidth="16" strokeDasharray="70.7 282.7" strokeDashoffset="-141.4" transform="rotate(-90 60 60)" />
               <circle cx="60" cy="60" r="45" fill="none" stroke="#f97316" strokeWidth="16" strokeDasharray="48.1 282.7" strokeDashoffset="-212.1" transform="rotate(-90 60 60)" />
               <circle cx="60" cy="60" r="45" fill="none" stroke="#8b5cf6" strokeWidth="16" strokeDasharray="22.6 282.7" strokeDashoffset="-260.2" transform="rotate(-90 60 60)" />
-                    <text x="60" y="57" textAnchor="middle" fontSize="18" fontWeight="600" fill="#1e293b">{labels.roomCount}</text>
+                    <text x="60" y="57" textAnchor="middle" fontSize="18" fontWeight="600" fill="currentColor">{labels.roomCount}</text>
                     <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">{labels.roomCountCaption}</text>
             </svg>
           </div>

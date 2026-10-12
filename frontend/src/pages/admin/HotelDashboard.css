@@ -177,3 +177,82 @@
     .admin-room-grid { grid-template-columns: 1fr; }
     .admin-page-header-actions > * { max-width: 100%; }
 }
+/* =========================================================
+   Modo oscuro del panel de administración.
+   Se activa con la clase `guest-dark-mode` en <body> (ThemeContext,
+   el mismo interruptor que usa la vista de huésped).
+
+   Estrategia: dentro de .admin-dashboard se invierte la escala
+   --slate-* y se redefinen las variables de Bootstrap, de modo que
+   todo lo que ya usa var(--slate-*) / Bootstrap se adapta solo.
+   Más abajo se corrigen los colores claros escritos a mano (#fff).
+   ========================================================= */
+body.guest-dark-mode .admin-dashboard {
+    color-scheme: dark;
+
+    --admin-surface: var(--navy-800);
+
+    --slate-50: #0e1220;
+    --slate-100: #1f2745;
+    --slate-200: #2a3352;
+    --slate-500: #a3aec2;
+    --slate-600: #b9c3d6;
+    --slate-700: #d3dbe8;
+    --slate-800: #f1f5f9;
+
+    /* anillos de foco: el rosa claro original encandila sobre fondo oscuro */
+    --rose-200: rgba(244, 63, 94, .35);
+
+    /* Bootstrap (tablas, inputs, selects) */
+    --bs-body-bg: var(--admin-surface);
+    --bs-body-color: var(--slate-700);
+    --bs-emphasis-color: var(--slate-800);
+    --bs-border-color: var(--slate-200);
+}
+
+/* Superficies que tenían fondo blanco fijo */
+body.guest-dark-mode .admin-dashboard .card-panel,
+body.guest-dark-mode .admin-dashboard .admin-room-card,
+body.guest-dark-mode .admin-dashboard .topbar,
+body.guest-dark-mode .admin-dashboard .topbar-dropdown,
+body.guest-dark-mode .admin-dashboard .admin-action-button--outline,
+body.guest-dark-mode .admin-dashboard .admin-form-control,
+body.guest-dark-mode .admin-dashboard .filter-select {
+    background-color: var(--admin-surface);
+}
+
+body.guest-dark-mode .admin-dashboard .admin-form-control,
+body.guest-dark-mode .admin-dashboard .filter-select {
+    color: var(--slate-700);
+}
+
+body.guest-dark-mode .admin-dashboard .admin-action-button--outline:hover {
+    background-color: var(--slate-100);
+    border-color: #3a4570;
+}
+
+body.guest-dark-mode .admin-dashboard .admin-tab.is-active {
+    background: var(--slate-200);
+    box-shadow: none;
+}
+
+/* Flecha de los <select>: la de Bootstrap es gris oscura */
+body.guest-dark-mode .admin-dashboard .form-select {
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d3dbe8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Punto de notificaciones: el aro blanco pasa a ser del color del topbar */
+body.guest-dark-mode .admin-dashboard .notif-dot {
+    box-shadow: 0 0 0 2px var(--admin-surface);
+}
+
+body.guest-dark-mode .admin-dashboard ::-webkit-scrollbar-thumb {
+    background: #3a4570;
+}
+
+/* Insignias de estado: pasteles claros -> tonos translúcidos */
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-emerald { color: #6ee7b7; background: rgba(16, 185, 129, .16); }
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-rose    { color: #fda4af; background: rgba(244, 63, 94, .16); }
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-amber   { color: #fcd34d; background: rgba(245, 158, 11, .16); }
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-orange  { color: #fdba74; background: rgba(249, 115, 22, .16); }
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-blue    { color: #93c5fd; background: rgba(59, 130, 246, .16); }
