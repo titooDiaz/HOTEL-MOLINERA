@@ -3,6 +3,7 @@ export default function PageHeader({
   subtitle,
   actionLabel,
   actionVariant = "primary",
+  onAction,
   children,
 }) {
   return (
@@ -14,7 +15,7 @@ export default function PageHeader({
       <div className="admin-page-header-actions">
         {children}
         {actionLabel && (
-          <button className={`admin-action-button admin-action-button--${actionVariant}`} type="button">
+          <button className={`admin-action-button admin-action-button--${actionVariant}`} type="button" onClick={onAction}>
             {actionLabel}
           </button>
         )}

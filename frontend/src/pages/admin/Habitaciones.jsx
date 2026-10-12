@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
 import AdminNav from "../../components/nav/admin_nav.jsx";
@@ -136,6 +137,7 @@ const ROOMS_COPY = {
 };
 
 export default function Habitaciones() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => setSidebarOpen(true);
@@ -164,6 +166,7 @@ export default function Habitaciones() {
             title={ROOMS_COPY.header.title}
             subtitle={ROOMS_COPY.header.subtitle}
             actionLabel={ROOMS_COPY.header.action}
+            onAction={() => navigate("/admin/habitaciones/nueva")}
           />
 
           <SummaryCards cards={SUMMARY_CARDS} />

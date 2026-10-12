@@ -20,6 +20,7 @@ import Settings from './pages/users/Settings.jsx';
 // Vistas de administración
 import HotelDashboard from './pages/admin/HotelDashboard.jsx';
 import Habitaciones from './pages/admin/Habitaciones.jsx';
+import NuevaHabitacion from './pages/admin/NuevaHabitacion.jsx';
 import Reservas from './pages/admin/Reservas.jsx';
 import Clientes from './pages/admin/Clientes.jsx';
 import RestauranteAdmin from './pages/admin/RestauranteAdmin.jsx';
@@ -49,6 +50,7 @@ createRoot(document.getElementById("root")).render(
           <Route element={<ProtectedRoute allowedRole="admin" />}>
             <Route path="/admin" element={<HotelDashboard />} />
             <Route path="/admin/habitaciones" element={<Habitaciones />} />
+            <Route path="/admin/habitaciones/nueva" element={<NuevaHabitacion />} />
             <Route path="/admin/reservas" element={<Reservas />} />
             <Route path="/admin/clientes" element={<Clientes />} />
             <Route path="/admin/restaurante" element={<RestauranteAdmin />} />
