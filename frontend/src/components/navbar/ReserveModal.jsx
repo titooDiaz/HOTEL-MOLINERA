@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../icon/Icon.jsx";
 import "./ReserveModal.css";
@@ -70,6 +70,14 @@ function PasswordField({
 
 export default function ReserveModal({
   isOpen,
+  ...props
+}) {
+  if (!isOpen) return null;
+
+  return <ReserveModalContent {...props} />;
+}
+
+function ReserveModalContent({
   onClose,
   hotelName,
   labels = {},
@@ -77,6 +85,8 @@ export default function ReserveModal({
   onLogin,
   onRegister,
 }) {
+  const modalRef = useRef(null);
+
   // "options" | "login" | "register"
   const [view, setView] = useState("options");
   const [showPass, setShowPass] = useState(false);
@@ -96,20 +106,51 @@ export default function ReserveModal({
     terms: false,
   });
 
-  // Reiniciar todo al cerrar
+  // Mantener el foco dentro del diálogo y devolverlo al control que lo abrió.
   useEffect(() => {
-    if (!isOpen) {
-      setView("options");
-      setShowPass(false);
-      setError("");
-    }
-  }, [isOpen]);
+    const dialog = modalRef.current;
+    const previousFocus = document.activeElement;
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const getFocusableElements = () =>
+      [...dialog.querySelectorAll(focusableSelector)].filter(
+        (element) => element.getClientRects().length > 0,
+      );
 
-  // Cerrar con ESC y bloquear scroll del body
-  useEffect(() => {
-    if (!isOpen) return;
+    const focusableElements = getFocusableElements();
+    (focusableElements[0] ?? dialog).focus();
 
-    const onKeyDown = (e) => e.key === "Escape" && onClose();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const elements = getFocusableElements();
+      if (elements.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      const focusIsOutsideDialog = !dialog.contains(document.activeElement);
+
+      if (event.shiftKey && (document.activeElement === first || focusIsOutsideDialog)) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last || focusIsOutsideDialog)
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     document.addEventListener("keydown", onKeyDown);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -117,10 +158,12 @@ export default function ReserveModal({
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus();
+      }
+    };
+  }, [onClose]);
 
   const t = {
     eyebrow: labels.reserveEyebrow ?? "Reserva tu estadía",
@@ -206,6 +249,8 @@ export default function ReserveModal({
   return createPortal(
     <div className="reserve-overlay" onClick={onClose} role="presentation">
       <div
+        ref={modalRef}
+        tabIndex={-1}
         className={`reserve-modal ${isForm ? "reserve-modal--form" : ""}`}
         role="dialog"
         aria-modal="true"

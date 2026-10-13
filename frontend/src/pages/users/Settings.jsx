@@ -12,7 +12,7 @@ import PersonalDataCard from "../../components/settings/PersonalDataCard.jsx";
 import SecurityCard from "../../components/settings/SecurityCard.jsx";
 import PreferencesCard from "../../components/settings/PreferencesCard.jsx";
 import ActivityHistoryCard from "../../components/settings/ActivityHistoryCard.jsx";
-import { useTheme } from "../../context/ThemeContext.jsx";
+import { useTheme } from "../../context/themeContext.js";
 
 import "./RoomRequests.css";
 

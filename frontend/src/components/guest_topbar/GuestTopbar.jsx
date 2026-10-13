@@ -1,7 +1,7 @@
 import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/authContext.js";
 import "./GuestTopbar.css";
 
 export default function GuestTopbar({ guest, notificationLabel }) {

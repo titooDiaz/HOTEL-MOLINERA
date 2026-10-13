@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/authContext.js";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./DashboardTopbar.css";
 

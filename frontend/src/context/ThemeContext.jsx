@@ -1,9 +1,8 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useAuth } from "./AuthContext.jsx";
+import { useEffect, useRef, useState } from "react";
+import { ThemeContext } from "./themeContext.js";
+import { useAuth } from "./authContext.js";
 
 const THEME_STORAGE_KEY = "hotel-molinera-theme";
-
-export const ThemeContext = createContext(null);
 
 function getStoredDarkMode(userId) {
   if (!userId) return false;
@@ -76,14 +75,4 @@ export function ThemeProvider({ children }) {
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error("useTheme debe usarse dentro de ThemeProvider.");
-  }
-
-  return context;
 }

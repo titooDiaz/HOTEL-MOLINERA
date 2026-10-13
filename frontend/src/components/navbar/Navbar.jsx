@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Icon from "../icon/Icon.jsx";
 import ReserveModal from "./ReserveModal.jsx";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/authContext.js";
 import "./Navbar.css";
 
 const navItems = [
@@ -32,10 +32,11 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5730012345
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const closeReserveModal = useCallback(() => setIsReserveOpen(false), []);
 
   const handleLogin = ({ email, password, remember }) => {
     const user = login(email, password, remember);
-    setIsReserveOpen(false);
+    closeReserveModal();
     navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
   };
 
@@ -76,7 +77,7 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5730012345
 
       <ReserveModal
         isOpen={isReserveOpen}
-        onClose={() => setIsReserveOpen(false)}
+        onClose={closeReserveModal}
         hotelName={hotelName}
         labels={labels}
         whatsappNumber={whatsappNumber}

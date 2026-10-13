@@ -3,11 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import Navbar from "../../components/navbar/Navbar.jsx";
 import Hero from "../../components/hero/Hero.jsx";
-import RoomSection from "../../components/room_section/RoomSection.jsx";
 import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx";
 import HotelActivity from "../../components/hotel_activity/HotelActivity.jsx";
 
-import { room, roomImages } from "../../roomData.js";
 
 const TEXTOS_PLANES = {
   navbar: {

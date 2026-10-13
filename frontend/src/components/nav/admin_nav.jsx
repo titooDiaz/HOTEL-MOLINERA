@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/authContext.js";
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import "./admin_nav.css";
 
