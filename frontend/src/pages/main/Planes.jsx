@@ -23,8 +23,7 @@ const TEXTOS_PLANES = {
       "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
     imageAlt: "Fachada del hotel",
     eyebrow: "VIVE LA EXPERIENCIA",
-    defaultHotelName: "Hotel Moderno",
-    titleSuffix: "y Confortable",
+    defaultHotelName: "Hotel Molinera",
     description:
       "Encuentra el plan ideal para disfrutar del hotel y crear una experiencia especial durante tu estadía.",
   },

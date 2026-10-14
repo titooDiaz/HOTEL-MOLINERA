@@ -25,7 +25,7 @@ const TEXTO_PAGINA = {
     sidebar: {
         brand: {
             initials: "HM",
-            name: "Hotel Moderno",
+            name: "Hotel Molinera",
             tagline: "Tu estadía, nuestra prioridad",
         },
         items: [

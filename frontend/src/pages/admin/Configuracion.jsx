@@ -81,7 +81,7 @@ const NAV_ITEMS = [
 ];
 
 const HOTEL_FIELDS = [
-  { id: "hotel-name", label: "Nombre del hotel", defaultValue: "Hotel Moderno" },
+  { id: "hotel-name", label: "Nombre del hotel", defaultValue: "Hotel Molinera" },
   { id: "hotel-phone", label: "Teléfono", defaultValue: "+57 601 234 5678" },
   { id: "hotel-email", label: "Correo de contacto", type: "email", defaultValue: "contacto@hotelmoderno.com" },
   {
@@ -136,7 +136,7 @@ const SETTINGS_COPY = {
   sidebar: {
     brand: {
       logoLabel: "logo",
-      name: "Hotel Moderno",
+      name: "Hotel Molinera",
       subtitle: "Panel de Administración",
     },
     logoutLabel: "Cerrar sesión",

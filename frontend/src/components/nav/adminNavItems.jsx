@@ -70,7 +70,7 @@ export const NAV_ITEMS = [
 export const SIDEBAR_COPY = {
   brand: {
     logoLabel: "logo",
-    name: "Hotel Moderno",
+    name: "Hotel Molinera",
     subtitle: "Panel de Administración",
   },
   logoutLabel: "Cerrar sesión",

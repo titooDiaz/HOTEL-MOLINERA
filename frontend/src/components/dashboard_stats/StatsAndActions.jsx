@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./StatsAndActions.css";
 
@@ -55,16 +56,16 @@ export default function StatsAndActions({ statCards, quickActions, quickActionsT
           </h2>
           <div className="d-flex flex-column gap-2">
             {quickActions.map((action) => (
-              <button
+              <Link
                 key={action.label}
-                type="button"
+                to={action.to}
                 className={`quick-action-btn ${action.variant}`}
               >
                 <DashboardIcon width={16} height={16}>
                   {action.icon}
                 </DashboardIcon>
                 {action.label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

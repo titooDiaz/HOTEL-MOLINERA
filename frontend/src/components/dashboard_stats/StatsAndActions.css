@@ -41,6 +41,7 @@
   border-radius: .75rem;
   padding: .625rem 1rem;
   border: 0;
+  text-decoration: none;
   transition: background-color .15s ease-in-out;
 }
 

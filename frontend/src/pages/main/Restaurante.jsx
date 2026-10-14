@@ -25,8 +25,7 @@ const TEXTO_PORTADA = {
       "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
     imageAlt: "Restaurante del hotel",
     eyebrow: "SABORES QUE COMPLEMENTAN TU ESTADÍA",
-    defaultHotelName: "Hotel Moderno",
-    titleSuffix: "y Confortable",
+    defaultHotelName: "Hotel Molinera",
     description:
       "Disfruta de una propuesta gastronómica pensada para acompañar tu estadía, con platos preparados con ingredientes frescos y un ambiente agradable.",
   },

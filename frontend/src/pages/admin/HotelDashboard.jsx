@@ -142,6 +142,7 @@ const STAT_CARDS = [
 const QUICK_ACTIONS = [
   {
     label: "Nueva reserva",
+    to: "/admin/reservas/nueva",
     variant: "quick-action-btn--rose",
     icon: (
       <>
@@ -154,6 +155,7 @@ const QUICK_ACTIONS = [
   },
   {
     label: "Gestionar habitaciones",
+    to: "/admin/habitaciones",
     variant: "quick-action-btn--blue",
     icon: (
       <>
@@ -166,6 +168,7 @@ const QUICK_ACTIONS = [
   },
   {
     label: "Registrar cliente",
+    to: "/admin/clientes/nuevo",
     variant: "quick-action-btn--emerald",
     icon: (
       <>
@@ -176,6 +179,7 @@ const QUICK_ACTIONS = [
   },
   {
     label: "Gestionar restaurante",
+    to: "/admin/restaurante",
     variant: "quick-action-btn--violet",
     icon: (
       <>
@@ -248,7 +252,7 @@ const DASHBOARD_COPY = {
   sidebar: {
     brand: {
       logoLabel: "logo",
-      name: "Hotel Moderno",
+      name: "Hotel Molinera",
       subtitle: "Panel de Administración",
     },
     logoutLabel: "Cerrar sesión",

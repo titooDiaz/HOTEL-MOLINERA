@@ -100,7 +100,7 @@ const REPORTS_COPY = {
   sidebar: {
     brand: {
       logoLabel: "logo",
-      name: "Hotel Moderno",
+      name: "Hotel Molinera",
       subtitle: "Panel de Administración",
     },
     logoutLabel: "Cerrar sesión",
