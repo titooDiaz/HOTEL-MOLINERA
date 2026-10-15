@@ -462,7 +462,7 @@ function ReserveModalContent({
                           })
                         }
                         autoComplete="tel"
-                        placeholder="300 123 4567"
+                        placeholder="+58 276-7883117"
                         required
                       />
                     </div>

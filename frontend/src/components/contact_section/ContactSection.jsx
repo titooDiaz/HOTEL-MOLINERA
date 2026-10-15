@@ -68,6 +68,18 @@ export default function ContactSection({ information, form, onSubmit }) {
         </>
       ),
     },
+    {
+      key: "instagram",
+      data: information.instagram,
+      href: information.instagram.href,
+      icon: (
+        <>
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+        </>
+      ),
+    },
   ];
 
   const isSending = status === "sending";
@@ -89,7 +101,12 @@ export default function ContactSection({ information, form, onSubmit }) {
                 <div className="contact-card-text">
                   <p className="small text-secondary mb-0">{data.label}</p>
                   {href ? (
-                    <a href={href} className="contact-link">
+                    <a
+                      href={href}
+                      className="contact-link"
+                      target={key === "instagram" ? "_blank" : undefined}
+                      rel={key === "instagram" ? "noreferrer" : undefined}
+                    >
                       {data.value}
                     </a>
                   ) : (

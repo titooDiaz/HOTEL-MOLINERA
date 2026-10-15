@@ -25,3 +25,24 @@ Si no están instaladas, agregar:
 ```bash
 npm install dotenv cors react-router-dom
 ```
+
+## Usuarios Registrados en la App
+
+Para administradores:
+
+```
+admin@hotelmolinera.com
+```
+
+```
+admin123
+```
+
+Para usuarios:
+```
+huesped@hotelmolinera.com
+```
+
+```
+huesped123
+```

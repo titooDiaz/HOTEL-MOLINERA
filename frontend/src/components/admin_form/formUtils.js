@@ -1,11 +1,18 @@
-/** "$120.000" (pesos colombianos, sin decimales). */
+/** Formato monetario venezolano sin decimales. */
 export function formatCOP(value) {
-  return `$${new Intl.NumberFormat("es-CO").format(Math.round(value))}`;
+  return `Bs. ${new Intl.NumberFormat("es-VE").format(Math.round(value))}`;
 }
 
 /** Fecha local de hoy en formato AAAA-MM-DD (lo que espera <input type="date">). */
 export function todayISO() {
-  return new Date().toLocaleDateString("en-CA");
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Caracas",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 /** Número de noches entre dos fechas AAAA-MM-DD (0 si falta alguna o son inválidas). */

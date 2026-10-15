@@ -81,7 +81,7 @@ const NAV_ITEMS = [
 const SUMMARY_CARDS = [
   { label: "Pedidos hoy", value: "24", sub: "en toda la propiedad" },
   { label: "Pendientes", value: "6", sub: "por entregar o cobrar" },
-  { label: "Ingresos del día", value: "$612.000", sub: "COP acumulado" },
+  { label: "Ingresos del día", value: "Bs. 612.000", sub: "VES acumulado" },
 ];
 
 const ORDERS = [

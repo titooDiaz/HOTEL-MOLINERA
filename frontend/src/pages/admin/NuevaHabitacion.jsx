@@ -152,9 +152,9 @@ const FORM_SECTIONS = [
     fields: [
       {
         id: "pricePerNight",
-        label: "Precio por noche (COP)",
+        label: "Precio por noche (VES)",
         type: "number",
-        prefix: "$",
+        prefix: "Bs.",
         min: 0,
         step: 1000,
         placeholder: "120000",

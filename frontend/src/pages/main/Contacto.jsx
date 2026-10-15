@@ -25,7 +25,7 @@ const TEXTOS_CONTACTO = {
 
     phone: {
       label: "Teléfono",
-      value: "000 000 0000",
+      value: "+58 276-7883117",
     },
 
     email: {
@@ -35,7 +35,13 @@ const TEXTOS_CONTACTO = {
 
     address: {
       label: "Dirección",
-      value: "Dirección del hotel",
+      value: "RMFP+X4X, Capacho 5009, Táchira, Venezuela",
+    },
+
+    instagram: {
+      label: "Instagram",
+      value: "@lanuevamolinera_capacho",
+      href: "https://www.instagram.com/lanuevamolinera_capacho/",
     },
   },
 

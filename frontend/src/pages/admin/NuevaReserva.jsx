@@ -85,9 +85,9 @@ const FORM_SECTIONS = [
       },
       {
         id: "advance",
-        label: "Anticipo recibido (COP)",
+        label: "Anticipo recibido (VES)",
         type: "number",
-        prefix: "$",
+        prefix: "Bs.",
         min: 0,
         step: 1000,
         placeholder: "0",

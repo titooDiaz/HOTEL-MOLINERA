@@ -82,19 +82,19 @@ const NAV_ITEMS = [
 
 const HOTEL_FIELDS = [
   { id: "hotel-name", label: "Nombre del hotel", defaultValue: "Hotel Molinera" },
-  { id: "hotel-phone", label: "Teléfono", defaultValue: "+57 601 234 5678" },
+  { id: "hotel-phone", label: "Teléfono", defaultValue: "+58 276-7883117" },
   { id: "hotel-email", label: "Correo de contacto", type: "email", defaultValue: "contacto@hotelmoderno.com" },
   {
     id: "hotel-currency",
     label: "Moneda",
-    defaultValue: "COP",
+    defaultValue: "VES",
     options: [
-      { value: "COP", label: "Peso colombiano (COP)" },
+      { value: "VES", label: "Bolívar venezolano (VES)" },
       { value: "USD", label: "Dólar estadounidense (USD)" },
       { value: "EUR", label: "Euro (EUR)" },
     ],
   },
-  { id: "hotel-address", label: "Dirección", colClass: "col-12", defaultValue: "Calle 45 #12-34, Bucaramanga, Colombia" },
+  { id: "hotel-address", label: "Dirección", colClass: "col-12", defaultValue: "RMFP+X4X, Capacho 5009, Táchira, Venezuela" },
 ];
 
 const USERS = [
@@ -114,9 +114,9 @@ const REGIONAL_FIELDS = [
   {
     id: "timezone",
     label: "Zona horaria",
-    defaultValue: "bogota",
+    defaultValue: "caracas",
     options: [
-      { value: "bogota", label: "América/Bogotá (GMT-5)" },
+      { value: "caracas", label: "América/Caracas (GMT-4)" },
       { value: "mexico", label: "América/Ciudad de México (GMT-6)" },
       { value: "madrid", label: "Europa/Madrid (GMT+1)" },
     ],

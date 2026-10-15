@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Icon from "../icon/Icon.jsx";
 import ReserveModal from "./ReserveModal.jsx";
 import { useAuth } from "../../context/authContext.js";
+import appIcon from "../../images/icon.jpg";
 import "./Navbar.css";
 
 const navItems = [
@@ -28,24 +29,35 @@ const navItems = [
   },
 ];
 
-export default function Navbar({ hotelName, labels, whatsappNumber = "573001234567" }) {
+export default function Navbar({ hotelName, labels, whatsappNumber = "582767883117" }) {
   const [isReserveOpen, setIsReserveOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
   const closeReserveModal = useCallback(() => setIsReserveOpen(false), []);
 
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setIsMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, []);
+
   const handleLogin = ({ email, password, remember }) => {
     const user = login(email, password, remember);
     closeReserveModal();
+    setIsMenuOpen(false);
     navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
   };
 
   return (
-    <>
+    <div className="navbar-wrapper">
       <header className="d-flex align-items-center justify-content-between px-3 px-md-5 py-3 navbar-custom">
         <div className="d-flex align-items-center gap-4">
-          <div className="logo-circle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-center fw-bold text-white small">
-            {hotelName ? labels.brandInitials : labels.logoFallback}
+          <div className="logo-circle rounded-circle flex-shrink-0">
+            <img src={appIcon} alt={hotelName || "Hotel Molinera"} />
           </div>
 
           <nav className="d-none d-lg-flex align-items-center gap-4 nav-links">
@@ -66,14 +78,53 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5730012345
           </nav>
         </div>
 
-        <button
-          type="button"
-          className="btn-reserve"
-          onClick={() => setIsReserveOpen(true)}
-        >
-          {labels.reserve}
-        </button>
+        <div className="navbar-actions">
+          <button
+            type="button"
+            className="btn-reserve"
+            onClick={() => {
+              setIsMenuOpen(false);
+              setIsReserveOpen(true);
+            }}
+          >
+            {labels.reserve}
+          </button>
+
+          <button
+            type="button"
+            className={`mobile-menu-toggle d-lg-none ${isMenuOpen ? "is-open" : ""}`}
+            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setIsMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
       </header>
+
+      <div className={`mobile-menu ${isMenuOpen ? "is-open" : ""}`}>
+        <nav id="mobile-navigation" aria-hidden={!isMenuOpen}>
+          {navItems.map(({ to, labelKey, path }) => (
+            <NavLink
+              key={to}
+              to={to}
+              tabIndex={isMenuOpen ? 0 : -1}
+              className={({ isActive }) =>
+                `mobile-nav-link ${isActive ? "active" : ""}`
+              }
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Icon size={18}>
+                <path d={path} fill="currentColor" stroke="none" />
+              </Icon>
+              {labels[labelKey]}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
 
       <ReserveModal
         isOpen={isReserveOpen}
@@ -83,6 +134,6 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5730012345
         whatsappNumber={whatsappNumber}
         onLogin={handleLogin}
       />
-    </>
+    </div>
   );
 }

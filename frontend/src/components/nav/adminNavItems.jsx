@@ -87,9 +87,9 @@ export function buildTopbarCopy(searchPlaceholder, searchLabel) {
   };
 }
 
-/** "$120.000" (pesos colombianos, sin decimales). */
+/** Formato monetario venezolano sin decimales. */
 export function formatCOP(value) {
-  return `$${new Intl.NumberFormat("es-CO").format(Math.round(value))}`;
+  return `Bs. ${new Intl.NumberFormat("es-VE").format(Math.round(value))}`;
 }
 
 /** Fecha local de hoy en formato AAAA-MM-DD (lo que espera <input type="date">). */

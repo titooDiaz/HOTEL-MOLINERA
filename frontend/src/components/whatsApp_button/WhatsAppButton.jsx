@@ -1,9 +1,9 @@
 import "./WhatsAppButton.css";
 
-export default function WhatsAppButton({ ariaLabel }) {
+export default function WhatsAppButton({ ariaLabel, phone = "582767883117" }) {
   return (
     <a
-      href="https://wa.me/"
+      href={`https://wa.me/${phone}`}
       className="whatsapp-fab"
       aria-label={ariaLabel}
     >

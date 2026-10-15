@@ -98,7 +98,7 @@ const HABITACION = {
 
 
 const formatoCOP = (valor) => {
-    return `$${valor.toLocaleString("es-CO")} COP`;
+    return `Bs. ${valor.toLocaleString("es-VE")}`;
 };
 
 

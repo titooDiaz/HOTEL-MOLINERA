@@ -30,7 +30,7 @@ const FORM_SECTIONS = [
       },
       { id: "documentNumber", label: "Número de documento", placeholder: "Ej. 1098765432", required: true },
       { id: "birthDate", label: "Fecha de nacimiento", type: "date", max: todayISO() },
-      { id: "nationality", label: "Nacionalidad", defaultValue: "Colombia" },
+      { id: "nationality", label: "Nacionalidad", defaultValue: "Venezuela" },
     ],
   },
   {
@@ -38,9 +38,9 @@ const FORM_SECTIONS = [
     title: "Contacto",
     fields: [
       { id: "email", label: "Correo electrónico", type: "email", placeholder: "cliente@correo.com", required: true },
-      { id: "phone", label: "Teléfono", type: "tel", placeholder: "+57 300 000 0000", required: true },
-      { id: "city", label: "Ciudad de residencia", placeholder: "Ej. Bucaramanga" },
-      { id: "address", label: "Dirección", placeholder: "Calle, número, barrio" },
+      { id: "phone", label: "Teléfono", type: "tel", placeholder: "+58 276-7883117", required: true },
+      { id: "city", label: "Ciudad de residencia", placeholder: "Ej. Capacho" },
+      { id: "address", label: "Dirección", placeholder: "RMFP+X4X, Capacho 5009, Táchira" },
     ],
   },
   {
@@ -49,7 +49,7 @@ const FORM_SECTIONS = [
     description: "Información opcional que ayuda a la recepción durante la estadía.",
     fields: [
       { id: "emergencyName", label: "Contacto de emergencia", placeholder: "Nombre completo" },
-      { id: "emergencyPhone", label: "Teléfono de emergencia", type: "tel", placeholder: "+57 300 000 0000" },
+      { id: "emergencyPhone", label: "Teléfono de emergencia", type: "tel", placeholder: "+58 276-7883117" },
       {
         id: "notes",
         label: "Notas y preferencias",

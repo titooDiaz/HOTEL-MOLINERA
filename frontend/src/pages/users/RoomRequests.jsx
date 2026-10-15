@@ -130,7 +130,7 @@ const PEDIDOS = [
     },
 ];
 
-const formatoCOP = (valor) => `$${valor.toLocaleString("es-CO")} COP`;
+const formatoCOP = (valor) => `Bs. ${valor.toLocaleString("es-VE")}`;
 
 export default function RoomRequests() {
     const [filtro, setFiltro] = useState("todos");
