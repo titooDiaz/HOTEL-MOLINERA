@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../icon/Icon.jsx";
 import "./ReserveModal.css";
+import Tooltip from "../tooltip/Tooltip.jsx";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80";
@@ -56,13 +57,15 @@ function PasswordField({
           required
           minLength={6}
         />
-        <button
-          type="button"
-          className="reserve-toggle-pass"
-          onClick={onTogglePass}
-        >
-          {showPass ? hideLabel : showLabel}
-        </button>
+        <Tooltip label={showPass ? hideLabel : showLabel}>
+          <button
+            type="button"
+            className="reserve-toggle-pass"
+            onClick={onTogglePass}
+          >
+            {showPass ? hideLabel : showLabel}
+          </button>
+        </Tooltip>
       </div>
     </div>
   );
@@ -257,22 +260,24 @@ function ReserveModalContent({
         aria-labelledby="reserve-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          className="reserve-close"
-          onClick={onClose}
-          aria-label={t.close}
-        >
-          <Icon size={18}>
-            <path
-              d="M6 6l12 12M18 6L6 18"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </Icon>
-        </button>
+        <Tooltip label={t.close}>
+          <button
+            type="button"
+            className="reserve-close"
+            onClick={onClose}
+            aria-label={t.close}
+          >
+            <Icon size={18}>
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </Icon>
+          </button>
+        </Tooltip>
 
         {/* ============ PANEL IZQUIERDO (imagen / formularios) ============ */}
         {!isForm && (
@@ -307,13 +312,15 @@ function ReserveModalContent({
             <FormHeader hotelName={hotelName} />
 
             <div className="reserve-form-body">
-              <button
-                type="button"
-                className="reserve-back"
-                onClick={() => changeView("options")}
-              >
-                ← {t.back}
-              </button>
+              <Tooltip label={t.back}>
+                <button
+                  type="button"
+                  className="reserve-back"
+                  onClick={() => changeView("options")}
+                >
+                  ← {t.back}
+                </button>
+              </Tooltip>
 
               <h3 className="reserve-form-title">{t.loginTitle}</h3>
               <p className="reserve-form-subtitle">{t.loginSubtitle}</p>
@@ -371,9 +378,11 @@ function ReserveModalContent({
 
                 {error && <p className="reserve-error">{error}</p>}
 
-                <button type="submit" className="reserve-submit">
-                  {t.loginSubmit}
-                </button>
+                  <Tooltip label={t.loginSubmit}>
+                    <button type="submit" className="reserve-submit">
+                      {t.loginSubmit}
+                    </button>
+                  </Tooltip>
 
                 <p className="reserve-switch">
                   {t.noAccount}{" "}
@@ -395,13 +404,15 @@ function ReserveModalContent({
             <FormHeader hotelName={hotelName} />
 
             <div className="reserve-form-body">
-              <button
-                type="button"
-                className="reserve-back"
-                onClick={() => changeView("options")}
-              >
-                ← {t.back}
-              </button>
+              <Tooltip label={t.back}>
+                <button
+                  type="button"
+                  className="reserve-back"
+                  onClick={() => changeView("options")}
+                >
+                  ← {t.back}
+                </button>
+              </Tooltip>
 
               <h3 className="reserve-form-title">{t.registerTitle}</h3>
               <p className="reserve-form-subtitle">{t.registerSubtitle}</p>
@@ -521,9 +532,11 @@ function ReserveModalContent({
 
                 {error && <p className="reserve-error">{error}</p>}
 
-                <button type="submit" className="reserve-submit">
-                  {t.registerSubmit}
-                </button>
+                <Tooltip label={t.registerSubmit}>
+                  <button type="submit" className="reserve-submit">
+                    {t.registerSubmit}
+                  </button>
+                </Tooltip>
 
                 <p className="reserve-switch">
                   {t.haveAccount}{" "}

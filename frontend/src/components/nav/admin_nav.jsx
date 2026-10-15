@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
+import appIcon from "../../images/icon.jpg";
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import "./admin_nav.css";
 
@@ -40,7 +41,7 @@ export default function AdminNav({ items, sidebarOpen, onClose, brand, logoutLab
 			>
 				<div>
 					<div className="d-flex align-items-center gap-3 brand-block">
-						<div className="logo-box">{brand.logoLabel}</div>
+						<img className="logo-box" src={appIcon} alt="Logo de Hotel Molinera" />
 						<div>
 							<p className="brand-title">{brand.name}</p>
 							<p className="brand-subtitle">{brand.subtitle}</p>

@@ -2,9 +2,11 @@ import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
+import SidebarToggle from "../sidebar_toggle/SidebarToggle.jsx";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./GuestTopbar.css";
 
-export default function GuestTopbar({ guest, notificationLabel }) {
+export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, menuLabel = "Abrir menú" }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
@@ -19,18 +21,23 @@ export default function GuestTopbar({ guest, notificationLabel }) {
   };
 
   return (
-    <header className="guest-topbar bg-white border-bottom d-flex align-items-center justify-content-end gap-3 px-4 py-3">
+    <header className="guest-topbar bg-white border-bottom d-flex align-items-center gap-3 px-4 py-3">
+      <div className="d-lg-none me-auto">
+        <SidebarToggle onClick={onOpenSidebar} label={menuLabel} />
+      </div>
       <div className="guest-topbar-menu">
-        <button
-          type="button"
-          className="guest-notification-btn btn btn-light rounded-circle position-relative"
-          aria-label={notificationLabel}
-          aria-expanded={openMenu === "notifications"}
-          onClick={() => toggleMenu("notifications")}
-        >
-          <Bell size={18} />
-          <span className="guest-notification-dot" />
-        </button>
+        <Tooltip label={notificationLabel}>
+          <button
+            type="button"
+            className="guest-notification-btn btn btn-light rounded-circle position-relative"
+            aria-label={notificationLabel}
+            aria-expanded={openMenu === "notifications"}
+            onClick={() => toggleMenu("notifications")}
+          >
+            <Bell size={18} />
+            <span className="guest-notification-dot" />
+          </button>
+        </Tooltip>
         {openMenu === "notifications" && (
           <div className="guest-dropdown guest-notifications-dropdown">
             <strong className="guest-dropdown-title">Notificaciones</strong>

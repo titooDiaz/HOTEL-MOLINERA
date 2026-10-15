@@ -1,9 +1,10 @@
 import { LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
+import appIcon from "../../images/icon.jpg";
 import "./GuestSidebar.css";
 
-export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) {
+export default function GuestSidebar({ brand, items, activeItem, logoutLabel, sidebarOpen, onClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -17,9 +18,15 @@ export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) 
   };
 
   return (
-    <aside className="guest-sidebar d-none d-lg-flex flex-column bg-white border-end">
+    <>
+      <div
+        className={`guest-sidebar-overlay${sidebarOpen ? " show" : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside className={`guest-sidebar d-flex flex-column bg-white border-end${sidebarOpen ? " guest-sidebar-open" : ""}`}>
       <div className="guest-brand d-flex align-items-center gap-2 px-4 py-4">
-        <div className="guest-logo">{brand.initials}</div>
+        <img className="guest-logo" src={appIcon} alt="Logo de Hotel Molinera" />
         <div>
           <div className="fw-semibold">{brand.name}</div>
           <div className="text-secondary small">{brand.tagline}</div>
@@ -37,6 +44,7 @@ export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) 
                   isActive || label === activeItem ? "guest-nav-active" : ""
                 }`
               }
+              onClick={onClose}
             >
               <Icon size={18} />
               <span>{label}</span>
@@ -55,6 +63,7 @@ export default function GuestSidebar({ brand, items, activeItem, logoutLabel }) 
           {logoutLabel}
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

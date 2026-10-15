@@ -1,3 +1,5 @@
+import Tooltip from "../tooltip/Tooltip.jsx";
+
 export default function PageHeader({
   title,
   subtitle,
@@ -15,9 +17,11 @@ export default function PageHeader({
       <div className="admin-page-header-actions">
         {children}
         {actionLabel && (
-          <button className={`admin-action-button admin-action-button--${actionVariant}`} type="button" onClick={onAction}>
-            {actionLabel}
-          </button>
+          <Tooltip label={actionLabel}>
+            <button className={`admin-action-button admin-action-button--${actionVariant}`} type="button" onClick={onAction}>
+              {actionLabel}
+            </button>
+          </Tooltip>
         )}
       </div>
     </section>

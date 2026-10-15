@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
+import SidebarToggle from "../sidebar_toggle/SidebarToggle.jsx";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./DashboardTopbar.css";
 
 export default function DashboardTopbar({ onOpenSidebar, labels }) {
@@ -44,18 +46,9 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
   return (
     <header className="topbar position-sticky top-0 z-20">
       <div className="d-flex align-items-center topbar-inner">
-        <button
-          type="button"
-          className="d-lg-none icon-btn"
-          onClick={onOpenSidebar}
-          aria-label={labels.menuLabel}
-        >
-          <DashboardIcon width={22} height={22}>
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </DashboardIcon>
-        </button>
+        <div className="d-lg-none">
+          <SidebarToggle onClick={onOpenSidebar} label={labels.menuLabel} />
+        </div>
 
         <div className="flex-grow-1 search-wrap position-relative d-none d-sm-block">
           <DashboardIcon className="search-icon" width={16} height={16}>
@@ -74,19 +67,21 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
 
         <div className="d-flex align-items-center gap-3 ms-auto topbar-actions" ref={topbarActionsRef}>
           <div className="topbar-menu">
-            <button
-              type="button"
-              className="notif-btn"
-              aria-label={labels.notificationsLabel}
-              aria-expanded={openMenu === "notifications"}
-              onClick={() => toggleMenu("notifications")}
-            >
-            <DashboardIcon width={20} height={20}>
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </DashboardIcon>
-              <span className="notif-dot" />
-            </button>
+            <Tooltip label={labels.notificationsLabel}>
+              <button
+                type="button"
+                className="notif-btn"
+                aria-label={labels.notificationsLabel}
+                aria-expanded={openMenu === "notifications"}
+                onClick={() => toggleMenu("notifications")}
+              >
+                <DashboardIcon width={20} height={20}>
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 0-3.46 0" />
+                </DashboardIcon>
+                <span className="notif-dot" />
+              </button>
+            </Tooltip>
             {openMenu === "notifications" && (
               <div className="topbar-dropdown notifications-dropdown">
                 <div className="topbar-dropdown-heading">

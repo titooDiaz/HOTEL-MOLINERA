@@ -4,6 +4,7 @@ import Icon from "../icon/Icon.jsx";
 import ReserveModal from "./ReserveModal.jsx";
 import { useAuth } from "../../context/authContext.js";
 import appIcon from "../../images/icon.jpg";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./Navbar.css";
 
 const navItems = [
@@ -79,29 +80,33 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5827678831
         </div>
 
         <div className="navbar-actions">
-          <button
-            type="button"
-            className="btn-reserve"
-            onClick={() => {
-              setIsMenuOpen(false);
-              setIsReserveOpen(true);
-            }}
-          >
-            {labels.reserve}
-          </button>
+          <Tooltip label={labels.reserve}>
+            <button
+              type="button"
+              className="btn-reserve"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsReserveOpen(true);
+              }}
+            >
+              {labels.reserve}
+            </button>
+          </Tooltip>
 
-          <button
-            type="button"
-            className={`mobile-menu-toggle d-lg-none ${isMenuOpen ? "is-open" : ""}`}
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-navigation"
-            onClick={() => setIsMenuOpen((open) => !open)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+          <Tooltip label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>
+            <button
+              type="button"
+              className={`mobile-menu-toggle d-lg-none ${isMenuOpen ? "is-open" : ""}`}
+              aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setIsMenuOpen((open) => !open)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </Tooltip>
         </div>
       </header>
 

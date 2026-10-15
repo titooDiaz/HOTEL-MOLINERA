@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./RoomGallery.css";
 
 export default function RoomGallery({ images, labels }) {
@@ -24,22 +25,26 @@ export default function RoomGallery({ images, labels }) {
         <span className="image-counter">
           {currentImage + 1} / {images.length}
         </span>
-        <button
-          type="button"
-          onClick={showPreviousImage}
-          className="position-absolute top-50 start-0 translate-middle-y ms-2 btn-nav-circle"
-          aria-label={labels.previousImage}
-        >
-          <Icon size={16}><path d="M15 18l-6-6 6-6" /></Icon>
-        </button>
-        <button
-          type="button"
-          onClick={showNextImage}
-          className="position-absolute top-50 end-0 translate-middle-y me-2 btn-nav-circle"
-          aria-label={labels.nextImage}
-        >
-          <Icon size={16}><path d="M9 18l6-6-6-6" /></Icon>
-        </button>
+        <Tooltip label={labels.previousImage}>
+          <button
+            type="button"
+            onClick={showPreviousImage}
+            className="position-absolute top-50 start-0 translate-middle-y ms-2 btn-nav-circle"
+            aria-label={labels.previousImage}
+          >
+            <Icon size={16}><path d="M15 18l-6-6 6-6" /></Icon>
+          </button>
+        </Tooltip>
+        <Tooltip label={labels.nextImage}>
+          <button
+            type="button"
+            onClick={showNextImage}
+            className="position-absolute top-50 end-0 translate-middle-y me-2 btn-nav-circle"
+            aria-label={labels.nextImage}
+          >
+            <Icon size={16}><path d="M9 18l6-6-6 6" /></Icon>
+          </button>
+        </Tooltip>
       </div>
 
       <div className="thumbs-grid mt-2">

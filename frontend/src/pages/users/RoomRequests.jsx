@@ -134,6 +134,7 @@ const formatoCOP = (valor) => `Bs. ${valor.toLocaleString("es-VE")}`;
 
 export default function RoomRequests() {
     const [filtro, setFiltro] = useState("todos");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const pedidosFiltrados =
         filtro === "todos"
         ? PEDIDOS
@@ -149,12 +150,18 @@ export default function RoomRequests() {
 
     return (
         <div className="hotel-layout d-flex min-vh-100">
-        <GuestSidebar {...TEXTO_PAGINA.sidebar} />
+        <GuestSidebar
+            {...TEXTO_PAGINA.sidebar}
+            sidebarOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+        />
 
         <main className="main-content flex-grow-1">
             <GuestTopbar
                 guest={HUESPED}
                 notificationLabel={TEXTO_PAGINA.notificationLabel}
+                menuLabel="Abrir menú"
+                onOpenSidebar={() => setSidebarOpen(true)}
             />
 
             <div className="container-fluid p-4">

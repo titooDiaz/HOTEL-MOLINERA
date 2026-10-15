@@ -2,9 +2,30 @@
   width: 260px;
   min-width: 260px;
   height: 100vh;
-  position: sticky;
+  position: fixed;
   top: 0;
+  bottom: 0;
+  left: 0;
   flex-shrink: 0;
+  z-index: 40;
+  transform: translateX(-100%);
+  transition: transform .2s ease-in-out;
+}
+
+.guest-sidebar-open {
+  transform: translateX(0);
+}
+
+.guest-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  background: rgba(0, 0, 0, .4);
+}
+
+.guest-sidebar-overlay.show {
+  display: block;
 }
 
 .guest-brand {
@@ -18,9 +39,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #7a1f2b;
-  color: white;
-  font-weight: bold;
+  object-fit: cover;
+}
+
+@media (min-width: 992px) {
+  .guest-sidebar {
+    position: sticky;
+    transform: translateX(0);
+  }
+
+  .guest-sidebar-overlay {
+    display: none !important;
+  }
 }
 
 .guest-nav-item {

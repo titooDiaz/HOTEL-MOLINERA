@@ -4,6 +4,7 @@ import {
     Settings,
     Utensils,
 } from "lucide-react";
+import { useState } from "react";
 
 import GuestSidebar from "../../components/guest_sidebar/GuestSidebar.jsx";
 import GuestTopbar from "../../components/guest_topbar/GuestTopbar.jsx";
@@ -103,7 +104,7 @@ const formatoCOP = (valor) => {
 
 
 export default function MyRoom() {
-
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const totalHabitacion = HABITACION.valor;
 
@@ -119,6 +120,8 @@ export default function MyRoom() {
 
             <GuestSidebar
                 {...TEXTO_PAGINA.sidebar}
+                sidebarOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
             />
 
 
@@ -129,6 +132,8 @@ export default function MyRoom() {
                     notificationLabel={
                         TEXTO_PAGINA.notificationLabel
                     }
+                    menuLabel="Abrir menú"
+                    onOpenSidebar={() => setSidebarOpen(true)}
                 />
 
 

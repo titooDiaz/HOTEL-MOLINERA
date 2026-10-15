@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { formatCOP } from "./formUtils.js";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./AdminForm.css";
 
 /**
@@ -154,25 +155,29 @@ function QuantityRow({ item, quantity, onChange, labels }) {
       {item.price != null && <span className="aform-item-price">{formatCOP(item.price)}</span>}
 
       <div className="aform-stepper">
-        <button
-          type="button"
-          className="aform-stepper-btn"
-          aria-label={`${labels.decrease ?? "Quitar uno de"} ${item.label}`}
-          disabled={item.disabled || quantity <= 0}
-          onClick={() => onChange(Math.max(0, quantity - 1))}
-        >
-          −
-        </button>
+        <Tooltip label={`${labels.decrease ?? "Quitar uno de"} ${item.label}`}>
+          <button
+            type="button"
+            className="aform-stepper-btn"
+            aria-label={`${labels.decrease ?? "Quitar uno de"} ${item.label}`}
+            disabled={item.disabled || quantity <= 0}
+            onClick={() => onChange(Math.max(0, quantity - 1))}
+          >
+            −
+          </button>
+        </Tooltip>
         <span className="aform-stepper-value" aria-live="polite">{quantity}</span>
-        <button
-          type="button"
-          className="aform-stepper-btn"
-          aria-label={`${labels.increase ?? "Agregar uno de"} ${item.label}`}
-          disabled={item.disabled || quantity >= max}
-          onClick={() => onChange(Math.min(max, quantity + 1))}
-        >
-          +
-        </button>
+        <Tooltip label={`${labels.increase ?? "Agregar uno de"} ${item.label}`}>
+          <button
+            type="button"
+            className="aform-stepper-btn"
+            aria-label={`${labels.increase ?? "Agregar uno de"} ${item.label}`}
+            disabled={item.disabled || quantity >= max}
+            onClick={() => onChange(Math.min(max, quantity + 1))}
+          >
+            +
+          </button>
+        </Tooltip>
       </div>
     </div>
   );

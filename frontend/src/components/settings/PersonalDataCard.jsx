@@ -1,5 +1,6 @@
 import { Pencil, User } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./PersonalDataCard.css";
 
 function EditableField({ field, editing, onEditField, onChange }) {
@@ -19,14 +20,16 @@ function EditableField({ field, editing, onEditField, onChange }) {
         )}
       </div>
 
-      <button
-        type="button"
-        className="settings-icon-btn"
-        aria-label={`Editar ${field.label}`}
-        onClick={() => onEditField(field.key)}
-      >
-        <Pencil size={18} />
-      </button>
+      <Tooltip label={`Editar ${field.label}`}>
+        <button
+          type="button"
+          className="settings-icon-btn"
+          aria-label={`Editar ${field.label}`}
+          onClick={() => onEditField(field.key)}
+        >
+          <Pencil size={18} />
+        </button>
+      </Tooltip>
     </div>
   );
 }

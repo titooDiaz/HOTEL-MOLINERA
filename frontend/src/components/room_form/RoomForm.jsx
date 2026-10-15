@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Tooltip from "../tooltip/Tooltip.jsx";
 import "./RoomForm.css";
 
 /**
@@ -224,21 +225,25 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
         </div>
 
         <div className="room-form-actions">
-          <button
-            className="admin-action-button admin-action-button--outline"
-            type="button"
-            onClick={onCancel}
-            disabled={isSending}
-          >
-            {labels.cancel}
-          </button>
-          <button
-            className="admin-action-button admin-action-button--primary"
-            type="submit"
-            disabled={isSending}
-          >
-            {isSending ? labels.sending : labels.submit}
-          </button>
+          <Tooltip label={labels.cancel}>
+            <button
+              className="admin-action-button admin-action-button--outline"
+              type="button"
+              onClick={onCancel}
+              disabled={isSending}
+            >
+              {labels.cancel}
+            </button>
+          </Tooltip>
+          <Tooltip label={isSending ? labels.sending : labels.submit}>
+            <button
+              className="admin-action-button admin-action-button--primary"
+              type="submit"
+              disabled={isSending}
+            >
+              {isSending ? labels.sending : labels.submit}
+            </button>
+          </Tooltip>
         </div>
       </div>
     </form>

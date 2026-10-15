@@ -1,3 +1,5 @@
+import Tooltip from "../tooltip/Tooltip.jsx";
+
 export default function ClientsTable({ clients, labels }) {
   return (
     <section className="card-panel admin-data-panel">
@@ -11,7 +13,11 @@ export default function ClientsTable({ clients, labels }) {
                 <td className="fw-semibold">{client.name}</td><td><span>{client.email}</span><small className="admin-table-secondary">{client.phone}</small></td>
                 <td>{client.room}</td><td>{client.spent}</td>
                 <td><span className={`admin-status-badge ${client.statusClass}`}>{client.status}</span></td>
-                <td><button className="admin-table-action" type="button" aria-label={`Acciones para ${client.name}`}>•••</button></td>
+                <td>
+                  <Tooltip label={`Acciones para ${client.name}`}>
+                    <button className="admin-table-action" type="button" aria-label={`Acciones para ${client.name}`}>•••</button>
+                  </Tooltip>
+                </td>
               </tr>
             ))}
           </tbody>

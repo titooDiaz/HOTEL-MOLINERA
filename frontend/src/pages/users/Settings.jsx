@@ -99,6 +99,7 @@ const HISTORIAL = [
 
 export default function Settings() {
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [datos, setDatos] = useState(DATOS_INICIALES);
     const [borrador, setBorrador] = useState(DATOS_INICIALES);
     const [editando, setEditando] = useState(false);
@@ -141,6 +142,8 @@ export default function Settings() {
 
             <GuestSidebar
                 {...TEXTO_PAGINA.sidebar}
+                sidebarOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
             />
 
 
@@ -149,6 +152,8 @@ export default function Settings() {
                 <GuestTopbar
                     guest={HUESPED}
                     notificationLabel={TEXTO_PAGINA.notificationLabel}
+                    menuLabel="Abrir menú"
+                    onOpenSidebar={() => setSidebarOpen(true)}
                 />
 
 

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 
+import Tooltip from "../tooltip/Tooltip.jsx";
+
 export default function ReservationsTable({ reservations, labels }) {
   const [status, setStatus] = useState(labels.allValue);
   const filteredReservations = useMemo(
@@ -28,7 +30,11 @@ export default function ReservationsTable({ reservations, labels }) {
                 <td className="fw-semibold">{reservation.id}</td><td>{reservation.client}</td><td>{reservation.room}</td>
                 <td>{reservation.checkin}</td><td>{reservation.checkout}</td>
                 <td><span className={`admin-status-badge ${reservation.statusClass}`}>{reservation.status}</span></td>
-                <td><button className="admin-table-action" type="button" aria-label={`Acciones para ${reservation.id}`}>•••</button></td>
+                <td>
+                  <Tooltip label={`Acciones para ${reservation.id}`}>
+                    <button className="admin-table-action" type="button" aria-label={`Acciones para ${reservation.id}`}>•••</button>
+                  </Tooltip>
+                </td>
               </tr>
             ))}
           </tbody>
