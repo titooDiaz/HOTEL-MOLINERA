@@ -34,10 +34,20 @@
 }
 
 /* ============ Botón cerrar ============ */
-.reserve-close {
+.reserve-modal > .tooltip-wrapper {
   position: absolute;
   top: 14px;
   right: 14px;
+  z-index: 5;
+  display: block;
+  width: 38px;
+  height: 38px;
+}
+
+.reserve-close {
+  position: absolute;
+  top: 0;
+  right: 0;
   z-index: 5;
   width: 38px;
   height: 38px;
@@ -278,6 +288,12 @@
   .reserve-title { font-size: 1.4rem; }
 }
 
+@media (min-width: 768px) {
+  .reserve-modal {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reserve-overlay,
   .reserve-modal { animation: none; }
@@ -473,6 +489,7 @@
 
 /* Botón enviar */
 .reserve-submit {
+  width: 100%;
   margin-top: 0.25rem;
   padding: 0.85rem 1rem;
   border: none;
