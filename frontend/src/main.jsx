@@ -1,3 +1,4 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -5,12 +6,15 @@ import './index.css'
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
+import GuestLayout from "./layouts/GuestLayout.jsx";
 
 // Vistas de usuarios no logueados
 import App from './App.jsx'
 import Contacto from "./pages/main/Contacto.jsx";
 import Planes from "./pages/main/Planes.jsx";
 import Restaurante from "./pages/main/Restaurante.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 // Vistas de usuarios logueados (huésped)
 import MyRoom from './pages/users/MyRoom.jsx';
@@ -41,27 +45,32 @@ createRoot(document.getElementById("root")).render(
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/planes" element={<Planes />} />
           <Route path="/restaurante" element={<Restaurante />} />
+          <Route path="*" element={<NotFound />} />
 
           {/* Huésped */}
           <Route element={<ProtectedRoute allowedRole="guest" />}>
-            <Route path="/mi-habitacion" element={<MyRoom />} />
-            <Route path="/pedidos" element={<RoomRequests />} />
-            <Route path="/configuracion" element={<Settings />} />
+            <Route element={<GuestLayout />}>
+              <Route path="/mi-habitacion" element={<MyRoom />} />
+              <Route path="/pedidos" element={<RoomRequests />} />
+              <Route path="/configuracion" element={<Settings />} />
+            </Route>
           </Route>
 
           {/* Admin */}
           <Route element={<ProtectedRoute allowedRole="admin" />}>
-            <Route path="/admin" element={<HotelDashboard />} />
-            <Route path="/admin/habitaciones" element={<Habitaciones />} />
-            <Route path="/admin/habitaciones/nueva" element={<NuevaHabitacion />} />
-            <Route path="/admin/reservas" element={<Reservas />} />
-            <Route path="/admin/reservas/nueva" element={<NuevaReserva />} />
-            <Route path="/admin/clientes" element={<Clientes />} />
-            <Route path="/admin/clientes/nuevo" element={<NuevoCliente />} />
-            <Route path="/admin/restaurante" element={<RestauranteAdmin />} />
-            <Route path="/admin/restaurante/nuevo" element={<NuevoPedido />} />
-            <Route path="/admin/reportes" element={<Reportes />} />
-            <Route path="/admin/configuracion" element={<Configuracion />} />
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<HotelDashboard />} />
+              <Route path="/admin/habitaciones" element={<Habitaciones />} />
+              <Route path="/admin/habitaciones/nueva" element={<NuevaHabitacion />} />
+              <Route path="/admin/reservas" element={<Reservas />} />
+              <Route path="/admin/reservas/nueva" element={<NuevaReserva />} />
+              <Route path="/admin/clientes" element={<Clientes />} />
+              <Route path="/admin/clientes/nuevo" element={<NuevoCliente />} />
+              <Route path="/admin/restaurante" element={<RestauranteAdmin />} />
+              <Route path="/admin/restaurante/nuevo" element={<NuevoPedido />} />
+              <Route path="/admin/reportes" element={<Reportes />} />
+              <Route path="/admin/configuracion" element={<Configuracion />} />
+            </Route>
           </Route>
           </Routes>
         </BrowserRouter>

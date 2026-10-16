@@ -1,0 +1,54 @@
+export function FormHeader({ hotelName, labels }) {
+  return (
+    <div
+      className="reserve-form-banner"
+      style={{
+        backgroundImage:
+          "url(https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80)",
+      }}
+    >
+      <div className="reserve-form-banner-overlay">
+        <span className="reserve-stars" aria-hidden="true">★★★★★</span>
+        <span className="reserve-form-banner-name">
+          {hotelName || labels.hotelFallback}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  showPass,
+  onTogglePass,
+  labels,
+}) {
+  return (
+    <div className="reserve-field">
+      <label htmlFor={id}>{label}</label>
+      <div className="reserve-input-wrap">
+        <input
+          id={id}
+          type={showPass ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          autoComplete={autoComplete}
+          placeholder={labels.passwordPlaceholder}
+          required
+          minLength={6}
+        />
+        <button
+          type="button"
+          className="reserve-toggle-pass"
+          onClick={onTogglePass}
+        >
+          {showPass ? labels.hide : labels.show}
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -80,18 +80,16 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5827678831
         </div>
 
         <div className="navbar-actions">
-          <Tooltip label={labels.reserve}>
-            <button
-              type="button"
-              className="btn-reserve"
-              onClick={() => {
-                setIsMenuOpen(false);
-                setIsReserveOpen(true);
-              }}
-            >
-              {labels.reserve}
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            className="btn-reserve"
+            onClick={() => {
+              setIsMenuOpen(false);
+              setIsReserveOpen(true);
+            }}
+          >
+            {labels.reserve}
+          </button>
 
           <Tooltip label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>
             <button

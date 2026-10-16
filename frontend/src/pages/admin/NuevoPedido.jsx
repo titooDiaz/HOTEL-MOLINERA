@@ -1,10 +1,5 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
-import AdminNav from "../../components/nav/admin_nav.jsx";
-import { NAV_ITEMS, SIDEBAR_COPY, buildTopbarCopy } from "../../components/nav/adminNavItems.jsx";
-import DashboardTopbar from "../../components/dashboard_topbar/DashboardTopbar.jsx";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
 import { formatCOP, postJson } from "../../components/admin_form/formUtils.js";
@@ -81,7 +76,6 @@ const FORM_SECTIONS = [
 ];
 
 const NEW_ORDER_COPY = {
-  topbar: buildTopbarCopy("Buscar por habitación o cliente...", "Buscar pedidos"),
   header: {
     title: "Nuevo pedido",
     subtitle: "Registra un pedido de alimentos y bebidas para una habitación.",
@@ -139,27 +133,9 @@ const crearPedido = (datos) => postJson("/api/orders", datos);
 
 export default function NuevoPedido() {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="admin-dashboard admin-view d-flex min-vh-100">
-      <AdminNav
-        items={NAV_ITEMS}
-        sidebarOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        brand={SIDEBAR_COPY.brand}
-        logoutLabel={SIDEBAR_COPY.logoutLabel}
-      />
-
-      {/* Contenido principal */}
-      <div className="flex-grow-1 min-w-0 d-flex flex-column">
-        <DashboardTopbar
-          onOpenSidebar={() => setSidebarOpen(true)}
-          labels={NEW_ORDER_COPY.topbar}
-        />
-
-        {/* Body */}
-        <main className="flex-grow-1 dashboard-main">
+    <>
           <PageHeader
             title={NEW_ORDER_COPY.header.title}
             subtitle={NEW_ORDER_COPY.header.subtitle}
@@ -177,8 +153,6 @@ export default function NuevoPedido() {
             onSubmit={crearPedido}
             onCancel={() => navigate("/admin/restaurante")}
           />
-        </main>
-      </div>
-    </div>
+    </>
   );
 }

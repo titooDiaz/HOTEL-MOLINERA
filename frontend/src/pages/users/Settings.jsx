@@ -1,12 +1,4 @@
 import { useState } from "react";
-import {
-    BedDouble,
-    Settings as SettingsIcon,
-    Utensils,
-} from "lucide-react";
-
-import GuestSidebar from "../../components/guest_sidebar/GuestSidebar.jsx";
-import GuestTopbar from "../../components/guest_topbar/GuestTopbar.jsx";
 import RoomRequestsHero from "../../components/room_requests_hero/RoomRequestsHero.jsx";
 import PersonalDataCard from "../../components/settings/PersonalDataCard.jsx";
 import SecurityCard from "../../components/settings/SecurityCard.jsx";
@@ -17,36 +9,11 @@ import { useTheme } from "../../context/themeContext.js";
 import "./RoomRequests.css";
 
 
-const HUESPED = {
-    nombre: "Juan Pérez",
-    habitacion: "Habitación 101",
-};
-
-
 const IMAGEN_FONDO_PEDIDOS =
     "https://peopleenespanol.com/thmb/lFB2yQjHVJ2q-FJcY2BfxMd5t24=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-905083708-2000-59fc054b9e5b4fad8be53a055f3eab2c.jpg";
 
 
 const TEXTO_PAGINA = {
-
-    sidebar: {
-        brand: {
-            initials: "HM",
-            name: "Hotel Molinera",
-            tagline: "Tu estadía, nuestra prioridad",
-        },
-
-        items: [
-            { label: "Mi habitación", icon: BedDouble, path: "/mi-habitacion" },
-            { label: "Alimentos y bebidas", icon: Utensils, path: "/pedidos" },
-            { label: "Configuración", icon: SettingsIcon, path: "/configuracion" },
-        ],
-
-        activeItem: "Configuración",
-        logoutLabel: "Cerrar sesión",
-    },
-
-    notificationLabel: "Notificaciones",
 
     hero: {
         eyebrow: "CONFIGURACIÓN",
@@ -98,8 +65,6 @@ const HISTORIAL = [
 
 
 export default function Settings() {
-
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [datos, setDatos] = useState(DATOS_INICIALES);
     const [borrador, setBorrador] = useState(DATOS_INICIALES);
     const [editando, setEditando] = useState(false);
@@ -138,26 +103,7 @@ export default function Settings() {
 
     return (
 
-        <div className="hotel-layout d-flex min-vh-100">
-
-            <GuestSidebar
-                {...TEXTO_PAGINA.sidebar}
-                sidebarOpen={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
-            />
-
-
-            <main className="main-content flex-grow-1">
-
-                <GuestTopbar
-                    guest={HUESPED}
-                    notificationLabel={TEXTO_PAGINA.notificationLabel}
-                    menuLabel="Abrir menú"
-                    onOpenSidebar={() => setSidebarOpen(true)}
-                />
-
-
-                <div className="container-fluid p-4">
+        <div className="container-fluid p-4">
 
                     <RoomRequestsHero
                         {...TEXTO_PAGINA.hero}
@@ -202,10 +148,6 @@ export default function Settings() {
                         </div>
 
                     </div>
-
-                </div>
-
-            </main>
 
         </div>
     );

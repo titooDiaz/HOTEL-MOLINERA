@@ -1,14 +1,9 @@
 import { useState } from "react";
 import {
-    BedDouble,
     CheckCircle2,
     Clock,
-    Settings,
     ShoppingBag,
-    Utensils,
 } from "lucide-react";
-import GuestSidebar from "../../components/guest_sidebar/GuestSidebar.jsx";
-import GuestTopbar from "../../components/guest_topbar/GuestTopbar.jsx";
 import RoomRequestsHero from "../../components/room_requests_hero/RoomRequestsHero.jsx";
 import OrderStatistics from "../../components/order_statistics/OrderStatistics.jsx";
 import OrdersList from "../../components/orders_list/OrdersList.jsx";
@@ -16,27 +11,7 @@ import AccountSummary from "../../components/account_summary/AccountSummary.jsx"
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 import "./RoomRequests.css";
 
-const HUESPED = {
-    nombre: "Juan Pérez",
-    habitacion: "Habitación 101",
-};
-
 const TEXTO_PAGINA = {
-    sidebar: {
-        brand: {
-            initials: "HM",
-            name: "Hotel Molinera",
-            tagline: "Tu estadía, nuestra prioridad",
-        },
-        items: [
-            { label: "Mi habitación", icon: BedDouble, path: "/mi-habitacion" },
-            { label: "Alimentos y bebidas", icon: Utensils, path: "/pedidos" },
-            { label: "Configuración", icon: Settings, path: "/configuracion" },
-        ],
-        activeItem: "Alimentos y bebidas",
-        logoutLabel: "Cerrar sesión",
-    },
-    notificationLabel: "Notificaciones",
     hero: {
         eyebrow: "ALIMENTOS Y BEBIDAS",
         title: "Tus pedidos en la habitación",
@@ -134,7 +109,6 @@ const formatoCOP = (valor) => `Bs. ${valor.toLocaleString("es-VE")}`;
 
 export default function RoomRequests() {
     const [filtro, setFiltro] = useState("todos");
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const pedidosFiltrados =
         filtro === "todos"
         ? PEDIDOS
@@ -149,22 +123,7 @@ export default function RoomRequests() {
     const totalConsumos = totalPagado + totalPendiente;
 
     return (
-        <div className="hotel-layout d-flex min-vh-100">
-        <GuestSidebar
-            {...TEXTO_PAGINA.sidebar}
-            sidebarOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-        />
-
-        <main className="main-content flex-grow-1">
-            <GuestTopbar
-                guest={HUESPED}
-                notificationLabel={TEXTO_PAGINA.notificationLabel}
-                menuLabel="Abrir menú"
-                onOpenSidebar={() => setSidebarOpen(true)}
-            />
-
-            <div className="container-fluid p-4">
+        <div className="container-fluid p-4">
             <RoomRequestsHero {...TEXTO_PAGINA.hero} />
 
             <div className="row g-4">
@@ -218,8 +177,6 @@ export default function RoomRequests() {
                 <ReceptionHelp labels={TEXTO_PAGINA.reception} />
                 </div>
             </div>
-            </div>
-        </main>
         </div>
     );
 }

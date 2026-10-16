@@ -1,10 +1,5 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./HotelDashboard.css";
-import AdminNav from "../../components/nav/admin_nav.jsx";
-import { NAV_ITEMS, SIDEBAR_COPY, buildTopbarCopy } from "../../components/nav/adminNavItems.jsx";
-import DashboardTopbar from "../../components/dashboard_topbar/DashboardTopbar.jsx";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
 import { postJson, todayISO } from "../../components/admin_form/formUtils.js";
@@ -63,7 +58,6 @@ const FORM_SECTIONS = [
 ];
 
 const NEW_CLIENT_COPY = {
-  topbar: buildTopbarCopy("Buscar cliente por nombre o email...", "Buscar clientes"),
   header: {
     title: "Registrar cliente",
     subtitle: "Agrega un nuevo huésped a la base de datos del hotel.",
@@ -83,27 +77,9 @@ const crearCliente = (datos) => postJson("/api/clients", datos);
 
 export default function NuevoCliente() {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="admin-dashboard admin-view d-flex min-vh-100">
-      <AdminNav
-        items={NAV_ITEMS}
-        sidebarOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        brand={SIDEBAR_COPY.brand}
-        logoutLabel={SIDEBAR_COPY.logoutLabel}
-      />
-
-      {/* Contenido principal */}
-      <div className="flex-grow-1 min-w-0 d-flex flex-column">
-        <DashboardTopbar
-          onOpenSidebar={() => setSidebarOpen(true)}
-          labels={NEW_CLIENT_COPY.topbar}
-        />
-
-        {/* Body */}
-        <main className="flex-grow-1 dashboard-main">
+    <>
           <PageHeader
             title={NEW_CLIENT_COPY.header.title}
             subtitle={NEW_CLIENT_COPY.header.subtitle}
@@ -119,8 +95,6 @@ export default function NuevoCliente() {
             onSubmit={crearCliente}
             onCancel={() => navigate("/admin/clientes")}
           />
-        </main>
-      </div>
-    </div>
+    </>
   );
 }

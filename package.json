@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "npm --prefix frontend run build"
+  },
   "dependencies": {
     "react-router-dom": "^7.18.4"
   }
