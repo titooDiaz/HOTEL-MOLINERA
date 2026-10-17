@@ -38,6 +38,11 @@ export default function ReservationForm({ room, rooms = [room], onSubmit, onCanc
   return (
     <form className={`reservation-form${compact ? " reservation-form--compact" : ""}`} onSubmit={handleSubmit}>
       <div className="reservation-room-summary">
+        <img
+          className="reservation-room-image"
+          src={selectedRoom.image}
+          alt={selectedRoom.name}
+        />
         <div>
           <span className="reservation-form-label">Habitación seleccionada</span>
           <select

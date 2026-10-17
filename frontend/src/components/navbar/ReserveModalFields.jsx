@@ -3,8 +3,7 @@ export function FormHeader({ hotelName, labels }) {
     <div
       className="reserve-form-banner"
       style={{
-        backgroundImage:
-          "url(https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80)",
+        backgroundImage: "url(/images/places/entrada-interior.jpeg)",
       }}
     >
       <div className="reserve-form-banner-overlay">

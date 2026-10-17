@@ -4,8 +4,7 @@ import HotelActivity from "../../components/hotel_activity/HotelActivity.jsx";
 
 const TEXTOS_PLANES = {
   hero: {
-    imageUrl:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
+    imageUrl: "/images/places/piscina-dia.jpeg",
     imageAlt: "Fachada del hotel",
     eyebrow: "VIVE LA EXPERIENCIA",
     defaultHotelName: "Hotel Molinera",
@@ -26,21 +25,21 @@ function Planes() {
       />
 
       <HotelActivity
-        image="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1"
+        image="/images/places/piscina-dia.jpeg"
         title="Piscina"
         description="Disfruta de nuestra piscina en un ambiente tranquilo y rodeado de naturaleza."
         schedule="Todos los días de 8:00 a.m. a 8:00 p.m."
       />
 
       <HotelActivity
-        image="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1"
+        image="/images/places/tejado-montana.jpeg"
         title="Senderismo"
         description="Recorre los senderos del hotel y disfruta de los paisajes naturales que rodean nuestras instalaciones."
         schedule="Todos los días de 7:00 a.m. a 5:00 p.m."
       />
 
       <HotelActivity
-        image="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1"
+        image="/images/restaurant/interior-restaurante.jpeg"
         title="Restaurante"
         description="Disfruta de nuestra oferta gastronómica con platos preparados para complementar tu estadía."
         schedule="Desayuno: 7:00 a.m. - 10:00 a.m. | Almuerzo: 12:00 p.m. - 3:00 p.m. | Cena: 6:00 p.m. - 9:00 p.m."

@@ -6,8 +6,7 @@ import FoodCard from "../../components/food_card/FoodCard.jsx";
 
 const TEXTO_PORTADA = {
   hero: {
-    imageUrl:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
+    imageUrl: "/images/restaurant/interior-restaurante.jpeg",
     imageAlt: "Restaurante del hotel",
     eyebrow: "SABORES QUE COMPLEMENTAN TU ESTADÍA",
     defaultHotelName: "Hotel Molinera",
@@ -81,8 +80,7 @@ const COMIDAS = [
     description:
       "Huevos, arepa, queso, fruta fresca y una bebida caliente.",
     price: "$18.000",
-    image:
-      "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666",
+    image: "/images/restaurant/ravioli-pan-ajo.jpeg",
   },
   {
     id: 2,
@@ -91,8 +89,7 @@ const COMIDAS = [
     description:
       "Huevos preparados al gusto acompañados de arepa y queso.",
     price: "$14.000",
-    image:
-      "https://images.unsplash.com/photo-1525351484163-7529414344d8",
+    image: "/images/restaurant/sandwich-papas.jpeg",
   },
   {
     id: 3,
@@ -101,8 +98,7 @@ const COMIDAS = [
     description:
       "Pechuga de pollo a la parrilla acompañada de arroz, ensalada y papas.",
     price: "$28.000",
-    image:
-      "https://images.unsplash.com/photo-1532550907401-a500c9a57435",
+    image: "/images/restaurant/sandwich-papas.jpeg",
   },
   {
     id: 4,
@@ -111,8 +107,7 @@ const COMIDAS = [
     description:
       "Una combinación tradicional con carne, arroz, frijoles, ensalada y acompañamientos.",
     price: "$32.000",
-    image:
-      "https://images.unsplash.com/photo-1547592180-85f173990554",
+    image: "/images/restaurant/ravioli-pan-ajo.jpeg",
   },
   {
     id: 5,
@@ -121,8 +116,7 @@ const COMIDAS = [
     description:
       "Pasta preparada con nuestra salsa especial y acompañamientos.",
     price: "$24.000",
-    image:
-      "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
+    image: "/images/restaurant/ravioli-pan-ajo.jpeg",
   },
   {
     id: 6,
@@ -131,8 +125,7 @@ const COMIDAS = [
     description:
       "Jugo natural preparado con fruta fresca.",
     price: "$8.000",
-    image:
-      "https://images.unsplash.com/photo-1600271886742-f049cd451bba",
+    image: "/images/restaurant/cerveza-piscina.jpeg",
   },
 ];
 

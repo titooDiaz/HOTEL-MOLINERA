@@ -9,13 +9,12 @@ import ReservationForm from "../booking/ReservationForm.jsx";
 import reserveModalEs from "./es.js";
 import "./ReserveModal.css";
 
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80";
+const HERO_IMAGE = "/images/places/entrada-interior.jpeg";
 
 const gallery = [
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=300&q=80",
-  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=300&q=80",
+  "/images/places/piscina-dia.jpeg",
+  "/images/restaurant/interior-restaurante.jpeg",
+  "/images/rooms/cama-blanca.jpeg",
 ];
 
 export default function ReserveModal({ isOpen, ...props }) {

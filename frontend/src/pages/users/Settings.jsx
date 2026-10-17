@@ -9,8 +9,7 @@ import { useTheme } from "../../context/themeContext.js";
 import "./RoomRequests.css";
 
 
-const IMAGEN_FONDO_PEDIDOS =
-    "https://peopleenespanol.com/thmb/lFB2yQjHVJ2q-FJcY2BfxMd5t24=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-905083708-2000-59fc054b9e5b4fad8be53a055f3eab2c.jpg";
+const IMAGEN_FONDO_PEDIDOS = "/images/places/entrada-interior.jpeg";
 
 
 const TEXTO_PAGINA = {

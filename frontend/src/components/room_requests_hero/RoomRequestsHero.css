@@ -5,7 +5,7 @@
   position: relative;
   background-image:
     linear-gradient(90deg, rgba(20, 20, 20, 0.85) 25%, rgba(20, 20, 20, 0.15) 75%),
-    url("https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&h=400&fit=crop");
+    url("/images/restaurant/interior-restaurante.jpeg");
   background-size: cover;
   background-position: center;
   display: flex;

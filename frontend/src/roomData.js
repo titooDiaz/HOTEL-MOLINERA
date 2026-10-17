@@ -1,19 +1,19 @@
 export const roomImages = [
   {
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4VoP9LLtK1H6EIR1sxNbrFmnmcRYSZHC1JdgvG6fr6nTZJT0TDwd96T1Y&s=10",
-    alt: "Habitación",
+    src: "/images/rooms/cama-blanca.jpeg",
+    alt: "Cama blanca de la habitación",
   },
   {
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3KOS4X4Y4yzcD2Yz4kx8rtWYJfeuIuTq5kipD0SwMDzwhaLCov0JHT0Q&s=10",
-    alt: "Baño",
+    src: "/images/rooms/jacuzzi-bano.jpeg",
+    alt: "Baño con jacuzzi",
   },
   {
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQj7AGHgisyuSPIwIUYk-ivllgUQlHVjs-JxJH4qA5wKBAu6idd_RGvHbw&s=10",
-    alt: "Piscina",
+    src: "/images/places/piscina-dia.jpeg",
+    alt: "Piscina del hotel",
   },
   {
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjscLbHuJ6F99F1BSw41ahbDOL0zPyP87-FeHDiD6NgIBJJOOwTrLFgg&s=10",
-    alt: "Vista",
+    src: "/images/places/tejado-montana.jpeg",
+    alt: "Vista de los tejados y la montaña",
   },
 ];
 
@@ -43,7 +43,8 @@ export const rooms = [
     checkIn: "3:00 p.m.",
     checkOut: "12:00 m.",
     maxGuests: 4,
-    image: roomImages[0].src,
+    image: "/images/rooms/cama-blanca.jpeg",
+    gallery: roomImages,
   },
   {
     id: "suite-familiar",
@@ -60,7 +61,12 @@ export const rooms = [
     checkIn: "3:00 p.m.",
     checkOut: "12:00 m.",
     maxGuests: 6,
-    image: roomImages[1].src,
+    image: "/images/rooms/cama-verde.jpeg",
+    gallery: [
+      { src: "/images/rooms/cama-verde.jpeg", alt: "Cama verde de la suite" },
+      { src: "/images/rooms/cama-azul.jpeg", alt: "Cama azul de la habitación" },
+      ...roomImages.slice(1, 2),
+    ],
   },
 ];
 

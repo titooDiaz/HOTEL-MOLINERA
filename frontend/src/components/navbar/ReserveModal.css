@@ -635,6 +635,14 @@ body.guest-dark-mode .reserve-link:hover {
   color: var(--ink);
 }
 
+.reservation-room-image {
+  width: 86px;
+  height: 86px;
+  flex: 0 0 86px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 .reservation-room-summary > div {
   display: flex;
   flex-direction: column;

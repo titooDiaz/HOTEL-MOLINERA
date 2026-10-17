@@ -5,8 +5,7 @@ import { roomImages, rooms } from "./roomData.js";
 
 const TEXTOS_PORTADA = {
   hero: {
-    imageUrl:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
+    imageUrl: "/images/places/entrada-interior.jpeg",
     imageAlt: "Fachada del hotel",
     eyebrow: "TU ESCAPADA PERFECTA",
     defaultHotelName: "Hotel Molinera",
@@ -49,7 +48,7 @@ function App() {
           <RoomSection
             key={availableRoom.id}
             room={availableRoom}
-            images={roomImages}
+            images={availableRoom.gallery ?? roomImages}
             labels={TEXTOS_PORTADA.room}
             onReserve={() => openReserveModal(availableRoom)}
           />

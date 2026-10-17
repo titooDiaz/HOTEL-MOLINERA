@@ -50,8 +50,7 @@ const PEDIDOS = [
         fecha: "8 jun. 2025 · 1:24 p. m.",
         monto: 28000,
         estado: "pagado",
-        imagen:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/sandwich-papas.jpeg",
     },
     {
         id: 2,
@@ -60,8 +59,7 @@ const PEDIDOS = [
         fecha: "7 jun. 2025 · 7:42 p. m.",
         monto: 32000,
         estado: "pagado",
-        imagen:
-        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
     },
     {
         id: 3,
@@ -70,8 +68,7 @@ const PEDIDOS = [
         fecha: "7 jun. 2025 · 11:18 a. m.",
         monto: 12000,
         estado: "pagado",
-        imagen:
-        "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/cerveza-piscina.jpeg",
     },
     {
         id: 4,
@@ -80,8 +77,7 @@ const PEDIDOS = [
         fecha: "6 jun. 2025 · 9:03 p. m.",
         monto: 24000,
         estado: "pendiente",
-        imagen:
-        "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/sandwich-papas.jpeg",
     },
     {
         id: 5,
@@ -90,8 +86,7 @@ const PEDIDOS = [
         fecha: "6 jun. 2025 · 8:17 a. m.",
         monto: 8000,
         estado: "pagado",
-        imagen:
-        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/cerveza-piscina.jpeg",
     },
     {
         id: 6,
@@ -100,8 +95,7 @@ const PEDIDOS = [
         fecha: "5 jun. 2025 · 4:32 p. m.",
         monto: 28000,
         estado: "pendiente",
-        imagen:
-        "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=100&h=100&fit=crop",
+        imagen: "/images/restaurant/sandwich-papas.jpeg",
     },
 ];
 

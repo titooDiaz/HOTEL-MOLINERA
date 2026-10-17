@@ -14,8 +14,7 @@ import "./RoomRequests.css";
 import "./MyRoom.css";
 
 
-const IMAGEN_FONDO_PEDIDOS =
-    "https://peopleenespanol.com/thmb/lFB2yQjHVJ2q-FJcY2BfxMd5t24=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-905083708-2000-59fc054b9e5b4fad8be53a055f3eab2c.jpg";
+const IMAGEN_FONDO_PEDIDOS = "/images/rooms/cama-blanca.jpeg";
 
 
 const TEXTO_PAGINA = {
@@ -89,6 +88,12 @@ export default function MyRoom() {
                                 {rooms.map((availableRoom) => (
                                     <div className="border rounded-3 p-3" key={availableRoom.id}>
                                         <div className="d-flex justify-content-between gap-3 flex-wrap">
+                                            <img
+                                                src={availableRoom.image}
+                                                alt={availableRoom.name}
+                                                className="rounded-3 object-fit-cover"
+                                                style={{ width: "140px", height: "100px" }}
+                                            />
                                             <div>
                                                 <h3 className="h5 mb-1">{availableRoom.name}</h3>
                                                 <p className="text-secondary mb-2">{availableRoom.summary}</p>
