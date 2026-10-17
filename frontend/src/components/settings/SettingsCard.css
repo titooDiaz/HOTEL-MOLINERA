@@ -8,6 +8,8 @@
   --set-muted: #5f5a5c;
 }
 
+[data-theme="dark"],
+.dark,
 body.guest-dark-mode {
   --set-surface: #231d20;
   --set-field: #2e2629;
@@ -15,7 +17,6 @@ body.guest-dark-mode {
   --set-text: #f3eef0;
   --set-muted: #b7aeb1;
   --set-primary-soft: #43202b;
-  background: #171214;
 }
 
 .settings-card {

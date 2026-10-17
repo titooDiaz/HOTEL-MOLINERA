@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Icon from "../icon/Icon.jsx";
 import ReserveModal from "./ReserveModal.jsx";
 import { useAuth } from "../../context/authContext.js";
+import { useTheme } from "../../context/themeContext.js";
 import appIcon from "../../images/icon.jpg";
 import Tooltip from "../tooltip/Tooltip.jsx";
 import "./Navbar.css";
@@ -30,12 +31,33 @@ const navItems = [
   },
 ];
 
-export default function Navbar({ hotelName, labels, whatsappNumber = "582767883117" }) {
-  const [isReserveOpen, setIsReserveOpen] = useState(false);
+export default function Navbar({
+  hotelName,
+  labels,
+  onOpenReserve,
+  whatsappNumber = "582767883117",
+}) {
+  const [internalReserveOpen, setInternalReserveOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const closeReserveModal = useCallback(() => setIsReserveOpen(false), []);
+  const { user, login } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
+  const isControlled = typeof onOpenReserve === "function";
+  const isReserveOpen = isControlled ? false : internalReserveOpen;
+
+  const handleOpenReserve = () => {
+    setIsMenuOpen(false);
+    if (isControlled) {
+      onOpenReserve();
+    } else {
+      setInternalReserveOpen(true);
+    }
+  };
+
+  const closeReserveModal = useCallback(() => {
+    setInternalReserveOpen(false);
+  }, []);
 
   useEffect(() => {
     const closeOnEscape = (event) => {
@@ -47,10 +69,10 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5827678831
   }, []);
 
   const handleLogin = ({ email, password, remember }) => {
-    const user = login(email, password, remember);
+    const loggedUser = login(email, password, remember);
     closeReserveModal();
     setIsMenuOpen(false);
-    navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
+    navigate(loggedUser.role === "admin" ? "/admin" : "/mi-habitacion");
   };
 
   return (
@@ -80,16 +102,57 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5827678831
         </div>
 
         <div className="navbar-actions">
-          <button
-            type="button"
-            className="btn-reserve"
-            onClick={() => {
-              setIsMenuOpen(false);
-              setIsReserveOpen(true);
-            }}
-          >
-            {labels.reserve}
-          </button>
+          <Tooltip label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+            <button
+              type="button"
+              className="theme-toggle-btn"
+              onClick={toggleDarkMode}
+              aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+            >
+              <Icon size={18}>
+                {isDarkMode ? (
+                  <path
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                ) : (
+                  <path
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                )}
+              </Icon>
+            </button>
+          </Tooltip>
+
+          {user ? (
+            <button
+              type="button"
+              className="btn-reserve"
+              onClick={() => {
+                setIsMenuOpen(false);
+                navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
+              }}
+            >
+              {user.role === "admin" ? "Panel Admin" : "Mi Habitación"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn-reserve"
+              onClick={handleOpenReserve}
+            >
+              {labels.reserve}
+            </button>
+          )}
 
           <Tooltip label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>
             <button
@@ -126,17 +189,65 @@ export default function Navbar({ hotelName, labels, whatsappNumber = "5827678831
               {labels[labelKey]}
             </NavLink>
           ))}
+          <button
+            type="button"
+            tabIndex={isMenuOpen ? 0 : -1}
+            className="mobile-nav-link text-start w-100 bg-transparent border-0"
+            onClick={toggleDarkMode}
+          >
+            <Icon size={18}>
+              {isDarkMode ? (
+                <path
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              ) : (
+                <path
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              )}
+            </Icon>
+            {isDarkMode ? "Modo Claro" : "Modo Oscuro"}
+          </button>
+          {user && (
+            <button
+              type="button"
+              tabIndex={isMenuOpen ? 0 : -1}
+              className="mobile-nav-link text-start w-100 bg-transparent border-0 text-danger fw-semibold"
+              onClick={() => {
+                setIsMenuOpen(false);
+                navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
+              }}
+            >
+              <Icon size={18}>
+                <circle cx="12" cy="7" r="4" />
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              </Icon>
+              {user.role === "admin" ? "Panel Admin" : "Mi Habitación"}
+            </button>
+          )}
         </nav>
       </div>
 
-      <ReserveModal
-        isOpen={isReserveOpen}
-        onClose={closeReserveModal}
-        hotelName={hotelName}
-        labels={labels}
-        whatsappNumber={whatsappNumber}
-        onLogin={handleLogin}
-      />
+      {!isControlled && (
+        <ReserveModal
+          isOpen={isReserveOpen}
+          onClose={closeReserveModal}
+          hotelName={hotelName}
+          labels={labels}
+          whatsappNumber={whatsappNumber}
+          onLogin={handleLogin}
+        />
+      )}
     </div>
   );
 }

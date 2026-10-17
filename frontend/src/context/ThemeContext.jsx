@@ -1,73 +1,49 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeContext } from "./themeContext.js";
-import { useAuth } from "./authContext.js";
 
 const THEME_STORAGE_KEY = "hotel-molinera-theme";
 
-function getStoredDarkMode(userId) {
-  if (!userId) return false;
-
+function getInitialTheme() {
   try {
-    return sessionStorage.getItem(`${THEME_STORAGE_KEY}-${userId}`) === "dark";
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved !== null) {
+      return saved === "dark";
+    }
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
   } catch {
     return false;
   }
 }
 
-function removeStoredDarkMode(userId) {
-  if (!userId) return;
-
-  try {
-    sessionStorage.removeItem(`${THEME_STORAGE_KEY}-${userId}`);
-  } catch {
-    // The in-memory theme still resets when storage is unavailable.
-  }
-}
-
 export function ThemeProvider({ children }) {
-  const { user } = useAuth();
-  const userId = user?.id ?? null;
-  const [themeState, setThemeState] = useState(() => ({
-    userId,
-    isDarkMode: getStoredDarkMode(userId),
-  }));
-  const previousUserId = useRef(userId);
-  const isDarkMode = userId !== null
-    && themeState.userId === userId
-    && themeState.isDarkMode;
+  const [isDarkMode, setIsDarkMode] = useState(getInitialTheme);
 
   useEffect(() => {
-    if (previousUserId.current === userId) return;
+    const root = document.documentElement;
+    const body = document.body;
 
-    removeStoredDarkMode(previousUserId.current);
-    previousUserId.current = userId;
-    setThemeState({
-      userId,
-      isDarkMode: getStoredDarkMode(userId),
-    });
-  }, [userId]);
+    if (isDarkMode) {
+      root.setAttribute("data-theme", "dark");
+      root.classList.add("dark");
+      body.classList.add("dark", "guest-dark-mode");
+    } else {
+      root.setAttribute("data-theme", "light");
+      root.classList.remove("dark");
+      body.classList.remove("dark", "guest-dark-mode");
+    }
 
-  useEffect(() => {
-    document.body.classList.toggle("guest-dark-mode", isDarkMode);
-
-    return () => document.body.classList.remove("guest-dark-mode");
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? "dark" : "light");
+    } catch {
+      // Storage unavailable
+    }
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    if (!userId) return;
-
-    const nextDarkMode = !isDarkMode;
-
-    try {
-      sessionStorage.setItem(
-        `${THEME_STORAGE_KEY}-${userId}`,
-        nextDarkMode ? "dark" : "light",
-      );
-    } catch {
-      // The theme still applies for the current session if storage is unavailable.
-    }
-
-    setThemeState({ userId, isDarkMode: nextDarkMode });
+    setIsDarkMode((prev) => !prev);
   };
 
   return (

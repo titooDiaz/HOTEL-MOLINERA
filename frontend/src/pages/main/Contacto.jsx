@@ -1,22 +1,6 @@
-import { useEffect, useState } from "react";
-
-import Navbar from "../../components/navbar/Navbar.jsx";
 import ContactSection from "../../components/contact_section/ContactSection.jsx";
-import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx";
-
 
 const TEXTOS_CONTACTO = {
-  navbar: {
-    brandInitials: "HM",
-    logoFallback: "logo",
-    rooms: "Habitaciones",
-    plans: "Planes",
-    restaurant: "Restaurante",
-    contact: "Contacto",
-    reserve: "RESERVAR",
-  },
-
-
   information: {
     title: "Información de contacto",
     description:
@@ -64,22 +48,9 @@ const TEXTOS_CONTACTO = {
     successMessage: "¡Gracias! Tu mensaje fue enviado, te responderemos pronto.",
     errorMessage: "No pudimos enviar tu mensaje. Inténtalo de nuevo.",
   },
-
-  whatsappLabel: "Contactar por WhatsApp",
 };
 
 function Contacto() {
-  const [hotelData, setHotelData] = useState(null);
-
-  useEffect(() => {
-    fetch("/api/hotel")
-      .then(response => response.json())
-      .then(data => setHotelData(data))
-      .catch(error =>
-        console.error("Error al conectar con el backend:", error)
-      );
-  }, []);
-
   // TODO: el backend aún no tiene la ruta POST /api/contact (ver backend/src/app.js)
   const enviarMensaje = async (datos) => {
     const response = await fetch("/api/contact", {
@@ -94,15 +65,11 @@ function Contacto() {
   };
 
   return (
-    <div className="app">
-      <Navbar hotelName={hotelData?.name} labels={TEXTOS_CONTACTO.navbar} />
-      <ContactSection
-        information={TEXTOS_CONTACTO.information}
-        form={TEXTOS_CONTACTO.form}
-        onSubmit={enviarMensaje}
-      />
-      <WhatsAppButton ariaLabel={TEXTOS_CONTACTO.whatsappLabel} />
-    </div>
+    <ContactSection
+      information={TEXTOS_CONTACTO.information}
+      form={TEXTOS_CONTACTO.form}
+      onSubmit={enviarMensaje}
+    />
   );
 }
 

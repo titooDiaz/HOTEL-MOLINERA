@@ -16,15 +16,15 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: var(--slate-50);
-  border: 1px solid var(--slate-100);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 18px 20px;
   transition: border-color .2s, box-shadow .2s;
 }
 
 .contact-card:hover {
-  border-color: var(--slate-200);
+  border-color: var(--border-color);
   box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
 }
 
@@ -47,7 +47,7 @@
 .contact-link {
   display: block;
   font-weight: 600;
-  color: var(--slate-800);
+  color: var(--text-primary);
   overflow-wrap: anywhere;
   transition: color .2s;
 }
@@ -58,11 +58,11 @@
 
 /* ---------- Formulario ---------- */
 .contact-form {
-  background: white;
-  border: 1px solid var(--slate-100);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+  box-shadow: var(--shadow-card);
 }
 
 .contact-form-title {
@@ -89,7 +89,7 @@
 .contact-field label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--slate-600);
+  color: var(--text-secondary);
 }
 
 .contact-field input,
@@ -97,9 +97,9 @@
   width: 100%;
   font: inherit;
   font-size: 14px;
-  color: var(--slate-800);
-  background: var(--slate-50);
-  border: 1px solid var(--slate-200);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 11px 14px;
   transition: border-color .2s, box-shadow .2s, background .2s;
@@ -112,7 +112,7 @@
 
 .contact-field input::placeholder,
 .contact-field textarea::placeholder {
-  color: var(--slate-400);
+  color: var(--text-muted);
 }
 
 .contact-field input:focus,

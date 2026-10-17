@@ -1,6 +1,6 @@
 .topbar {
-  background: #fff;
-  border-bottom: 1px solid var(--slate-200);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .topbar-inner {
@@ -20,11 +20,11 @@
   border-radius: .5rem;
   border: 0;
   background: none;
-  color: var(--slate-800);
+  color: var(--text-primary);
 }
 
 .icon-btn:hover {
-  background: var(--slate-100);
+  background: var(--bg-hover);
 }
 
 .search-wrap {
@@ -36,21 +36,22 @@
   left: .75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--slate-400);
+  color: var(--text-muted);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  background: var(--slate-100);
-  border: 0;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 9999px;
   padding: .5rem 1rem .5rem 2.25rem;
   font-size: .875rem;
 }
 
 .search-input::placeholder {
-  color: var(--slate-400);
+  color: var(--text-muted);
 }
 
 .search-input:focus {
@@ -64,10 +65,11 @@
   border-radius: 9999px;
   border: 0;
   background: none;
+  color: var(--text-primary);
 }
 
 .notif-btn:hover {
-  background: var(--slate-100);
+  background: var(--bg-hover);
 }
 
 .topbar-actions {
@@ -86,12 +88,13 @@
   border: 0;
   border-radius: .625rem;
   background: transparent;
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .profile-trigger:hover,
 .profile-trigger[aria-expanded="true"] {
-  background: var(--slate-100);
+  background: var(--bg-hover);
 }
 
 .profile-chevron {
@@ -109,10 +112,10 @@
   z-index: 50;
   width: 18rem;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--slate-200);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: .75rem;
-  box-shadow: 0 .75rem 2rem rgba(15, 23, 42, .12);
+  box-shadow: var(--shadow-card);
 }
 
 .topbar-dropdown-heading {
@@ -121,8 +124,8 @@
   justify-content: space-between;
   gap: .75rem;
   padding: .9rem 1rem;
-  color: var(--slate-800);
-  border-bottom: 1px solid var(--slate-100);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
   font-size: .875rem;
 }
 
@@ -140,7 +143,7 @@
   width: 100%;
   padding: .8rem 1rem;
   border: 0;
-  color: var(--slate-700);
+  color: var(--text-primary);
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -150,7 +153,7 @@
 
 .notification-item:hover,
 .profile-dropdown button:hover {
-  background: var(--slate-50);
+  background: var(--bg-hover);
 }
 
 .notification-item span:last-child {
@@ -162,10 +165,11 @@
 .notification-item strong {
   font-size: .8125rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .notification-item small {
-  color: var(--slate-400);
+  color: var(--text-muted);
   font-size: .7rem;
 }
 
@@ -190,7 +194,7 @@
 
 .profile-logout {
   color: var(--rose-600) !important;
-  border-top: 1px solid var(--slate-100) !important;
+  border-top: 1px solid var(--border-color) !important;
 }
 
 .notif-dot {
@@ -201,14 +205,14 @@
   height: .5rem;
   background: var(--rose-500);
   border-radius: 9999px;
-  box-shadow: 0 0 0 2px #fff;
+  box-shadow: 0 0 0 2px var(--bg-surface);
 }
 
 .avatar-circle {
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background: var(--slate-200);
+  background: var(--bg-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,9 +221,11 @@
 .dashboard-admin-name {
   font-size: .875rem;
   line-height: 1.25;
+  color: var(--text-primary);
 }
 
 .dashboard-admin-role {
   font-size: .75rem;
   line-height: 1.25;
+  color: var(--text-secondary);
 }

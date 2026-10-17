@@ -33,6 +33,32 @@
   animation: reserveRise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+[data-theme="dark"] .reserve-modal,
+.dark .reserve-modal,
+body.guest-dark-mode .reserve-modal {
+  --ink: #f8fafc;
+  --muted: #94a3b8;
+  --gold-soft: #2d2618;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .reserve-modal input,
+.dark .reserve-modal input,
+body.guest-dark-mode .reserve-modal input {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .reserve-close,
+.dark .reserve-close,
+body.guest-dark-mode .reserve-close {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
 /* ============ Botón cerrar ============ */
 .reserve-modal > .tooltip-wrapper {
   position: absolute;
@@ -42,6 +68,24 @@
   display: block;
   width: 38px;
   height: 38px;
+}
+
+.reserve-modal > .tooltip-wrapper .tooltip-content {
+  top: calc(100% + .55rem);
+  right: 0;
+  bottom: auto;
+  left: auto;
+  transform: translateY(-.25rem);
+}
+
+.reserve-modal > .tooltip-wrapper .tooltip-content::after {
+  top: auto;
+  right: 13px;
+  bottom: 100%;
+  left: auto;
+  border-top-color: transparent;
+  border-bottom-color: #1e293b;
+  transform: none;
 }
 
 .reserve-close {

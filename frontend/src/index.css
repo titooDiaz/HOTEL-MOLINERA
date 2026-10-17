@@ -1,14 +1,163 @@
-
 :root {
+  /* =========================================================
+     Variables Semánticas Globales - Tema Claro
+     ========================================================= */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-hover: #f1f5f9;
+
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+
+  /* Bootstrap body bindings */
+  --bs-body-bg: var(--bg-primary);
+  --bs-body-color: var(--text-primary);
+  --bs-border-color: var(--border-color);
+  --bs-card-bg: var(--bg-surface);
+  --bs-card-color: var(--text-primary);
+
+  /* =========================================================
+     Paleta de colores base
+     ========================================================= */
   --red-500: #ef4444;
   --red-50: #fef2f2;
+
+  --navy-900: #12172b;
+  --navy-800: #171d35;
+  --navy-700: #1c2340;
+
+  --rose-50: #fff1f2;
+  --rose-200: #fecdd3;
+  --rose-500: #f43f5e;
+  --rose-600: #e11d48;
+
+  --blue-50: #eff6ff;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+
+  --emerald-50: #ecfdf5;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+
+  --violet-50: #f5f3ff;
+  --violet-500: #8b5cf6;
+  --violet-600: #7c3aed;
+
+  --orange-50: #fff7ed;
+  --orange-500: #f97316;
+  --orange-600: #ea580c;
+
+  --amber-50: #fffbeb;
+  --amber-600: #d97706;
+
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
   --slate-400: #94a3b8;
   --slate-500: #64748b;
   --slate-600: #475569;
+  --slate-700: #334155;
   --slate-800: #1e293b;
+}
+
+/* =========================================================
+   Variables Semánticas Globales - Tema Oscuro
+   Activo bajo [data-theme="dark"] o clase .dark
+   ========================================================= */
+[data-theme="dark"],
+.dark,
+body.guest-dark-mode {
+  color-scheme: dark;
+
+  --bg-primary: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-subtle: #172033;
+  --bg-hover: #283548;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+
+  /* Inversión adaptativa de la escala Slate */
+  --slate-50: #0e1220;
+  --slate-100: #1a2238;
+  --slate-200: #2d3748;
+  --slate-300: #475569;
+  --slate-400: #64748b;
+  --slate-500: #94a3b8;
+  --slate-600: #cbd5e1;
+  --slate-700: #e2e8f0;
+  --slate-800: #f8fafc;
+
+  /* Redefinición para Bootstrap en modo oscuro */
+  --bs-body-bg: var(--bg-primary);
+  --bs-body-color: var(--text-primary);
+  --bs-emphasis-color: #ffffff;
+  --bs-border-color: var(--border-color);
+  --bs-secondary-color: var(--text-secondary);
+  --bs-card-bg: var(--bg-surface);
+  --bs-card-color: var(--text-primary);
+}
+
+/* =========================================================
+   Adaptación de utilidades comunes en Modo Oscuro
+   ========================================================= */
+[data-theme="dark"] .bg-white,
+.dark .bg-white,
+body.guest-dark-mode .bg-white {
+  background-color: var(--bg-surface) !important;
+}
+
+[data-theme="dark"] .text-dark,
+.dark .text-dark,
+body.guest-dark-mode .text-dark {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-secondary,
+.dark .text-secondary,
+body.guest-dark-mode .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-top,
+[data-theme="dark"] .border-bottom,
+[data-theme="dark"] .border-end,
+[data-theme="dark"] .border-start,
+.dark .border,
+.dark .border-top,
+.dark .border-bottom,
+.dark .border-end,
+.dark .border-start,
+body.guest-dark-mode .border,
+body.guest-dark-mode .border-top,
+body.guest-dark-mode .border-bottom,
+body.guest-dark-mode .border-end,
+body.guest-dark-mode .border-start {
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .btn-light,
+.dark .btn-light,
+body.guest-dark-mode .btn-light {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
 }
 
 * {
@@ -18,8 +167,9 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  color: var(--slate-800);
-  background: white;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -39,50 +189,4 @@ a {
 
 .btn-reserve:hover {
   filter: brightness(.92);
-}
-
-/* =========================================================
-    Paleta de colores (tomada del theme.extend.colors original
-    + la paleta estándar de Tailwind para blue/emerald/violet/
-    orange/amber/rose/slate, que Bootstrap no trae por defecto)
-    ========================================================= */
-:root {
-    --navy-900: #12172b;
-    --navy-800: #171d35;
-    --navy-700: #1c2340;
-
-    --rose-50: #fff1f2;
-    --rose-200: #fecdd3;
-    --rose-500: #f43f5e;
-    --rose-600: #e11d48;
-
-    --blue-50: #eff6ff;
-    --blue-400: #60a5fa;
-    --blue-500: #3b82f6;
-    --blue-600: #2563eb;
-
-    --emerald-50: #ecfdf5;
-    --emerald-500: #10b981;
-    --emerald-600: #059669;
-
-    --violet-50: #f5f3ff;
-    --violet-500: #8b5cf6;
-    --violet-600: #7c3aed;
-
-    --orange-50: #fff7ed;
-    --orange-500: #f97316;
-    --orange-600: #ea580c;
-
-    --amber-50: #fffbeb;
-    --amber-600: #d97706;
-
-    --slate-50: #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1;
-    --slate-400: #94a3b8;
-    --slate-500: #64748b;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1e293b;
 }

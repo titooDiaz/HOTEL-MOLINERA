@@ -1,0 +1,70 @@
+.public-footer {
+  background-color: var(--navy-900, #12172b);
+  color: #cbd5e1;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.public-footer-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+}
+
+.public-footer-brand {
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.public-footer-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.public-footer h6 {
+  color: #ffffff;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.public-footer-links li {
+  margin-bottom: 0.6rem;
+}
+
+.public-footer-links a,
+.public-footer-links span {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.public-footer-links a:hover {
+  color: #ffffff;
+}
+
+.public-footer-contact {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.public-footer-social {
+  color: var(--blue-400, #60a5fa);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: opacity 0.2s;
+}
+
+.public-footer-social:hover {
+  opacity: 0.85;
+  color: #93c5fd;
+}
+
+.public-footer-bottom {
+  color: #64748b;
+}
+
+.public-footer .border-top {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}

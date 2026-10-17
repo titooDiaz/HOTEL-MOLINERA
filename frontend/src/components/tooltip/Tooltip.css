@@ -34,6 +34,19 @@
   transform: translateX(-50%);
 }
 
+.tooltip-content--below {
+  top: calc(100% + .55rem);
+  bottom: auto;
+  transform: translate(-50%, -.25rem);
+}
+
+.tooltip-content--below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #1e293b;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .tooltip-wrapper:hover .tooltip-content,
   .tooltip-wrapper:focus-within .tooltip-content {

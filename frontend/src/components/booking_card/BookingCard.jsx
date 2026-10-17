@@ -2,14 +2,18 @@ import Icon from "../icon/Icon.jsx";
 import InfoRow from "../info_row/InfoRow.jsx";
 import "./BookingCard.css";
 
-export default function BookingCard({ room, labels }) {
+export default function BookingCard({ room, labels, onReserve }) {
   return (
     <div className="booking-card">
       <p className="small text-secondary mb-1">{labels.from}</p>
       <p className="fw-bold text-dark mb-0 price">{room.price}</p>
       <p className="small text-secondary mb-4">{labels.perNight}</p>
 
-      <button className="w-100 btn-reserve booking-button mb-4">
+      <button
+        type="button"
+        className="w-100 btn-reserve booking-button mb-4"
+        onClick={onReserve}
+      >
         {labels.reserve}
         <Icon size={16}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
       </button>

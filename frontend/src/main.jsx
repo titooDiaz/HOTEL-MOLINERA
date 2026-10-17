@@ -8,6 +8,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import GuestLayout from "./layouts/GuestLayout.jsx";
+import PublicLayout from "./layouts/PublicLayout.jsx";
 
 // Vistas de usuarios no logueados
 import App from './App.jsx'
@@ -41,10 +42,12 @@ createRoot(document.getElementById("root")).render(
         <BrowserRouter>
           <Routes>
           {/* Públicas */}
-          <Route path="/" element={<App />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/planes" element={<Planes />} />
-          <Route path="/restaurante" element={<Restaurante />} />
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<App />} />
+            <Route path="/contacto" element={<Contacto />} />
+            <Route path="/planes" element={<Planes />} />
+            <Route path="/restaurante" element={<Restaurante />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
 
           {/* Huésped */}

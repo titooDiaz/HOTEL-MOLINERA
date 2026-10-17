@@ -2,7 +2,7 @@
    colores de --set-*. Aquí se mapean a la paleta del panel de administración. */
 .admin-appearance {
     --set-primary: var(--rose-500);
-    --set-muted: var(--slate-500);
+    --set-muted: var(--text-secondary);
 }
 
 .admin-appearance-row {
@@ -11,7 +11,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: .75rem 1rem;
-    border: 1px solid var(--slate-200);
+    border: 1px solid var(--border-color);
     border-radius: .75rem;
 }
 
@@ -19,12 +19,14 @@
     display: inline-flex;
     align-items: center;
     gap: .6rem;
-    color: var(--slate-700);
+    color: var(--text-primary);
     font-size: .8125rem;
     font-weight: 600;
 }
 
 /* En modo oscuro, el toggle apagado no debe ser un bloque gris claro */
-    body.guest-dark-mode .admin-appearance .settings-toggle:not(.is-on) {
+[data-theme="dark"] .admin-appearance .settings-toggle:not(.is-on),
+.dark .admin-appearance .settings-toggle:not(.is-on),
+body.guest-dark-mode .admin-appearance .settings-toggle:not(.is-on) {
     background: #475569;
 }

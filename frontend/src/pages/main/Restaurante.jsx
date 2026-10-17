@@ -1,24 +1,10 @@
-import { useEffect, useState } from "react";
-
-import Navbar from "../../components/navbar/Navbar.jsx";
+import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import Hero from "../../components/hero/Hero.jsx";
-import WhatsAppButton from "../../components/whatsApp_button/WhatsAppButton.jsx";
-
 import RestaurantCategories from "../../components/restaurant_categories/RestaurantCategories.jsx";
 import FoodCard from "../../components/food_card/FoodCard.jsx";
 
-
 const TEXTO_PORTADA = {
-  navbar: {
-    brandInitials: "HM",
-    logoFallback: "logo",
-    rooms: "Habitaciones",
-    plans: "Planes",
-    restaurant: "Restaurante",
-    contact: "Contacto",
-    reserve: "RESERVAR",
-  },
-
   hero: {
     imageUrl:
       "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
@@ -28,21 +14,17 @@ const TEXTO_PORTADA = {
     description:
       "Disfruta de una propuesta gastronómica pensada para acompañar tu estadía, con platos preparados con ingredientes frescos y un ambiente agradable.",
   },
-
   menu: {
     title: "Nuestro menú",
     description:
       "Descubre nuestra selección de platos, bebidas y opciones para disfrutar durante tu estadía.",
   },
-
   reservation: {
     title: "Reserva tu mesa",
     description:
       "Reserva con anticipación y disfruta de una experiencia gastronómica sin preocupaciones.",
     button: "Reservar mesa",
   },
-
-  whatsappLabel: "Contactar por WhatsApp",
 };
 
 const CATEGORIAS = [
@@ -56,7 +38,6 @@ const CATEGORIAS = [
       </>
     ),
   },
-
   {
     id: "almuerzos",
     name: "Almuerzos",
@@ -70,7 +51,6 @@ const CATEGORIAS = [
       </>
     ),
   },
-
   {
     id: "cenas",
     name: "Cenas",
@@ -81,7 +61,6 @@ const CATEGORIAS = [
       </>
     ),
   },
-
   {
     id: "bebidas",
     name: "Bebidas",
@@ -105,7 +84,6 @@ const COMIDAS = [
     image:
       "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666",
   },
-
   {
     id: 2,
     category: "desayunos",
@@ -116,7 +94,6 @@ const COMIDAS = [
     image:
       "https://images.unsplash.com/photo-1525351484163-7529414344d8",
   },
-
   {
     id: 3,
     category: "almuerzos",
@@ -127,7 +104,6 @@ const COMIDAS = [
     image:
       "https://images.unsplash.com/photo-1532550907401-a500c9a57435",
   },
-
   {
     id: 4,
     category: "almuerzos",
@@ -138,7 +114,6 @@ const COMIDAS = [
     image:
       "https://images.unsplash.com/photo-1547592180-85f173990554",
   },
-
   {
     id: 5,
     category: "cenas",
@@ -149,7 +124,6 @@ const COMIDAS = [
     image:
       "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
   },
-
   {
     id: 6,
     category: "bebidas",
@@ -163,25 +137,15 @@ const COMIDAS = [
 ];
 
 function Restaurante() {
-  const [hotelData, setHotelData] = useState(null);
+  const { hotelData, openReserveModal } = useOutletContext() || {};
+  const [activeCategory, setActiveCategory] = useState(null);
 
-  useEffect(() => {
-    fetch("/api/hotel")
-      .then(response => response.json())
-      .then(data => setHotelData(data))
-      .catch(error =>
-        console.error("Error al conectar con el backend:", error)
-      );
-  }, []);
+  const displayedFoods = activeCategory
+    ? COMIDAS.filter((food) => food.category === activeCategory)
+    : COMIDAS;
 
   return (
-    <div className="app">
-
-      <Navbar
-        hotelName={hotelData?.name}
-        labels={TEXTO_PORTADA.navbar}
-      />
-
+    <>
       <Hero
         hotelName={hotelData?.name}
         imageUrl={TEXTO_PORTADA.hero.imageUrl}
@@ -201,12 +165,13 @@ function Restaurante() {
 
         <RestaurantCategories
           categories={CATEGORIAS}
+          activeCategory={activeCategory}
+          onSelectCategory={setActiveCategory}
         />
 
         <div className="container">
           <div className="row g-4">
-
-            {COMIDAS.map((food) => (
+            {displayedFoods.map((food) => (
               <div
                 key={food.id}
                 className="col-12 col-md-6 col-lg-4"
@@ -219,7 +184,6 @@ function Restaurante() {
                 />
               </div>
             ))}
-
           </div>
         </div>
       </section>
@@ -233,16 +197,15 @@ function Restaurante() {
           {TEXTO_PORTADA.reservation.description}
         </p>
 
-        <button className="btn-reserve">
+        <button
+          type="button"
+          className="btn-reserve"
+          onClick={openReserveModal}
+        >
           {TEXTO_PORTADA.reservation.button}
         </button>
       </section>
-
-      <WhatsAppButton
-        ariaLabel={TEXTO_PORTADA.whatsappLabel}
-      />
-
-    </div>
+    </>
   );
 }
 

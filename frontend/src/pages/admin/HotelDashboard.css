@@ -1,7 +1,7 @@
 .admin-dashboard {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--slate-50);
-    color: var(--slate-800);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
 }
 
@@ -17,7 +17,8 @@
 @media (min-width: 576px) { .dashboard-main { padding: 1.5rem; } }
 
 .card-panel {
-    background: #fff; border: 1px solid var(--slate-200);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: 1rem; padding: 1rem;
 }
 @media (min-width: 576px) { .card-panel { padding: 1.25rem; } }
@@ -39,7 +40,7 @@
 /* Shared layouts for the admin pages other than the main dashboard. */
 .admin-view {
     min-height: 100vh;
-    background: var(--slate-50);
+    background: var(--bg-primary);
 }
 
 .admin-view .dashboard-main {
@@ -57,8 +58,8 @@
 }
 
 .admin-page-header { margin-bottom: 1.5rem; }
-.admin-page-title { margin: 0; color: var(--slate-800); font-size: 1.5rem; font-weight: 700; letter-spacing: -.025em; }
-.admin-page-subtitle { margin: .4rem 0 0; color: var(--slate-500); font-size: .875rem; }
+.admin-page-title { margin: 0; color: var(--text-primary); font-size: 1.5rem; font-weight: 700; letter-spacing: -.025em; }
+.admin-page-subtitle { margin: .4rem 0 0; color: var(--text-secondary); font-size: .875rem; }
 .admin-page-header-actions { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; flex-wrap: wrap; }
 
 .admin-action-button {
@@ -78,13 +79,13 @@
 }
 .admin-action-button--primary { color: #fff; background: var(--rose-500); }
 .admin-action-button--primary:hover { color: #fff; background: var(--rose-600); }
-.admin-action-button--outline { color: var(--slate-700); background: #fff; border-color: var(--slate-200); }
-.admin-action-button--outline:hover { background: var(--slate-50); border-color: var(--slate-300); }
+.admin-action-button--outline { color: var(--text-primary); background: var(--bg-surface); border-color: var(--border-color); }
+.admin-action-button--outline:hover { background: var(--bg-hover); border-color: var(--border-color); }
 
 .admin-summary-card { display: flex; flex-direction: column; gap: .55rem; }
-.admin-summary-label { color: var(--slate-500); font-size: .8125rem; font-weight: 500; }
-.admin-summary-value { color: var(--slate-800); font-size: 1.6rem; line-height: 1.15; }
-.admin-summary-note, .admin-summary-trend { color: var(--slate-500); font-size: .75rem; }
+.admin-summary-label { color: var(--text-secondary); font-size: .8125rem; font-weight: 500; }
+.admin-summary-value { color: var(--text-primary); font-size: 1.6rem; line-height: 1.15; }
+.admin-summary-note, .admin-summary-trend { color: var(--text-muted); font-size: .75rem; }
 .admin-summary-trend { color: var(--emerald-600); font-weight: 600; }
 .summary-dot { width: .55rem; height: .55rem; border-radius: 50%; flex: 0 0 auto; }
 .summary-dot--emerald { background: var(--emerald-500); }
@@ -93,15 +94,15 @@
 
 .admin-data-panel { min-width: 0; margin-bottom: 1rem; }
 .admin-panel-heading { align-items: center; margin-bottom: 1rem; }
-.admin-panel-title { margin: 0; color: var(--slate-800); font-size: 1rem; font-weight: 650; }
-.admin-filter-control { display: flex; align-items: center; gap: .65rem; color: var(--slate-500); font-size: .8125rem; }
+.admin-panel-title { margin: 0; color: var(--text-primary); font-size: 1rem; font-weight: 650; }
+.admin-filter-control { display: flex; align-items: center; gap: .65rem; color: var(--text-secondary); font-size: .8125rem; }
 .admin-view .filter-select,
 .admin-form-control {
     min-height: 2.5rem;
     padding: .5rem .75rem;
-    color: var(--slate-700);
-    background-color: #fff;
-    border: 1px solid var(--slate-200);
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: .625rem;
     font: inherit;
     font-size: .875rem;
@@ -110,13 +111,13 @@
 .admin-form-control:focus { border-color: var(--rose-500); outline: 0; box-shadow: 0 0 0 3px var(--rose-200); }
 
 .admin-table-wrap { width: 100%; overflow-x: auto; }
-.admin-view .admin-table { min-width: 680px; color: var(--slate-700); font-size: .8125rem; }
-.admin-view .admin-table > :not(caption) > * > * { padding: .8rem .75rem; border-bottom-color: var(--slate-100); }
-.admin-view .admin-table thead th { color: var(--slate-500); background: var(--slate-50); font-size: .7rem; font-weight: 650; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
+.admin-view .admin-table { min-width: 680px; color: var(--text-primary); font-size: .8125rem; }
+.admin-view .admin-table > :not(caption) > * > * { padding: .8rem .75rem; border-bottom-color: var(--border-subtle); }
+.admin-view .admin-table thead th { color: var(--text-secondary); background: var(--bg-subtle); font-size: .7rem; font-weight: 650; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
 .admin-view .admin-table tbody tr:last-child > * { border-bottom: 0; }
-.admin-table-secondary { display: block; margin-top: .2rem; color: var(--slate-500); font-size: .75rem; font-weight: 400; }
-.admin-table-action { min-width: 2rem; border: 0; border-radius: .4rem; color: var(--slate-500); background: transparent; font-weight: 700; letter-spacing: .08em; }
-.admin-table-action:hover { color: var(--slate-800); background: var(--slate-100); }
+.admin-table-secondary { display: block; margin-top: .2rem; color: var(--text-muted); font-size: .75rem; font-weight: 400; }
+.admin-table-action { min-width: 2rem; border: 0; border-radius: .4rem; color: var(--text-secondary); background: transparent; font-weight: 700; letter-spacing: .08em; }
+.admin-table-action:hover { color: var(--text-primary); background: var(--bg-hover); }
 .admin-status-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .3rem .55rem; font-size: .7rem; font-weight: 600; white-space: nowrap; }
 .admin-status-badge.badge-pill-emerald { color: #047857; background: #d1fae5; }
 .admin-status-badge.badge-pill-rose { color: #be123c; background: #ffe4e6; }
@@ -124,10 +125,10 @@
 .admin-status-badge.badge-pill-orange { color: #c2410c; background: #ffedd5; }
 .admin-status-badge.badge-pill-slate { color: var(--slate-600); background: var(--slate-100); }
 .admin-status-badge.badge-pill-blue { color: #1d4ed8; background: #dbeafe; }
-.admin-empty-state { margin: 1rem 0 0; color: var(--slate-500); font-size: .875rem; text-align: center; }
+.admin-empty-state { margin: 1rem 0 0; color: var(--text-muted); font-size: .875rem; text-align: center; }
 
 .admin-room-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
-.admin-room-card { min-width: 0; padding: 1rem; border: 1px solid var(--slate-200); border-radius: .75rem; background: #fff; }
+.admin-room-card { min-width: 0; padding: 1rem; border: 1px solid var(--border-color); border-radius: .75rem; background: var(--bg-surface); }
 .admin-room-card-heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .admin-room-number { color: var(--slate-800); font-size: 1.125rem; }
 .admin-room-type { margin: .75rem 0 .25rem; color: var(--slate-700); font-size: .875rem; font-weight: 600; }
@@ -162,7 +163,7 @@
 
 .admin-tabs { display: flex; gap: .25rem; padding: .25rem; border-radius: .65rem; background: var(--slate-100); }
 .admin-tab { padding: .5rem .85rem; border: 0; border-radius: .45rem; color: var(--slate-500); background: transparent; font: inherit; font-size: .8125rem; font-weight: 600; }
-.admin-tab.is-active { color: var(--slate-800); background: #fff; box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+.admin-tab.is-active { color: var(--text-primary); background: var(--bg-surface); box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
 
 @media (max-width: 767.98px) {
     .admin-page-header { flex-direction: column; }
@@ -178,81 +179,45 @@
     .admin-page-header-actions > * { max-width: 100%; }
 }
 /* =========================================================
-   Modo oscuro del panel de administración.
-   Se activa con la clase `guest-dark-mode` en <body> (ThemeContext,
-   el mismo interruptor que usa la vista de huésped).
-
-   Estrategia: dentro de .admin-dashboard se invierte la escala
-   --slate-* y se redefinen las variables de Bootstrap, de modo que
-   todo lo que ya usa var(--slate-*) / Bootstrap se adapta solo.
-   Más abajo se corrigen los colores claros escritos a mano (#fff).
+   Ajustes de contraste para panel de administración en modo oscuro.
+   La mayoría de superficies y textos ya se adaptan automáticamente
+   a través de las variables semánticas (--bg-surface, --text-primary, etc.)
    ========================================================= */
+[data-theme="dark"] .admin-dashboard,
+.dark .admin-dashboard,
 body.guest-dark-mode .admin-dashboard {
-    color-scheme: dark;
-
-    --admin-surface: var(--navy-800);
-
-    --slate-50: #0e1220;
-    --slate-100: #1f2745;
-    --slate-200: #2a3352;
-    --slate-500: #a3aec2;
-    --slate-600: #b9c3d6;
-    --slate-700: #d3dbe8;
-    --slate-800: #f1f5f9;
-
-    /* anillos de foco: el rosa claro original encandila sobre fondo oscuro */
-    --rose-200: rgba(244, 63, 94, .35);
-
-    /* Bootstrap (tablas, inputs, selects) */
-    --bs-body-bg: var(--admin-surface);
-    --bs-body-color: var(--slate-700);
-    --bs-emphasis-color: var(--slate-800);
-    --bs-border-color: var(--slate-200);
-}
-
-/* Superficies que tenían fondo blanco fijo */
-body.guest-dark-mode .admin-dashboard .card-panel,
-body.guest-dark-mode .admin-dashboard .admin-room-card,
-body.guest-dark-mode .admin-dashboard .topbar,
-body.guest-dark-mode .admin-dashboard .topbar-dropdown,
-body.guest-dark-mode .admin-dashboard .admin-action-button--outline,
-body.guest-dark-mode .admin-dashboard .admin-form-control,
-body.guest-dark-mode .admin-dashboard .filter-select {
-    background-color: var(--admin-surface);
-}
-
-body.guest-dark-mode .admin-dashboard .admin-form-control,
-body.guest-dark-mode .admin-dashboard .filter-select {
-    color: var(--slate-700);
-}
-
-body.guest-dark-mode .admin-dashboard .admin-action-button--outline:hover {
-    background-color: var(--slate-100);
-    border-color: #3a4570;
-}
-
-body.guest-dark-mode .admin-dashboard .admin-tab.is-active {
-    background: var(--slate-200);
-    box-shadow: none;
-}
-
-/* Flecha de los <select>: la de Bootstrap es gris oscura */
-body.guest-dark-mode .admin-dashboard .form-select {
     --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d3dbe8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
-/* Punto de notificaciones: el aro blanco pasa a ser del color del topbar */
+[data-theme="dark"] .admin-dashboard .notif-dot,
+.dark .admin-dashboard .notif-dot,
 body.guest-dark-mode .admin-dashboard .notif-dot {
-    box-shadow: 0 0 0 2px var(--admin-surface);
+    box-shadow: 0 0 0 2px var(--bg-surface);
 }
 
+[data-theme="dark"] .admin-dashboard ::-webkit-scrollbar-thumb,
+.dark .admin-dashboard ::-webkit-scrollbar-thumb,
 body.guest-dark-mode .admin-dashboard ::-webkit-scrollbar-thumb {
     background: #3a4570;
 }
 
-/* Insignias de estado: pasteles claros -> tonos translúcidos */
+/* Insignias de estado: pasteles claros -> tonos translúcidos en modo oscuro */
+[data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-emerald,
+.dark .admin-dashboard .admin-status-badge.badge-pill-emerald,
 body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-emerald { color: #6ee7b7; background: rgba(16, 185, 129, .16); }
-body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-rose    { color: #fda4af; background: rgba(244, 63, 94, .16); }
-body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-amber   { color: #fcd34d; background: rgba(245, 158, 11, .16); }
-body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-orange  { color: #fdba74; background: rgba(249, 115, 22, .16); }
-body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-blue    { color: #93c5fd; background: rgba(59, 130, 246, .16); }
+
+[data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-rose,
+.dark .admin-dashboard .admin-status-badge.badge-pill-rose,
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-rose { color: #fda4af; background: rgba(244, 63, 94, .16); }
+
+[data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-amber,
+.dark .admin-dashboard .admin-status-badge.badge-pill-amber,
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-amber { color: #fcd34d; background: rgba(245, 158, 11, .16); }
+
+[data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-orange,
+.dark .admin-dashboard .admin-status-badge.badge-pill-orange,
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-orange { color: #fdba74; background: rgba(249, 115, 22, .16); }
+
+[data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-blue,
+.dark .admin-dashboard .admin-status-badge.badge-pill-blue,
+body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-blue { color: #93c5fd; background: rgba(59, 130, 246, .16); }

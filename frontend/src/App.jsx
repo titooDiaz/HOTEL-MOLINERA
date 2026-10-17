@@ -1,24 +1,9 @@
-import { useEffect, useState } from "react";
-import "./index.css";
-
-import Navbar from "./components/navbar/Navbar.jsx";
+import { useOutletContext } from "react-router-dom";
 import Hero from "./components/hero/Hero.jsx";
 import RoomSection from "./components/room_section/RoomSection.jsx";
-import WhatsAppButton from "./components/whatsApp_button/WhatsAppButton.jsx";
-
 import { room, roomImages } from "./roomData.js";
 
-
 const TEXTOS_PORTADA = {
-  navbar: {
-    brandInitials: "HM",
-    logoFallback: "logo",
-    rooms: "Habitaciones",
-    plans: "Planes",
-    restaurant: "Restaurante",
-    contact: "Contacto",
-    reserve: "RESERVAR",
-  },
   hero: {
     imageUrl:
       "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/ac/fd/b1/el-pozzo-hotel-campestre.jpg?w=900&h=500&s=1",
@@ -47,32 +32,25 @@ const TEXTOS_PORTADA = {
       guests: "personas",
     },
   },
-  whatsappLabel: "Contactar por WhatsApp",
 };
 
 function App() {
-  const [hotelData, setHotelData] = useState(null);
-
-  useEffect(() => {
-    fetch("/api/hotel")
-      .then(response => response.json())
-      .then(data => setHotelData(data))
-      .catch(error =>
-        console.error("Error al conectar con el backend:", error)
-      );
-  }, []);
+  const { hotelData, openReserveModal } = useOutletContext() || {};
 
   return (
-    <div className="app">
-      <Navbar hotelName={hotelData?.name} labels={TEXTOS_PORTADA.navbar} />
+    <>
       <Hero
         hotelName={hotelData?.name}
         imageUrl={TEXTOS_PORTADA.hero.imageUrl}
         labels={TEXTOS_PORTADA.hero}
       />
-      <RoomSection room={room} images={roomImages} labels={TEXTOS_PORTADA.room} />
-      <WhatsAppButton ariaLabel={TEXTOS_PORTADA.whatsappLabel} />
-    </div>
+      <RoomSection
+        room={room}
+        images={roomImages}
+        labels={TEXTOS_PORTADA.room}
+        onReserve={openReserveModal}
+      />
+    </>
   );
 }
 

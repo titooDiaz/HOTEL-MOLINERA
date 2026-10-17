@@ -49,3 +49,14 @@
 .restaurant-category:hover .restaurant-category-icon {
   background: #f1f1f1;
 }
+
+.restaurant-category.active {
+  border-color: var(--red-500, #ef4444);
+  background: var(--red-500, #ef4444);
+  color: #ffffff;
+}
+
+.restaurant-category.active .restaurant-category-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
