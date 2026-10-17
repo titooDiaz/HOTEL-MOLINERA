@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
-import appIcon from "../../images/icon.jpg";
+import appIcon from "../../../public/favicon.svg";
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import "./admin_nav.css";
 

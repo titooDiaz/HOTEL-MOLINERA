@@ -31,6 +31,7 @@ function getStoredUser() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(getStoredUser);
+  const [reservation, setReservation] = useState(null);
 
   const login = (email, password, remember = true) => {
     const authenticatedUser = USERS.find(
@@ -51,6 +52,7 @@ export function AuthProvider({ children }) {
     };
 
     setUser(sessionUser);
+    setReservation(null);
 
     if (remember) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
@@ -63,7 +65,23 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
+    setReservation(null);
     localStorage.removeItem(AUTH_STORAGE_KEY);
+  };
+
+  const saveReservation = (reservationData) => {
+    if (!user) {
+      throw new Error("Debes iniciar sesión para reservar una habitación.");
+    }
+
+    const nextReservation = {
+      ...reservationData,
+      userId: user.id,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setReservation(nextReservation);
+    return nextReservation;
   };
 
   return (
@@ -73,6 +91,8 @@ export function AuthProvider({ children }) {
         isAuthenticated: Boolean(user),
         login,
         logout,
+        reservation,
+        saveReservation,
       }}
     >
       {children}

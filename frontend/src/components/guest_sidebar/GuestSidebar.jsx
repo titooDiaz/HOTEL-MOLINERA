@@ -1,7 +1,7 @@
 import { LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
-import appIcon from "../../images/icon.jpg";
+import appIcon from "../../../public/favicon.svg";
 import "./GuestSidebar.css";
 
 export default function GuestSidebar({ brand, items, activeItem, logoutLabel, sidebarOpen, onClose }) {

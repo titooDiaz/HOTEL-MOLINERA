@@ -6,6 +6,9 @@ import RoomRequestsHero from "../../components/room_requests_hero/RoomRequestsHe
 import OrderStatistics from "../../components/order_statistics/OrderStatistics.jsx";
 import AccountSummary from "../../components/account_summary/AccountSummary.jsx";
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
+import ReservationForm from "../../components/booking/ReservationForm.jsx";
+import { useAuth } from "../../context/authContext.js";
+import { room, rooms } from "../../roomData.js";
 
 import "./RoomRequests.css";
 import "./MyRoom.css";
@@ -59,6 +62,7 @@ const formatoCOP = (valor) => {
 
 
 export default function MyRoom() {
+    const { reservation, saveReservation } = useAuth();
     const totalHabitacion = HABITACION.valor;
 
     const totalPagado = HABITACION.pagado;
@@ -66,6 +70,47 @@ export default function MyRoom() {
     const totalPendiente =
         totalHabitacion - totalPagado;
 
+
+    if (!reservation) {
+        return (
+            <div className="container-fluid p-4">
+                <RoomRequestsHero
+                    {...TEXTO_PAGINA.hero}
+                    title="Reserva una habitación"
+                    description="Todavía no tienes una habitación asignada. Elige una de nuestras habitaciones disponibles para comenzar tu estadía."
+                    imageUrl={IMAGEN_FONDO_PEDIDOS}
+                />
+                <div className="row g-4 align-items-start">
+                    <div className="col-12 col-xl-7">
+                        <div className="card border-0 shadow-sm p-4">
+                            <h2 className="h4 mb-2">Habitaciones disponibles</h2>
+                            <p className="text-secondary mb-4">Encuentra el espacio ideal para tu visita.</p>
+                            <div className="d-grid gap-3">
+                                {rooms.map((availableRoom) => (
+                                    <div className="border rounded-3 p-3" key={availableRoom.id}>
+                                        <div className="d-flex justify-content-between gap-3 flex-wrap">
+                                            <div>
+                                                <h3 className="h5 mb-1">{availableRoom.name}</h3>
+                                                <p className="text-secondary mb-2">{availableRoom.summary}</p>
+                                                <p className="small mb-0">{availableRoom.tags.join(" · ")}</p>
+                                            </div>
+                                            <strong className="text-nowrap">{availableRoom.price} <small>/ noche</small></strong>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-12 col-xl-5">
+                        <div className="card border-0 shadow-sm p-4">
+                            <h2 className="h4 mb-3">Reserva tu habitación</h2>
+                            <ReservationForm room={room} rooms={rooms} onSubmit={saveReservation} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
 
@@ -90,7 +135,7 @@ export default function MyRoom() {
                                         iconBg: "#DDF3E4",
                                         iconColor: "#1D9A5D",
                                         label: "Noches acordadas",
-                                        value: 4,
+                                        value: reservation.checkIn && reservation.checkOut ? `${reservation.checkIn} - ${reservation.checkOut}` : "Pendiente",
                                         sub: "desde tu llegada",
                                     },
 
@@ -99,7 +144,7 @@ export default function MyRoom() {
                                         iconBg: "#DDF3E4",
                                         iconColor: "#1D9A5D",
                                         label: "Estado habitación",
-                                        value: "Disponible",
+                                        value: reservation.roomName,
                                         sub: "",
                                     },
                                 ]}

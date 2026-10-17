@@ -610,6 +610,143 @@ body.guest-dark-mode .reserve-link:hover {
 }
 .reserve-submit:active { transform: translateY(0); }
 
+.reserve-booking-content {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  max-height: 92vh;
+}
+
+.reservation-form {
+  --gold: #b8924a;
+  --ink: #1b2233;
+  --muted: #6b7385;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reservation-room-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e6e8ee;
+  border-radius: 14px;
+  color: var(--ink);
+}
+
+.reservation-room-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.reservation-room-summary span:not(.reservation-form-label) {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.reservation-form-label {
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reservation-room-select {
+  max-width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
+.reservation-room-summary small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.reservation-room-details {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.reservation-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.7fr;
+  gap: 0.75rem;
+}
+
+.reservation-fields label,
+.reservation-request {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.reservation-fields input,
+.reservation-request textarea {
+  width: 100%;
+  border: 1.5px solid #e3dfd2;
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+  outline: none;
+}
+
+.reservation-fields input:focus,
+.reservation-request textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(184, 146, 74, 0.15);
+}
+
+.reservation-request textarea {
+  resize: vertical;
+}
+
+.reservation-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reservation-form-actions .reserve-submit {
+  margin-left: auto;
+  width: auto;
+}
+
+.reservation-form-actions .reserve-back {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .reservation-room-summary,
+.dark .reservation-room-summary,
+body.guest-dark-mode .reservation-room-summary {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .reservation-fields input,
+[data-theme="dark"] .reservation-request textarea,
+.dark .reservation-fields input,
+.dark .reservation-request textarea,
+body.guest-dark-mode .reservation-fields input,
+body.guest-dark-mode .reservation-request textarea {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
 .reserve-switch {
   margin: 0.2rem 0 0;
   text-align: center;
@@ -637,6 +774,8 @@ body.guest-dark-mode .reserve-link:hover {
   /* En móvil, al abrir un formulario ocultamos las opciones
      y el usuario regresa con el botón "Volver" */
   .reserve-modal--form .reserve-content { display: none; }
+  .reservation-fields { grid-template-columns: 1fr; }
+  .reservation-room-summary { flex-direction: column; }
 
   .reserve-form-panel {
     max-height: none;

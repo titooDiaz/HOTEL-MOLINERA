@@ -5,7 +5,7 @@ import "./RoomSection.css";
 
 export default function RoomSection({ room, images, labels, onReserve }) {
   return (
-    <section className="px-3 px-md-5 py-4" id="habitaciones">
+    <section className="px-3 px-md-5 py-4" id={`habitacion-${room.id}`}>
       <div className="room-grid">
         <RoomGallery images={images} labels={labels.gallery} />
         <RoomInfo room={room} descriptionLabel={labels.descriptionLabel} />

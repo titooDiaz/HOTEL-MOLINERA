@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import Hero from "./components/hero/Hero.jsx";
 import RoomSection from "./components/room_section/RoomSection.jsx";
-import { room, roomImages } from "./roomData.js";
+import { roomImages, rooms } from "./roomData.js";
 
 const TEXTOS_PORTADA = {
   hero: {
@@ -44,12 +44,17 @@ function App() {
         imageUrl={TEXTOS_PORTADA.hero.imageUrl}
         labels={TEXTOS_PORTADA.hero}
       />
-      <RoomSection
-        room={room}
-        images={roomImages}
-        labels={TEXTOS_PORTADA.room}
-        onReserve={openReserveModal}
-      />
+      <section id="habitaciones" aria-label="Habitaciones disponibles">
+        {rooms.map((availableRoom) => (
+          <RoomSection
+            key={availableRoom.id}
+            room={availableRoom}
+            images={roomImages}
+            labels={TEXTOS_PORTADA.room}
+            onReserve={() => openReserveModal(availableRoom)}
+          />
+        ))}
+      </section>
     </>
   );
 }

@@ -4,7 +4,7 @@ import Icon from "../icon/Icon.jsx";
 import ReserveModal from "./ReserveModal.jsx";
 import { useAuth } from "../../context/authContext.js";
 import { useTheme } from "../../context/themeContext.js";
-import appIcon from "../../images/icon.jpg";
+import appIcon from "../../../public/favicon.svg";
 import Tooltip from "../tooltip/Tooltip.jsx";
 import "./Navbar.css";
 

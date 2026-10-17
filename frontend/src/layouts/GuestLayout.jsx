@@ -3,6 +3,7 @@ import { BedDouble, Settings, Utensils } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import GuestSidebar from "../components/guest_sidebar/GuestSidebar.jsx";
 import GuestTopbar from "../components/guest_topbar/GuestTopbar.jsx";
+import { useAuth } from "../context/authContext.js";
 
 const SIDEBAR = {
   brand: {
@@ -25,6 +26,7 @@ const GUEST = {
 
 export default function GuestLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, reservation } = useAuth();
 
   return (
     <div className="hotel-layout d-flex min-vh-100">
@@ -35,7 +37,10 @@ export default function GuestLayout() {
       />
       <main className="main-content flex-grow-1">
         <GuestTopbar
-          guest={GUEST}
+          guest={{
+            nombre: user?.name || GUEST.nombre,
+            habitacion: reservation?.roomName || "Sin habitación reservada",
+          }}
           notificationLabel="Notificaciones"
           menuLabel="Abrir menú"
           onOpenSidebar={() => setSidebarOpen(true)}

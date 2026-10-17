@@ -5,6 +5,7 @@ import Tooltip from "../tooltip/Tooltip.jsx";
 import ReserveLoginForm from "./ReserveLoginForm.jsx";
 import ReserveOptionsView from "./ReserveOptionsView.jsx";
 import ReserveRegisterForm from "./ReserveRegisterForm.jsx";
+import ReservationForm from "../booking/ReservationForm.jsx";
 import reserveModalEs from "./es.js";
 import "./ReserveModal.css";
 
@@ -30,15 +31,19 @@ function ReserveModalContent({
   whatsappNumber,
   onLogin,
   onRegister,
+  isAuthenticated,
+  room,
+  rooms = [room],
+  onReserve,
 }) {
   const modalRef = useRef(null);
-  const [view, setView] = useState("options");
+  const [view, setView] = useState(isAuthenticated ? "booking" : "options");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
-    remember: false,
+    remember: true,
   });
   const [registerData, setRegisterData] = useState({
     name: "",
@@ -188,7 +193,7 @@ function ReserveModalContent({
           </button>
         </Tooltip>
 
-        {!isForm && (
+        {view !== "booking" && (
           <aside
             key="visual"
             className="reserve-visual reserve-swap"
@@ -241,13 +246,24 @@ function ReserveModalContent({
           />
         )}
 
-        <ReserveOptionsView
-          labels={t}
-          view={view}
-          onChangeView={changeView}
-          onClose={onClose}
-          whatsappUrl={whatsappUrl}
-        />
+        {view === "booking" && (
+          <section className="reserve-content reserve-booking-content">
+            <span className="reserve-eyebrow">Reserva tu estadía</span>
+            <h2 id="reserve-title" className="reserve-title">Completa tu reserva</h2>
+            <p className="reserve-subtitle">Elige tus fechas y revisa toda la información de la habitación.</p>
+            <ReservationForm room={room} rooms={rooms} onSubmit={onReserve} onCancel={onClose} />
+          </section>
+        )}
+
+        {view === "options" && (
+          <ReserveOptionsView
+            labels={t}
+            view={view}
+            onChangeView={changeView}
+            onClose={onClose}
+            whatsappUrl={whatsappUrl}
+          />
+        )}
       </div>
     </div>,
     document.body,

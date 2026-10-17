@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import appIcon from "../../images/icon.jpg";
+import appIcon from "../../../public/favicon.svg";
 import "./Footer.css";
 
 export default function Footer({ hotelName = "Hotel Molinera" }) {

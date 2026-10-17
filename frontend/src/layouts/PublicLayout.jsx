@@ -5,6 +5,7 @@ import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
+import { room, rooms } from "../roomData.js";
 
 const DEFAULT_NAVBAR_LABELS = {
   brandInitials: "HM",
@@ -18,9 +19,10 @@ const DEFAULT_NAVBAR_LABELS = {
 
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(room);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login, saveReservation } = useAuth();
 
   useEffect(() => {
     fetch("/api/hotel")
@@ -31,7 +33,10 @@ export default function PublicLayout() {
       );
   }, []);
 
-  const openReserveModal = () => setIsReserveOpen(true);
+  const openReserveModal = (availableRoom = room) => {
+    setSelectedRoom(availableRoom);
+    setIsReserveOpen(true);
+  };
   const closeReserveModal = () => setIsReserveOpen(false);
 
   const handleLogin = ({ email, password, remember }) => {
@@ -50,6 +55,12 @@ export default function PublicLayout() {
         `¡Registro recibido para ${registerData.name}! Ahora puedes iniciar sesión con tu cuenta.`,
       );
     }
+  };
+
+  const handleReservation = (reservationData) => {
+    saveReservation(reservationData);
+    closeReserveModal();
+    navigate("/mi-habitacion");
   };
 
   return (
@@ -75,6 +86,10 @@ export default function PublicLayout() {
         labels={DEFAULT_NAVBAR_LABELS}
         onLogin={handleLogin}
         onRegister={handleRegister}
+        isAuthenticated={Boolean(user)}
+        room={selectedRoom}
+        rooms={rooms}
+        onReserve={handleReservation}
       />
     </div>
   );
