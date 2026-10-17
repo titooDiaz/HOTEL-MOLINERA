@@ -1,39 +1,36 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import './index.css'
+import "./index.css";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import GuestLayout from "./layouts/GuestLayout.jsx";
 import PublicLayout from "./layouts/PublicLayout.jsx";
-
-// Vistas de usuarios no logueados
-import App from './App.jsx'
-import Contacto from "./pages/main/Contacto.jsx";
-import Planes from "./pages/main/Planes.jsx";
-import Restaurante from "./pages/main/Restaurante.jsx";
-import NotFound from "./pages/NotFound.jsx";
-
-// Vistas de usuarios logueados (huésped)
-import MyRoom from './pages/users/MyRoom.jsx';
-import RoomRequests from './pages/users/RoomRequests.jsx';
-import Settings from './pages/users/Settings.jsx';
-
-// Vistas de administración
-import HotelDashboard from './pages/admin/HotelDashboard.jsx';
-import Habitaciones from './pages/admin/Habitaciones.jsx';
-import NuevaHabitacion from './pages/admin/NuevaHabitacion.jsx';
-import Reservas from './pages/admin/Reservas.jsx';
-import NuevaReserva from './pages/admin/NuevaReserva.jsx';
-import Clientes from './pages/admin/Clientes.jsx';
-import NuevoCliente from './pages/admin/NuevoCliente.jsx';
-import RestauranteAdmin from './pages/admin/RestauranteAdmin.jsx';
-import NuevoPedido from './pages/admin/NuevoPedido.jsx';
-import Reportes from './pages/admin/Reportes.jsx';
-import Configuracion from './pages/admin/Configuracion.jsx';
+import {
+  App,
+  Clientes,
+  Configuracion,
+  Contacto,
+  Habitaciones,
+  HotelDashboard,
+  MyRoom,
+  NotFound,
+  NuevaHabitacion,
+  NuevaReserva,
+  NuevoCliente,
+  NuevoPedido,
+  Planes,
+  Reportes,
+  Restaurante,
+  RestauranteAdmin,
+  RoomRequests,
+  RoutePage,
+  Reservas,
+  Settings,
+} from "./routes/lazyPages.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -43,36 +40,36 @@ createRoot(document.getElementById("root")).render(
           <Routes>
           {/* Públicas */}
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<App />} />
-            <Route path="/contacto" element={<Contacto />} />
-            <Route path="/planes" element={<Planes />} />
-            <Route path="/restaurante" element={<Restaurante />} />
+            <Route path="/" element={<RoutePage component={App} />} />
+            <Route path="/contacto" element={<RoutePage component={Contacto} />} />
+            <Route path="/planes" element={<RoutePage component={Planes} />} />
+            <Route path="/restaurante" element={<RoutePage component={Restaurante} />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<RoutePage component={NotFound} />} />
 
           {/* Huésped */}
           <Route element={<ProtectedRoute allowedRole="guest" />}>
             <Route element={<GuestLayout />}>
-              <Route path="/mi-habitacion" element={<MyRoom />} />
-              <Route path="/pedidos" element={<RoomRequests />} />
-              <Route path="/configuracion" element={<Settings />} />
+              <Route path="/mi-habitacion" element={<RoutePage component={MyRoom} />} />
+              <Route path="/pedidos" element={<RoutePage component={RoomRequests} />} />
+              <Route path="/configuracion" element={<RoutePage component={Settings} />} />
             </Route>
           </Route>
 
           {/* Admin */}
           <Route element={<ProtectedRoute allowedRole="admin" />}>
             <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<HotelDashboard />} />
-              <Route path="/admin/habitaciones" element={<Habitaciones />} />
-              <Route path="/admin/habitaciones/nueva" element={<NuevaHabitacion />} />
-              <Route path="/admin/reservas" element={<Reservas />} />
-              <Route path="/admin/reservas/nueva" element={<NuevaReserva />} />
-              <Route path="/admin/clientes" element={<Clientes />} />
-              <Route path="/admin/clientes/nuevo" element={<NuevoCliente />} />
-              <Route path="/admin/restaurante" element={<RestauranteAdmin />} />
-              <Route path="/admin/restaurante/nuevo" element={<NuevoPedido />} />
-              <Route path="/admin/reportes" element={<Reportes />} />
-              <Route path="/admin/configuracion" element={<Configuracion />} />
+              <Route path="/admin" element={<RoutePage component={HotelDashboard} />} />
+              <Route path="/admin/habitaciones" element={<RoutePage component={Habitaciones} />} />
+              <Route path="/admin/habitaciones/nueva" element={<RoutePage component={NuevaHabitacion} />} />
+              <Route path="/admin/reservas" element={<RoutePage component={Reservas} />} />
+              <Route path="/admin/reservas/nueva" element={<RoutePage component={NuevaReserva} />} />
+              <Route path="/admin/clientes" element={<RoutePage component={Clientes} />} />
+              <Route path="/admin/clientes/nuevo" element={<RoutePage component={NuevoCliente} />} />
+              <Route path="/admin/restaurante" element={<RoutePage component={RestauranteAdmin} />} />
+              <Route path="/admin/restaurante/nuevo" element={<RoutePage component={NuevoPedido} />} />
+              <Route path="/admin/reportes" element={<RoutePage component={Reportes} />} />
+              <Route path="/admin/configuracion" element={<RoutePage component={Configuracion} />} />
             </Route>
           </Route>
           </Routes>
