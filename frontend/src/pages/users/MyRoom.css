@@ -6,6 +6,12 @@
     width: 50%;
 }
 
+@media (max-width: 575.98px) {
+    .order-statistics-container .row > * {
+        width: 100%;
+    }
+}
+
 .reception-help-container {
     flex-grow: 1;
     display: flex;

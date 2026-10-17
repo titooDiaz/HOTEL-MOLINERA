@@ -38,10 +38,17 @@
 body.guest-dark-mode .reserve-modal {
   --ink: #f8fafc;
   --muted: #94a3b8;
-  --gold-soft: #2d2618;
+  --gold-soft: #382f20;
   background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .reserve-form-panel,
+.dark .reserve-form-panel,
+body.guest-dark-mode .reserve-form-panel {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] .reserve-modal input,
@@ -52,11 +59,62 @@ body.guest-dark-mode .reserve-modal input {
   color: var(--text-primary);
 }
 
+[data-theme="dark"] .reserve-option:not(.reserve-option--primary),
+.dark .reserve-option:not(.reserve-option--primary),
+body.guest-dark-mode .reserve-option:not(.reserve-option--primary) {
+  background: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .reserve-option:not(.reserve-option--primary):hover,
+.dark .reserve-option:not(.reserve-option--primary):hover,
+body.guest-dark-mode .reserve-option:not(.reserve-option--primary):hover {
+  background: var(--bg-hover);
+  border-color: var(--gold);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .reserve-option--whatsapp:hover,
+.dark .reserve-option--whatsapp:hover,
+body.guest-dark-mode .reserve-option--whatsapp:hover {
+  background: #173329;
+  border-color: #25d366;
+}
+
+[data-theme="dark"] .reserve-divider::before,
+[data-theme="dark"] .reserve-divider::after,
+.dark .reserve-divider::before,
+.dark .reserve-divider::after,
+body.guest-dark-mode .reserve-divider::before,
+body.guest-dark-mode .reserve-divider::after {
+  background: var(--border-color);
+}
+
+[data-theme="dark"] .reserve-error,
+.dark .reserve-error,
+body.guest-dark-mode .reserve-error {
+  background: #3b1f25;
+  color: #fecaca;
+}
+
 [data-theme="dark"] .reserve-close,
 .dark .reserve-close,
 body.guest-dark-mode .reserve-close {
   background: var(--bg-surface);
   color: var(--text-primary);
+}
+
+[data-theme="dark"] .reserve-close:hover,
+.dark .reserve-close:hover,
+body.guest-dark-mode .reserve-close:hover {
+  background: var(--bg-hover);
+}
+
+[data-theme="dark"] .reserve-link:hover,
+.dark .reserve-link:hover,
+body.guest-dark-mode .reserve-link:hover {
+  color: #e6c47a;
 }
 
 /* ============ Botón cerrar ============ */
