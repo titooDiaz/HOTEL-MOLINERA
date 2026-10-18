@@ -34,19 +34,6 @@
   max-width: 28rem;
 }
 
-.hero-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: white;
-  opacity: .6;
-}
-
-.hero-dot.active {
-  background: var(--red-500);
-  opacity: 1;
-}
-
 @media (max-width: 768px) {
   .hero-section {
     height: 350px;

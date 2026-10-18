@@ -49,8 +49,10 @@ export default function Footer({ hotelName = "Hotel Molinera" }) {
             <h6 className="fw-bold mb-3">Contacto</h6>
             <ul className="list-unstyled public-footer-contact">
               <li className="mb-2">Capacho 5009, Táchira, Venezuela</li>
-              <li className="mb-2">+58 276-7883117</li>
-              <li className="mb-2">contacto@hotel.com</li>
+              <li className="mb-2">+58 414-7015219</li>
+              <li className="mb-2">
+                <a href="mailto:lamolineraposada@gmail.com">lamolineraposada@gmail.com</a>
+              </li>
               <li>
                 <a
                   href="https://www.instagram.com/lanuevamolinera_capacho/"

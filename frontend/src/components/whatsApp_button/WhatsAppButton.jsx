@@ -1,11 +1,18 @@
 import "./WhatsAppButton.css";
 import Tooltip from "../tooltip/Tooltip.jsx";
 
-export default function WhatsAppButton({ ariaLabel, phone = "582767883117" }) {
+export default function WhatsAppButton({
+  ariaLabel,
+  phone = "584147015219",
+  message = "",
+}) {
+  const whatsappUrl = new URL(`https://wa.me/${phone}`);
+  if (message) whatsappUrl.searchParams.set("text", message);
+
   return (
     <Tooltip label={ariaLabel}>
       <a
-        href={`https://wa.me/${phone}`}
+        href={whatsappUrl.toString()}
         className="whatsapp-fab"
         aria-label={ariaLabel}
       >

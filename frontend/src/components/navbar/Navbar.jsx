@@ -35,7 +35,7 @@ export default function Navbar({
   hotelName,
   labels,
   onOpenReserve,
-  whatsappNumber = "582767883117",
+  whatsappNumber = "584147015219",
 }) {
   const [internalReserveOpen, setInternalReserveOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -1,13 +1,14 @@
 .tooltip-wrapper {
   position: relative;
   display: inline-flex;
+  z-index: 2147483647;
 }
 
 .tooltip-content {
   position: absolute;
   left: 50%;
   bottom: calc(100% + .55rem);
-  z-index: 100;
+  z-index: 2147483647;
   width: max-content;
   max-width: 14rem;
   padding: .35rem .55rem;

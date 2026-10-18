@@ -49,7 +49,7 @@ const TEXTO_PAGINA = {
 
 const DATOS_INICIALES = [
     { key: "nombre", label: "Nombre", value: "Juan Pérez", type: "text" },
-    { key: "telefono", label: "Teléfono", value: "+58 276-7883117", type: "tel" },
+    { key: "telefono", label: "Teléfono", value: "+58 414-7015219", type: "tel" },
     { key: "correo", label: "Correo Electrónico", value: "juan.perez@email.com", type: "email" },
     { key: "nacionalidad", label: "Nacionalidad", value: "Venezolano", type: "text" },
 ];

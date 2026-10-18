@@ -16,6 +16,7 @@ const DEFAULT_NAVBAR_LABELS = {
   contact: "Contacto",
   reserve: "RESERVAR",
 };
+const WHATSAPP_NUMBER = "584147015219";
 
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
@@ -68,6 +69,7 @@ export default function PublicLayout() {
       <Navbar
         hotelName={hotelData?.name}
         labels={DEFAULT_NAVBAR_LABELS}
+        whatsappNumber={WHATSAPP_NUMBER}
         onOpenReserve={openReserveModal}
       />
 
@@ -77,13 +79,14 @@ export default function PublicLayout() {
 
       <Footer hotelName={hotelData?.name} />
 
-      <WhatsAppButton ariaLabel="Contactar por WhatsApp" />
+      <WhatsAppButton ariaLabel="Contactar por WhatsApp" phone={WHATSAPP_NUMBER} />
 
       <ReserveModal
         isOpen={isReserveOpen}
         onClose={closeReserveModal}
         hotelName={hotelData?.name}
         labels={DEFAULT_NAVBAR_LABELS}
+        whatsappNumber={WHATSAPP_NUMBER}
         onLogin={handleLogin}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}

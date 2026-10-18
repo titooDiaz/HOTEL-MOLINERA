@@ -11,12 +11,12 @@ const SUMMARY_CARDS = [
 ];
 
 const CLIENTS = [
-  { name: "Juan Pérez", email: "juan.perez@mail.com", phone: "+58 276-7883117", room: "101", spent: "Bs. 132.000", status: "Activo", statusClass: "badge-pill-emerald" },
-  { name: "Laura Gómez", email: "laura.gomez@mail.com", phone: "+58 276-7883117", room: "201", spent: "Bs. 210.000", status: "Activo", statusClass: "badge-pill-emerald" },
-  { name: "Andrés Ruiz", email: "andres.ruiz@mail.com", phone: "+58 276-7883117", room: "401", spent: "Bs. 98.500", status: "Activo", statusClass: "badge-pill-emerald" },
-  { name: "María Torres", email: "maria.torres@mail.com", phone: "+58 276-7883117", room: "305", spent: "Bs. 0", status: "Check-in pendiente", statusClass: "badge-pill-amber" },
-  { name: "Carlos Rojas", email: "carlos.rojas@mail.com", phone: "+58 276-7883117", room: "—", spent: "Bs. 340.000", status: "Anterior", statusClass: "badge-pill-slate" },
-  { name: "Valentina Díaz", email: "valentina.diaz@mail.com", phone: "+58 276-7883117", room: "210", spent: "Bs. 76.000", status: "Activo", statusClass: "badge-pill-emerald" },
+  { name: "Juan Pérez", email: "juan.perez@mail.com", phone: "+58 414-7015219", room: "101", spent: "Bs. 132.000", status: "Activo", statusClass: "badge-pill-emerald" },
+  { name: "Laura Gómez", email: "laura.gomez@mail.com", phone: "+58 414-7015219", room: "201", spent: "Bs. 210.000", status: "Activo", statusClass: "badge-pill-emerald" },
+  { name: "Andrés Ruiz", email: "andres.ruiz@mail.com", phone: "+58 414-7015219", room: "401", spent: "Bs. 98.500", status: "Activo", statusClass: "badge-pill-emerald" },
+  { name: "María Torres", email: "maria.torres@mail.com", phone: "+58 414-7015219", room: "305", spent: "Bs. 0", status: "Check-in pendiente", statusClass: "badge-pill-amber" },
+  { name: "Carlos Rojas", email: "carlos.rojas@mail.com", phone: "+58 414-7015219", room: "—", spent: "Bs. 340.000", status: "Anterior", statusClass: "badge-pill-slate" },
+  { name: "Valentina Díaz", email: "valentina.diaz@mail.com", phone: "+58 414-7015219", room: "210", spent: "Bs. 76.000", status: "Activo", statusClass: "badge-pill-emerald" },
 ];
 
 const CLIENTS_COPY = {

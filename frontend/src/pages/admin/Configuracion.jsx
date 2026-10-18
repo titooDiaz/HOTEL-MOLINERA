@@ -8,8 +8,8 @@ import AppearanceSettings from "../../components/settings_panels/AppearanceSetti
 
 const HOTEL_FIELDS = [
   { id: "hotel-name", label: "Nombre del hotel", defaultValue: "Hotel Molinera" },
-  { id: "hotel-phone", label: "Teléfono", defaultValue: "+58 276-7883117" },
-  { id: "hotel-email", label: "Correo de contacto", type: "email", defaultValue: "contacto@hotelmoderno.com" },
+  { id: "hotel-phone", label: "Teléfono", defaultValue: "+58 414-7015219" },
+  { id: "hotel-email", label: "Correo de contacto", type: "email", defaultValue: "lamolineraposada@gmail.com" },
   {
     id: "hotel-currency",
     label: "Moneda",

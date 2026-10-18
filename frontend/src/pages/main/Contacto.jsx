@@ -8,12 +8,12 @@ const TEXTOS_CONTACTO = {
 
     phone: {
       label: "Teléfono",
-      value: "+58 276-7883117",
+      value: "+58 414-7015219",
     },
 
     email: {
       label: "Correo electrónico",
-      value: "contacto@hotel.com",
+      value: "lamolineraposada@gmail.com",
     },
 
     address: {

@@ -40,7 +40,7 @@ const reserveModalEs = {
   loginError: "No fue posible iniciar sesión.",
   emailPlaceholder: "tucorreo@ejemplo.com",
   namePlaceholder: "Ej: María Gómez",
-  phonePlaceholder: "+58 276-7883117",
+  phonePlaceholder: "+58 414-7015219",
 };
 
 export default reserveModalEs;

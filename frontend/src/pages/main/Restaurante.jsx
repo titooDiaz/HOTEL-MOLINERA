@@ -25,6 +25,8 @@ const TEXTO_PORTADA = {
     button: "Reservar mesa",
   },
 };
+const WHATSAPP_RESERVATION_URL =
+  "https://wa.me/584147015219?text=Hola%2C%20quiero%20reservar%20una%20mesa.";
 
 const CATEGORIAS = [
   {
@@ -130,7 +132,7 @@ const COMIDAS = [
 ];
 
 function Restaurante() {
-  const { hotelData, openReserveModal } = useOutletContext() || {};
+  const { hotelData } = useOutletContext() || {};
   const [activeCategory, setActiveCategory] = useState(null);
 
   const displayedFoods = activeCategory
@@ -190,13 +192,14 @@ function Restaurante() {
           {TEXTO_PORTADA.reservation.description}
         </p>
 
-        <button
-          type="button"
+        <a
+          href={WHATSAPP_RESERVATION_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="btn-reserve"
-          onClick={openReserveModal}
         >
           {TEXTO_PORTADA.reservation.button}
-        </button>
+        </a>
       </section>
     </>
   );

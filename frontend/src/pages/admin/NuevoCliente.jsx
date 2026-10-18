@@ -33,7 +33,7 @@ const FORM_SECTIONS = [
     title: "Contacto",
     fields: [
       { id: "email", label: "Correo electrónico", type: "email", placeholder: "cliente@correo.com", required: true },
-      { id: "phone", label: "Teléfono", type: "tel", placeholder: "+58 276-7883117", required: true },
+      { id: "phone", label: "Teléfono", type: "tel", placeholder: "+58 414-7015219", required: true },
       { id: "city", label: "Ciudad de residencia", placeholder: "Ej. Capacho" },
       { id: "address", label: "Dirección", placeholder: "RMFP+X4X, Capacho 5009, Táchira" },
     ],
@@ -44,7 +44,7 @@ const FORM_SECTIONS = [
     description: "Información opcional que ayuda a la recepción durante la estadía.",
     fields: [
       { id: "emergencyName", label: "Contacto de emergencia", placeholder: "Nombre completo" },
-      { id: "emergencyPhone", label: "Teléfono de emergencia", type: "tel", placeholder: "+58 276-7883117" },
+      { id: "emergencyPhone", label: "Teléfono de emergencia", type: "tel", placeholder: "+58 414-7015219" },
       {
         id: "notes",
         label: "Notas y preferencias",
