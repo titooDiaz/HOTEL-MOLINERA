@@ -85,38 +85,38 @@ const COMIDAS = [
   {
     id: 2,
     category: "desayunos",
-    name: "Huevos con Arepa",
+    name: "Sandwich con Papas Fritas",
     description:
-      "Huevos preparados al gusto acompañados de arepa y queso.",
+      "Sandwich de jamón y queso acompañado de papas fritas.",
     price: "$14.000",
     image: "/images/restaurant/sandwich-papas.jpeg",
   },
   {
     id: 3,
     category: "almuerzos",
-    name: "Pollo a la Parrilla",
+    name: "Pollo Desmenuzado con Papas Fritas",
     description:
-      "Pechuga de pollo a la parrilla acompañada de arroz, ensalada y papas.",
+      "Pollo desmenuzado acompañado de papas fritas.",
     price: "$28.000",
-    image: "/images/restaurant/sandwich-papas.jpeg",
+    image: "/images/restaurant/pollo-desmenuzado-y-papas-fritas.jpg",
   },
   {
     id: 4,
-    category: "almuerzos",
-    name: "Bandeja Campestre",
+    category: "cenas",
+    name: "Tacos Mexicanos con Pollo",
     description:
-      "Una combinación tradicional con carne, arroz, frijoles, ensalada y acompañamientos.",
+      "Tacos rellenos de pollo, preparados al estilo mexicano.",
     price: "$32.000",
-    image: "/images/restaurant/ravioli-pan-ajo.jpeg",
+    image: "/images/restaurant/tacos-mexicanos-con-pollo.jpg",
   },
   {
     id: 5,
-    category: "cenas",
-    name: "Pasta de la Casa",
+    category: "almuerzos",
+    name: "Carne Asada con Salsa",
     description:
-      "Pasta preparada con nuestra salsa especial y acompañamientos.",
+      "Carne asada servida con salsa y sus acompañamientos.",
     price: "$24.000",
-    image: "/images/restaurant/ravioli-pan-ajo.jpeg",
+    image: "/images/restaurant/carne-asada-con-salsa.jpg",
   },
   {
     id: 6,

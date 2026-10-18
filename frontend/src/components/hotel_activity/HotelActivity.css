@@ -16,7 +16,7 @@
 }
 
 .activity-image-wrap {
-  min-height: 390px;
+  height: 390px;
   overflow: hidden;
   background: var(--bg-subtle);
 }
@@ -127,7 +127,7 @@
   }
 
   .activity-image-wrap {
-    min-height: 280px;
+    height: 280px;
   }
 
   .activity-content {
