@@ -1,3 +1,4 @@
+// Organizamos la lógica de SettingsToggle.
 import "./SettingsToggle.css";
 
 export default function SettingsToggle({ checked, onChange, label, icon: Icon }) {

@@ -1,3 +1,4 @@
+// Organizamos la lógica de BookingCard.
 import Icon from "../icon/Icon.jsx";
 import InfoRow from "../info_row/InfoRow.jsx";
 import "./BookingCard.css";

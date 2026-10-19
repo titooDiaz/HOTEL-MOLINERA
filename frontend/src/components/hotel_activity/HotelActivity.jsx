@@ -1,3 +1,4 @@
+// Organizamos la lógica de HotelActivity.
 import Icon from "../icon/Icon.jsx";
 import "./HotelActivity.css";
 

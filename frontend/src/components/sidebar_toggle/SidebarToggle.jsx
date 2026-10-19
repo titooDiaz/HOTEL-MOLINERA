@@ -1,3 +1,4 @@
+// Organizamos la lógica de SidebarToggle.
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";
 

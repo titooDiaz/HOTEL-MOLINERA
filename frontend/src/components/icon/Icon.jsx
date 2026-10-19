@@ -1,3 +1,4 @@
+// Organizamos la lógica de Icon.
 export default function Icon({
   children,
   className = "",

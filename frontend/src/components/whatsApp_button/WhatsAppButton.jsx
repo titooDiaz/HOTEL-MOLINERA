@@ -1,3 +1,4 @@
+// Organizamos la lógica de WhatsAppButton.
 import "./WhatsAppButton.css";
 import Tooltip from "../tooltip/Tooltip.jsx";
 

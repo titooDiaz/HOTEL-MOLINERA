@@ -1,3 +1,4 @@
+// Organizamos la lógica de GuestSidebar.
 import { LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";

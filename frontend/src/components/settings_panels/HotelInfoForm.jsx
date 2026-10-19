@@ -1,3 +1,4 @@
+// Organizamos la lógica de HotelInfoForm.
 import { useState } from "react";
 
 export default function HotelInfoForm({ fields, labels }) {

@@ -1,3 +1,4 @@
+// Organizamos la lógica de PageHeader.
 export default function PageHeader({
   title,
   subtitle,

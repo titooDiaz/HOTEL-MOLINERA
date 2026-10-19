@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomsGrid.
 import { useMemo, useState } from "react";
 
 export default function RoomsGrid({ rooms, labels }) {

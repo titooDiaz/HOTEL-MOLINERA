@@ -1,9 +1,11 @@
+// Compartimos el tema visual elegido en toda la aplicación.
 import { useEffect, useState } from "react";
 import { ThemeContext } from "./themeContext.js";
 
 const THEME_STORAGE_KEY = "hotel-molinera-theme";
 
 function getInitialTheme() {
+  // Leemos el tema guardado o la preferencia del sistema.
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY);
     if (saved !== null) {
@@ -19,9 +21,11 @@ function getInitialTheme() {
 }
 
 export function ThemeProvider({ children }) {
+  // Guardamos si el modo oscuro está activo.
   const [isDarkMode, setIsDarkMode] = useState(getInitialTheme);
 
   useEffect(() => {
+    // Aplicamos el tema actual al documento y lo guardamos.
     const root = document.documentElement;
     const body = document.body;
 
@@ -43,6 +47,7 @@ export function ThemeProvider({ children }) {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
+    // Cambiamos entre el modo claro y el modo oscuro.
     setIsDarkMode((prev) => !prev);
   };
 

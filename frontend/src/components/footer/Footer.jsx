@@ -1,3 +1,4 @@
+// Organizamos la lógica de Footer.
 import { Link } from "react-router-dom";
 import appIcon from "../../../public/favicon.svg";
 import "./Footer.css";

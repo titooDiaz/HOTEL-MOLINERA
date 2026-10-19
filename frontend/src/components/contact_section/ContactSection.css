@@ -1,3 +1,4 @@
+/* Comentamos los estilos de ContactSection. */
 .contact-grid {
   display: grid;
   grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);

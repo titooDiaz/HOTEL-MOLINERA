@@ -1,3 +1,4 @@
+// Organizamos la lógica de admin_nav.
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
 import appIcon from "../../../public/favicon.svg";

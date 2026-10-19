@@ -1,3 +1,4 @@
+// Organizamos la lógica de SecurityCard.
 import { Eye, Lock, Pencil } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
 import SettingsToggle from "./SettingsToggle.jsx";

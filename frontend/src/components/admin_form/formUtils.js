@@ -1,3 +1,4 @@
+// Organizamos la lógica de formUtils.
 /** Formato monetario venezolano sin decimales. */
 export function formatCOP(value) {
   return `Bs. ${new Intl.NumberFormat("es-VE").format(Math.round(value))}`;

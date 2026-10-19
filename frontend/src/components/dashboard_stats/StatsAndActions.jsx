@@ -1,3 +1,4 @@
+// Organizamos la lógica de StatsAndActions.
 import { Link } from "react-router-dom";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./StatsAndActions.css";

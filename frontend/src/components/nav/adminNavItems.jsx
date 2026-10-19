@@ -1,3 +1,4 @@
+// Organizamos la lógica de adminNavItems.
 export const NAV_ITEMS = [
   {
     label: "Inicio",

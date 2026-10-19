@@ -1,3 +1,4 @@
+// Organizamos la lógica de RestaurantCategories.
 import Icon from "../icon/Icon.jsx";
 import "./RestaurantCategories.css";
 

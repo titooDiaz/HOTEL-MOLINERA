@@ -1,3 +1,4 @@
+// Organizamos la lógica de AccountSummary.
 import { CheckCircle2, Clock, Wallet } from "lucide-react";
 import InfoRow from "../info_row/InfoRow.jsx";
 import "./AccountSummary.css";

@@ -1,3 +1,4 @@
+// Organizamos la lógica de PreferencesCard.
 import { Moon, Settings as SettingsIcon, Sun } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
 import SettingsToggle from "./SettingsToggle.jsx";

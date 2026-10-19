@@ -1,3 +1,4 @@
+/* Comentamos los estilos de AppearanceSettings. */
 /* El toggle se comparte con la vista de huésped (SettingsToggle) y toma sus
    colores de --set-*. Aquí se mapean a la paleta del panel de administración. */
 .admin-appearance {

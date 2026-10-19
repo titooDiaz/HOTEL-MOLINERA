@@ -1,3 +1,4 @@
+// Organizamos la lógica de OrderStatistics.
 import "./OrderStatistics.css";
 
 function StatCard({ icon: Icon, iconBg, iconColor, label, value, sub }) {

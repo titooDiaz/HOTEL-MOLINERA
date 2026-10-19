@@ -1,3 +1,4 @@
+// Organizamos la lógica de NotificationSettings.
 import { useState } from "react";
 
 export default function NotificationSettings({ options, labels }) {

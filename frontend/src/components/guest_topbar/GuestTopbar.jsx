@@ -1,3 +1,4 @@
+// Organizamos la lógica de GuestTopbar.
 import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

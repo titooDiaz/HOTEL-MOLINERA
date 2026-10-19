@@ -1,3 +1,4 @@
+// Organizamos la lógica de es.
 const reserveModalEs = {
   hotelFallback: "Nuestro Hotel",
   reserveEyebrow: "Reserva tu estadía",

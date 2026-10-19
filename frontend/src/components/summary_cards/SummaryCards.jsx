@@ -1,3 +1,4 @@
+// Organizamos la lógica de SummaryCards.
 export default function SummaryCards({ cards, columnClass = "col-12 col-sm-6 col-xl-3" }) {
   return (
     <section className="row g-3 mb-4" aria-label="Resumen">

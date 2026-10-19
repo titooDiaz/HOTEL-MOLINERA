@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReserveOptionsView.
 import Icon from "../icon/Icon.jsx";
 
 export default function ReserveOptionsView({

@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomRequestsHero.
 import "./RoomRequestsHero.css";
 
 export default function RoomRequestsHero({ imageUrl, eyebrow, title, description }) {

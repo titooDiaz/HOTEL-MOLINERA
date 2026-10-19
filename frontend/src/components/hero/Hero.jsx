@@ -1,3 +1,4 @@
+// Organizamos la lógica de Hero.
 import "./Hero.css";
 
 export default function Hero({ hotelName, imageUrl, labels }) {

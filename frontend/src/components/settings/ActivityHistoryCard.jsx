@@ -1,3 +1,4 @@
+// Organizamos la lógica de ActivityHistoryCard.
 import SettingsCard from "./SettingsCard.jsx";
 import "./ActivityHistoryCard.css";
 

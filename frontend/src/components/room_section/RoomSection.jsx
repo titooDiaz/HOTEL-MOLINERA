@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomSection.
 import BookingCard from "../booking_card/BookingCard.jsx";
 import RoomGallery from "../room_gallery/RoomGallery.jsx";
 import RoomInfo from "../room_info/RoomInfo.jsx";

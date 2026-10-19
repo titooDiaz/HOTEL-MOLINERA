@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReserveRegisterForm.
 import { FormHeader, PasswordField } from "./ReserveModalFields.jsx";
 
 export default function ReserveRegisterForm({

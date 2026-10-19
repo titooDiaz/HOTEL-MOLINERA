@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReservationsOverview.
 import "./ReservationsOverview.css";
 
 export default function ReservationsOverview({ reservations, labels, occupancy }) {

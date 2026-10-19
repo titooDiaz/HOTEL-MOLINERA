@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReceptionHelp.
 import { Phone, Utensils } from "lucide-react";
 import "./ReceptionHelp.css";
 

@@ -1,3 +1,4 @@
+// Organizamos la lógica de DashboardAnalytics.
 import { useId } from "react";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./DashboardAnalytics.css";

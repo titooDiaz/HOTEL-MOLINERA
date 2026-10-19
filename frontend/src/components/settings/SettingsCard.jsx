@@ -1,3 +1,4 @@
+// Organizamos la lógica de SettingsCard.
 import "./SettingsCard.css";
 
 export default function SettingsCard({ icon: Icon, title, children }) {

@@ -1,3 +1,4 @@
+// Organizamos la lógica de Feature.
 import Icon from "../icon/Icon.jsx";
 import "./Feature.css";
 

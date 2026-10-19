@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReserveModalFields.
 export function FormHeader({ hotelName, labels }) {
   return (
     <div

@@ -1,3 +1,4 @@
+// Organizamos la lógica de PersonalDataCard.
 import { Pencil, User } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";

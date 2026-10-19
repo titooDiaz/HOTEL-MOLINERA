@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomInfo.
 import Feature from "../feature/Feature.jsx";
 import Tag from "../tag/Tag.jsx";
 import "./RoomInfo.css";

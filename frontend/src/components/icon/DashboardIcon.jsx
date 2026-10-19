@@ -1,3 +1,4 @@
+// Organizamos la lógica de DashboardIcon.
 import Icon from "./Icon.jsx";
 
 export default function DashboardIcon({

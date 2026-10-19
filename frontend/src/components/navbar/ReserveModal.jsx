@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReserveModal.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../icon/Icon.jsx";

@@ -1,3 +1,4 @@
+/* Comentamos los estilos de RoomSection. */
 .room-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(300px, .9fr) minmax(240px, .55fr);

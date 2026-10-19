@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReservationsTable.
 import { useMemo, useState } from "react";
 
 import Tooltip from "../tooltip/Tooltip.jsx";

@@ -1,3 +1,4 @@
+/* Comentamos los estilos de ReservationsOverview. */
 .table-scroll { overflow-x: auto; margin: 0 -1rem; }
 
 @media (min-width: 576px) {

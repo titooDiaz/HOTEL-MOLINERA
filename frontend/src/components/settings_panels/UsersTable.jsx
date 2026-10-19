@@ -1,3 +1,4 @@
+// Organizamos la lógica de UsersTable.
 export default function UsersTable({ users, labels }) {
   return (
     <section className="card-panel admin-data-panel">

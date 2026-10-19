@@ -1,3 +1,4 @@
+/* Comentamos los estilos de DashboardTopbar. */
 .topbar {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);

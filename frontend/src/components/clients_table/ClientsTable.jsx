@@ -1,3 +1,4 @@
+// Organizamos la lógica de ClientsTable.
 import Tooltip from "../tooltip/Tooltip.jsx";
 
 export default function ClientsTable({ clients, labels }) {

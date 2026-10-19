@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomForm.
 import { useState } from "react";
 import "./RoomForm.css";
 

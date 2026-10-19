@@ -1,3 +1,4 @@
+// Organizamos la lógica de ProtectedRoute.
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
 

@@ -3,6 +3,7 @@ import Hero from "./components/hero/Hero.jsx";
 import RoomSection from "./components/room_section/RoomSection.jsx";
 import { roomImages, rooms } from "./roomData.js";
 
+// Reunimos los textos que usan la portada y las habitaciones.
 const TEXTOS_PORTADA = {
   hero: {
     imageUrl: "/images/places/entrada-interior.jpeg",
@@ -34,15 +35,18 @@ const TEXTOS_PORTADA = {
 };
 
 function App() {
+  // Tomamos los datos del hotel y la acción para abrir una reserva.
   const { hotelData, openReserveModal } = useOutletContext() || {};
 
   return (
     <>
+      {/* Mostramos la bienvenida principal del hotel. */}
       <Hero
         hotelName={hotelData?.name}
         imageUrl={TEXTOS_PORTADA.hero.imageUrl}
         labels={TEXTOS_PORTADA.hero}
       />
+      {/* Recorremos las habitaciones disponibles para mostrarlas. */}
       <section id="habitaciones" aria-label="Habitaciones disponibles">
         {rooms.map((availableRoom) => (
           <RoomSection

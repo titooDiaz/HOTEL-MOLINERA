@@ -1,3 +1,4 @@
+// Organizamos la lógica de RoomGallery.
 import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";

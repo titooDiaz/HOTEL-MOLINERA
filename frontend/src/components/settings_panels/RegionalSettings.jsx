@@ -1,3 +1,4 @@
+// Organizamos la lógica de RegionalSettings.
 export default function RegionalSettings({ fields, labels }) {
   return (
     <section className="card-panel admin-settings-panel">

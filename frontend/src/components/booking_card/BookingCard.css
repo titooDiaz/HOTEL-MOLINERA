@@ -1,3 +1,4 @@
+/* Comentamos los estilos de BookingCard. */
 .booking-card {
   height: fit-content;
   background: var(--bg-surface);

@@ -1,3 +1,4 @@
+// Organizamos la lógica de ReportsAnalytics.
 export default function ReportsAnalytics({ revenue, roomTypeStats, labels }) {
   const maxRevenue = Math.max(...revenue.values, 1);
 

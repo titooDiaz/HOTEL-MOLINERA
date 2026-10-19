@@ -1,3 +1,4 @@
+// Organizamos la lógica de RestaurantPanel.
 import { useState } from "react";
 
 export default function RestaurantPanel({ orders, menu, labels }) {

@@ -1,3 +1,4 @@
+// Organizamos la lógica de FoodCard.
 import "./FoodCard.css";
 
 export default function FoodCard({

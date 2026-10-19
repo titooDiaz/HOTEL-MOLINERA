@@ -1,3 +1,4 @@
+// Organizamos la lógica de Tooltip.
 import { useState } from "react";
 import "./Tooltip.css";
 
