@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReservationsTable.
+// Muestra las reservas en una tabla con filtro por estado y aviso si no hay resultados.
 import { useMemo, useState } from "react";
 
 import Tooltip from "../tooltip/Tooltip.jsx";

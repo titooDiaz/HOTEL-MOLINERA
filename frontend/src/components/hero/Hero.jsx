@@ -1,4 +1,4 @@
-// Organizamos la lógica de Hero.
+// Muestra la portada del hotel con imagen, nombre y texto principal.
 import "./Hero.css";
 
 export default function Hero({ hotelName, imageUrl, labels }) {

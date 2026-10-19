@@ -1,4 +1,4 @@
-// Organizamos la lógica de AppearanceSettings.
+// Permite cambiar entre el tema claro y oscuro desde la configuración administrativa.
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../../context/themeContext.js";
 import SettingsToggle from "../settings/SettingsToggle.jsx";

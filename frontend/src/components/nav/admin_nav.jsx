@@ -1,4 +1,4 @@
-// Organizamos la lógica de admin_nav.
+// Menú lateral administrativo con enlaces de navegación y cierre de sesión.
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
 import appIcon from "../../../public/favicon.svg";

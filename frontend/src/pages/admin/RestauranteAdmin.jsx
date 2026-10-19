@@ -1,3 +1,4 @@
+// Panel administrativo para consultar pedidos y productos del menú del restaurante.
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -63,6 +64,7 @@ export default function RestauranteAdmin() {
 
   return (
     <>
+          {/* Título del panel y acceso al formulario de nuevo pedido. */}
           <PageHeader
             title={RESTAURANT_COPY.header.title}
             subtitle={RESTAURANT_COPY.header.subtitle}
@@ -70,8 +72,10 @@ export default function RestauranteAdmin() {
             onAction={() => navigate("/admin/restaurante/nuevo")}
           />
 
+          {/* Métricas de actividad del restaurante. */}
           <SummaryCards cards={SUMMARY_CARDS} columnClass="col-12 col-sm-4" />
 
+          {/* Tabla con pestañas para consultar pedidos o productos del menú. */}
           <RestaurantPanel
             orders={ORDERS}
             menu={MENU}

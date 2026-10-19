@@ -1,4 +1,4 @@
-// Organizamos la lógica de RegionalSettings.
+// Renderiza selectores para ajustar las opciones regionales de la aplicación.
 export default function RegionalSettings({ fields, labels }) {
   return (
     <section className="card-panel admin-settings-panel">

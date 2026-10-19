@@ -1,4 +1,4 @@
-// Organizamos la lógica de SettingsCard.
+// Contenedor reutilizable para secciones de configuración con título e icono opcional.
 import "./SettingsCard.css";
 
 export default function SettingsCard({ icon: Icon, title, children }) {

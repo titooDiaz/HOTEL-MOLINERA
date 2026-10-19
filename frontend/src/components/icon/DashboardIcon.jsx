@@ -1,4 +1,4 @@
-// Organizamos la lógica de DashboardIcon.
+// Aplica dimensiones y trazos predeterminados al icono SVG usado en los paneles.
 import Icon from "./Icon.jsx";
 
 export default function DashboardIcon({

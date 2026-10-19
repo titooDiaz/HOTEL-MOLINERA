@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReserveModal.
+// Gestiona el modal de reserva y sus vistas de acceso, registro y selección de fechas.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../icon/Icon.jsx";

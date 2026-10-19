@@ -1,3 +1,4 @@
+// Página de contacto que presenta la información del hotel y envía mensajes al backend.
 import ContactSection from "../../components/contact_section/ContactSection.jsx";
 
 const TEXTOS_CONTACTO = {
@@ -65,6 +66,7 @@ function Contacto() {
   };
 
   return (
+    // La sección presenta los datos de contacto y gestiona el envío del formulario.
     <ContactSection
       information={TEXTOS_CONTACTO.information}
       form={TEXTOS_CONTACTO.form}

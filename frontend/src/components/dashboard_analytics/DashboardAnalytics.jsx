@@ -1,4 +1,4 @@
-// Organizamos la lógica de DashboardAnalytics.
+// Presenta gráficos de ocupación y tipos de habitación junto con la actividad reciente.
 import { useId } from "react";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./DashboardAnalytics.css";

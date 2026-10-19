@@ -1,4 +1,4 @@
-// Organizamos la lógica de Tooltip.
+// Muestra una ayuda contextual y ajusta su posición si no cabe sobre el elemento.
 import { useState } from "react";
 import "./Tooltip.css";
 

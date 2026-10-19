@@ -1,4 +1,4 @@
-// Organizamos la lógica de StatsAndActions.
+// Combina tarjetas de métricas del panel con enlaces a acciones rápidas.
 import { Link } from "react-router-dom";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./StatsAndActions.css";

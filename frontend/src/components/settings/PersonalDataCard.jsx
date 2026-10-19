@@ -1,4 +1,4 @@
-// Organizamos la lógica de PersonalDataCard.
+// Permite consultar y editar los datos personales del huésped.
 import { Pencil, User } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";

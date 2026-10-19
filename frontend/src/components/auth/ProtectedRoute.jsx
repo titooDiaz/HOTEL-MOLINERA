@@ -1,4 +1,4 @@
-// Organizamos la lógica de ProtectedRoute.
+// Restringe el acceso a usuarios autenticados y, opcionalmente, a un rol específico.
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";
 

@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReserveRegisterForm.
+// Formulario de registro que recopila los datos de contacto y valida la contraseña.
 import { FormHeader, PasswordField } from "./ReserveModalFields.jsx";
 
 export default function ReserveRegisterForm({

@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReserveOptionsView.
+// Ofrece al huésped las opciones para iniciar sesión, registrarse o continuar por WhatsApp.
 import Icon from "../icon/Icon.jsx";
 
 export default function ReserveOptionsView({

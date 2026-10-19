@@ -1,4 +1,4 @@
-// Organizamos la lógica de NotificationSettings.
+// Permite activar o desactivar las opciones de notificación disponibles.
 import { useState } from "react";
 
 export default function NotificationSettings({ options, labels }) {

@@ -1,4 +1,4 @@
-// Organizamos la lógica de RoomSection.
+// Agrupa la galería, los detalles y la tarjeta de reserva de una habitación.
 import BookingCard from "../booking_card/BookingCard.jsx";
 import RoomGallery from "../room_gallery/RoomGallery.jsx";
 import RoomInfo from "../room_info/RoomInfo.jsx";

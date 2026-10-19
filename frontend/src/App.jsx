@@ -1,3 +1,4 @@
+// Página de inicio pública: muestra la portada del hotel y las habitaciones disponibles.
 import { useOutletContext } from "react-router-dom";
 import Hero from "./components/hero/Hero.jsx";
 import RoomSection from "./components/room_section/RoomSection.jsx";

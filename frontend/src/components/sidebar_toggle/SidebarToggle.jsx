@@ -1,4 +1,4 @@
-// Organizamos la lógica de SidebarToggle.
+// Botón accesible para abrir o cerrar el menú lateral.
 import DashboardIcon from "../icon/DashboardIcon.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";
 

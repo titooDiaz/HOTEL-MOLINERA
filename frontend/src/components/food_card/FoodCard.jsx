@@ -1,4 +1,4 @@
-// Organizamos la lógica de FoodCard.
+// Presenta un producto del menú con su imagen, descripción y precio.
 import "./FoodCard.css";
 
 export default function FoodCard({

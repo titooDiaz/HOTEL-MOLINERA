@@ -1,3 +1,4 @@
+// Panel de reportes con indicadores de ingresos, ocupación y reservas por habitación.
 import { useState } from "react";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -50,10 +51,12 @@ const REPORTS_COPY = {
 };
 
 export default function Reportes() {
+  // Mantiene el rango seleccionado en el control de fechas del encabezado.
   const [range, setRange] = useState(REPORTS_COPY.header.defaultRange);
 
   return (
     <>
+          {/* Encabezado con selector del período y acción de exportación. */}
           <PageHeader
             title={REPORTS_COPY.header.title}
             subtitle={REPORTS_COPY.header.subtitle}
@@ -74,6 +77,7 @@ export default function Reportes() {
             </select>
           </PageHeader>
 
+          {/* Indicadores principales y desgloses gráficos y tabulares del período. */}
           <SummaryCards cards={KPI_CARDS} />
 
           <ReportsAnalytics

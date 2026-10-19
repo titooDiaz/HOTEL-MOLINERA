@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReserveLoginForm.
+// Formulario para que un huésped existente inicie sesión desde el flujo de reserva.
 import { FormHeader, PasswordField } from "./ReserveModalFields.jsx";
 
 export default function ReserveLoginForm({

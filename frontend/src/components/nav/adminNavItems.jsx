@@ -1,4 +1,4 @@
-// Organizamos la lógica de adminNavItems.
+// Define los enlaces e iconos de navegación administrativa y utilidades de reservas.
 export const NAV_ITEMS = [
   {
     label: "Inicio",

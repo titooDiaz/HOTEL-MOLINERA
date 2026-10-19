@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReportsAnalytics.
+// Resume ingresos y reservas por tipo de habitación mediante gráficos y una tabla.
 export default function ReportsAnalytics({ revenue, roomTypeStats, labels }) {
   const maxRevenue = Math.max(...revenue.values, 1);
 

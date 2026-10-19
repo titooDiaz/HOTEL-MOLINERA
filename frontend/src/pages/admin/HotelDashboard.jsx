@@ -1,3 +1,4 @@
+// Panel principal de administración con métricas, actividad reciente y resumen de reservas.
 import "./HotelDashboard.css";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import StatsAndActions from "../../components/dashboard_stats/StatsAndActions.jsx";
@@ -213,7 +214,7 @@ export default function HotelDashboard() {
 
   return (
     <>
-          {/* Bienvenida */}
+          {/* Bienvenida y fecha de referencia del panel. */}
           <div className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-4">
             <div>
               <h1 className="fw-semibold text-slate-800 mb-0" style={{ fontSize: "1.375rem" }}>
@@ -241,17 +242,20 @@ export default function HotelDashboard() {
             </div>
           </div>
 
+          {/* Indicadores operativos y accesos directos a tareas frecuentes. */}
           <StatsAndActions
             statCards={STAT_CARDS}
             quickActions={QUICK_ACTIONS}
             quickActionsTitle={DASHBOARD_COPY.quickActionsTitle}
           />
 
+          {/* Gráficos de ocupación, distribución de habitaciones y eventos recientes. */}
           <DashboardAnalytics
             roomTypes={ROOM_TYPES}
             recentActivity={RECENT_ACTIVITY}
             labels={DASHBOARD_COPY.analytics}
           />
+          {/* Reservas recientes junto al porcentaje de ocupación general. */}
           <ReservationsOverview
             reservations={RESERVATIONS}
             labels={DASHBOARD_COPY.reservations}

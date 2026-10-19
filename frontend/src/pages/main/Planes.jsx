@@ -1,3 +1,4 @@
+// Página pública que presenta las actividades y servicios disponibles en el hotel.
 import { useOutletContext } from "react-router-dom";
 import Hero from "../../components/hero/Hero.jsx";
 import HotelActivity from "../../components/hotel_activity/HotelActivity.jsx";
@@ -18,12 +19,14 @@ function Planes() {
 
   return (
     <>
+      {/* Portada de la página con el nombre y la imagen del hotel. */}
       <Hero
         hotelName={hotelData?.name}
         imageUrl={TEXTOS_PLANES.hero.imageUrl}
         labels={TEXTOS_PLANES.hero}
       />
 
+      {/* Actividades disponibles durante la estadía con sus horarios. */}
       <HotelActivity
         image="/images/places/piscina-dia.jpeg"
         title="Piscina"

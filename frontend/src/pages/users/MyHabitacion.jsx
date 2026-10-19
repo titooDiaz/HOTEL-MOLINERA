@@ -1,3 +1,4 @@
+// Página del huésped para ver su habitación, pagos y reservar si aún no tiene una asignada.
 import {
     CheckCircle2,
 } from "lucide-react";
@@ -10,8 +11,8 @@ import ReservationForm from "../../components/booking/ReservationForm.jsx";
 import { useAuth } from "../../context/authContext.js";
 import { room, rooms } from "../../roomData.js";
 
-import "./RoomRequests.css";
-import "./MyRoom.css";
+import "./Alimentos.css";
+import "./MyHabitacion.css";
 
 
 const IMAGEN_FONDO_PEDIDOS = "/images/rooms/cama-blanca.jpeg";
@@ -73,6 +74,7 @@ export default function MyRoom() {
     if (!reservation) {
         return (
             <div className="container-fluid p-4">
+                {/* Sin una reserva activa, ofrece ver habitaciones y comenzar una reserva. */}
                 <RoomRequestsHero
                     {...TEXTO_PAGINA.hero}
                     title="Reserva una habitación"
@@ -121,6 +123,7 @@ export default function MyRoom() {
 
         <div className="container-fluid p-4">
 
+                    {/* Encabezado del resumen de la habitación asignada. */}
                     <RoomRequestsHero
                         {...TEXTO_PAGINA.hero}
                         imageUrl={IMAGEN_FONDO_PEDIDOS}
@@ -133,6 +136,7 @@ export default function MyRoom() {
 
                         <div className="col-12 col-lg-8 order-statistics-container">
 
+                            {/* Muestra el período de estadía y el estado actual de la habitación. */}
                             <OrderStatistics
                                 items={[
                                     {
@@ -158,6 +162,7 @@ export default function MyRoom() {
 
                             <div className="reception-help-container">
 
+                                {/* Ayuda para reportar dudas sobre cargos o consumos. */}
                                 <ReceptionHelp
                                     labels={TEXTO_PAGINA.reception}
                                 />
@@ -171,6 +176,7 @@ export default function MyRoom() {
 
                         <div className="col-12 col-lg-4">
 
+                            {/* Resumen de pagos de la habitación. */}
                             <AccountSummary
                                 totalConsumos={totalHabitacion}
                                 totalPagado={totalPagado}

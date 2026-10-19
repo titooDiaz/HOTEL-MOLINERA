@@ -1,4 +1,4 @@
-// Organizamos la lógica de SecurityCard.
+// Muestra opciones de seguridad, como el cambio de contraseña y la verificación en dos pasos.
 import { Eye, Lock, Pencil } from "lucide-react";
 import SettingsCard from "./SettingsCard.jsx";
 import SettingsToggle from "./SettingsToggle.jsx";

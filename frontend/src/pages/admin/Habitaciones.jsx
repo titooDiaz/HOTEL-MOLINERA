@@ -1,3 +1,4 @@
+// Panel para consultar y filtrar habitaciones, con acceso al formulario de creación.
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -51,6 +52,7 @@ export default function Habitaciones() {
 
   return (
     <>
+          {/* Encabezado con acceso al formulario para agregar habitaciones. */}
           <PageHeader
             title={ROOMS_COPY.header.title}
             subtitle={ROOMS_COPY.header.subtitle}
@@ -58,6 +60,7 @@ export default function Habitaciones() {
             onAction={() => navigate("/admin/habitaciones/nueva")}
           />
 
+          {/* Resumen de disponibilidad y listado filtrable de habitaciones. */}
           <SummaryCards cards={SUMMARY_CARDS} />
 
           <RoomsGrid rooms={ROOMS} labels={ROOMS_COPY.grid} />

@@ -1,3 +1,4 @@
+// Inicializa React, proveedores globales, layouts y rutas públicas, de huésped y administración.
 import "bootstrap/dist/css/bootstrap.min.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

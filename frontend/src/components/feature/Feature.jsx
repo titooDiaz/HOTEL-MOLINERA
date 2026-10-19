@@ -1,4 +1,4 @@
-// Organizamos la lógica de Feature.
+// Muestra un servicio o característica de habitación con su icono correspondiente.
 import Icon from "../icon/Icon.jsx";
 import "./Feature.css";
 

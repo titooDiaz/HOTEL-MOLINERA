@@ -1,3 +1,4 @@
+// Formulario administrativo para registrar una reserva y calcular su resumen de pago.
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -145,6 +146,7 @@ function validateReservation(payload) {
   return null;
 }
 
+// Genera el desglose de noches, tarifa, anticipo y saldo para el formulario.
 function renderSummary(payload) {
   const room = findRoom(payload.roomId);
   const nights = nightsBetween(payload.checkIn, payload.checkOut);
@@ -181,6 +183,7 @@ export default function NuevaReserva() {
 
   return (
     <>
+          {/* Encabezado con navegación de regreso a la lista de reservas. */}
           <PageHeader
             title={NEW_RESERVATION_COPY.header.title}
             subtitle={NEW_RESERVATION_COPY.header.subtitle}
@@ -190,6 +193,7 @@ export default function NuevaReserva() {
             </Link>
           </PageHeader>
 
+          {/* Formulario validado que calcula el resumen y envía la nueva reserva. */}
           <AdminForm
             sections={FORM_SECTIONS}
             labels={NEW_RESERVATION_COPY.form}

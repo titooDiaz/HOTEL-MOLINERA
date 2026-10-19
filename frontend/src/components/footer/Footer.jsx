@@ -1,4 +1,4 @@
-// Organizamos la lógica de Footer.
+// Pie de página público con enlaces de navegación, servicios y datos de contacto.
 import { Link } from "react-router-dom";
 import appIcon from "../../../public/favicon.svg";
 import "./Footer.css";

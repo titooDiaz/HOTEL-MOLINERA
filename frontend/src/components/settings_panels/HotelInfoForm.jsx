@@ -1,4 +1,4 @@
-// Organizamos la lógica de HotelInfoForm.
+// Edita la información general del hotel y confirma el guardado del formulario.
 import { useState } from "react";
 
 export default function HotelInfoForm({ fields, labels }) {

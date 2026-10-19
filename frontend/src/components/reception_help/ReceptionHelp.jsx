@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReceptionHelp.
+// Ofrece al huésped instrucciones y un botón para contactar con recepción.
 import { Phone, Utensils } from "lucide-react";
 import "./ReceptionHelp.css";
 

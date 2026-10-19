@@ -1,4 +1,4 @@
-// Organizamos la lógica de RoomInfo.
+// Presenta el nombre, descripción, servicios y etiquetas de una habitación.
 import Feature from "../feature/Feature.jsx";
 import Tag from "../tag/Tag.jsx";
 import "./RoomInfo.css";

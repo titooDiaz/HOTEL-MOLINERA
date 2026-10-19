@@ -1,4 +1,4 @@
-// Organizamos la lógica de ActivityHistoryCard.
+// Lista los eventos recientes de actividad dentro de una tarjeta de configuración.
 import SettingsCard from "./SettingsCard.jsx";
 import "./ActivityHistoryCard.css";
 

@@ -1,4 +1,4 @@
-// Organizamos la lógica de BookingCard.
+// Muestra el precio y condiciones de una habitación junto al botón para reservarla.
 import Icon from "../icon/Icon.jsx";
 import InfoRow from "../info_row/InfoRow.jsx";
 import "./BookingCard.css";

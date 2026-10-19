@@ -1,4 +1,4 @@
-// Organizamos la lógica de RoomRequestsHero.
+// Encabezado de página con título, descripción e imagen de fondo opcional.
 import "./RoomRequestsHero.css";
 
 export default function RoomRequestsHero({ imageUrl, eyebrow, title, description }) {

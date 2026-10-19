@@ -1,4 +1,4 @@
-// Organizamos la lógica de RestaurantCategories.
+// Muestra categorías seleccionables para filtrar los productos del restaurante.
 import Icon from "../icon/Icon.jsx";
 import "./RestaurantCategories.css";
 

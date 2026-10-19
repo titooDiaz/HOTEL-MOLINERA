@@ -1,3 +1,4 @@
+// Formulario administrativo para crear un pedido de restaurante asociado a una habitación.
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -107,6 +108,7 @@ function renderSummary(payload) {
   const total = payload.items.reduce((sum, line) => sum + findDish(line.id).price * line.quantity, 0);
 
   return (
+    // Desglosa los productos agregados y el total estimado del pedido.
     <>
       <h2 className="aform-summary-title">{NEW_ORDER_COPY.summary.title}</h2>
       <dl className="aform-summary-list">
@@ -136,6 +138,7 @@ export default function NuevoPedido() {
 
   return (
     <>
+          {/* Encabezado con navegación de regreso al panel del restaurante. */}
           <PageHeader
             title={NEW_ORDER_COPY.header.title}
             subtitle={NEW_ORDER_COPY.header.subtitle}
@@ -145,6 +148,7 @@ export default function NuevoPedido() {
             </Link>
           </PageHeader>
 
+          {/* Formulario con validación de productos y resumen antes de guardar. */}
           <AdminForm
             sections={FORM_SECTIONS}
             labels={NEW_ORDER_COPY.form}

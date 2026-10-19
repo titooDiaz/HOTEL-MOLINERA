@@ -1,3 +1,4 @@
+// Panel de clientes con métricas de huéspedes y acceso al listado de clientes.
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -43,6 +44,7 @@ export default function Clientes() {
 
   return (
     <>
+          {/* Encabezado con acceso al registro de un nuevo huésped. */}
           <PageHeader
             title={CLIENTS_COPY.header.title}
             subtitle={CLIENTS_COPY.header.subtitle}
@@ -50,6 +52,7 @@ export default function Clientes() {
             onAction={() => navigate("/admin/clientes/nuevo")}
           />
 
+          {/* Métricas generales y tabla de clientes registrados. */}
           <SummaryCards cards={SUMMARY_CARDS} columnClass="col-12 col-sm-4" />
 
           <ClientsTable clients={CLIENTS} labels={CLIENTS_COPY.table} />

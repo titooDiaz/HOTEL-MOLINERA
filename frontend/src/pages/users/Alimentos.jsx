@@ -1,3 +1,4 @@
+// Página del huésped con el detalle de sus pedidos, estado de pago y resumen de consumos.
 import { useState } from "react";
 import {
     CheckCircle2,
@@ -9,7 +10,7 @@ import OrderStatistics from "../../components/order_statistics/OrderStatistics.j
 import OrdersList from "../../components/orders_list/OrdersList.jsx";
 import AccountSummary from "../../components/account_summary/AccountSummary.jsx";
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
-import "./RoomRequests.css";
+import "./Alimentos.css";
 
 const TEXTO_PAGINA = {
     hero: {
@@ -102,6 +103,7 @@ const PEDIDOS = [
 const formatoCOP = (valor) => `Bs. ${valor.toLocaleString("es-VE")}`;
 
 export default function RoomRequests() {
+    // Filtra los pedidos y calcula por separado los montos pagados y pendientes.
     const [filtro, setFiltro] = useState("todos");
     const pedidosFiltrados =
         filtro === "todos"
@@ -118,8 +120,10 @@ export default function RoomRequests() {
 
     return (
         <div className="container-fluid p-4">
+            {/* Presentación de la sección de pedidos del huésped. */}
             <RoomRequestsHero {...TEXTO_PAGINA.hero} />
 
+            {/* Estadísticas y lista filtrable de pedidos, junto al resumen de cuenta. */}
             <div className="row g-4">
                 <div className="col-12 col-lg-8">
                 <OrderStatistics

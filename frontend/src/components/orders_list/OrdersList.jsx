@@ -1,4 +1,4 @@
-// Organizamos la lógica de OrdersList.
+// Lista los pedidos del huésped con su fecha, importe, estado y filtro correspondiente.
 import { CalendarDays, ChevronRight } from "lucide-react";
 import "./OrdersList.css";
 

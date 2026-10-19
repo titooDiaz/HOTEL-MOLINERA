@@ -1,4 +1,4 @@
-// Organizamos la lógica de PageHeader.
+// Encabezado administrativo con título, subtítulo y acciones opcionales.
 export default function PageHeader({
   title,
   subtitle,

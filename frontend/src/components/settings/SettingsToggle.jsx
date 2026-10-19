@@ -1,4 +1,4 @@
-// Organizamos la lógica de SettingsToggle.
+// Interruptor accesible controlado por el valor y el callback recibidos.
 import "./SettingsToggle.css";
 
 export default function SettingsToggle({ checked, onChange, label, icon: Icon }) {

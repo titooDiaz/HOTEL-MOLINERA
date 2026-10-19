@@ -1,3 +1,4 @@
+// Página del huésped para administrar datos personales, seguridad y preferencias de interfaz.
 import { useState } from "react";
 import RoomRequestsHero from "../../components/room_requests_hero/RoomRequestsHero.jsx";
 import PersonalDataCard from "../../components/settings/PersonalDataCard.jsx";
@@ -6,12 +7,12 @@ import PreferencesCard from "../../components/settings/PreferencesCard.jsx";
 import ActivityHistoryCard from "../../components/settings/ActivityHistoryCard.jsx";
 import { useTheme } from "../../context/themeContext.js";
 
-import "./RoomRequests.css";
+import "./Alimentos.css";
 
 
 const IMAGEN_FONDO_PEDIDOS = "/images/places/entrada-interior.jpeg";
 
-
+// Textos agrupados por sección para mantener consistentes los títulos y controles.
 const TEXTO_PAGINA = {
 
     hero: {
@@ -46,7 +47,7 @@ const TEXTO_PAGINA = {
     },
 };
 
-
+// Datos de ejemplo que inicializan y alimentan el formulario personal del huésped.
 const DATOS_INICIALES = [
     { key: "nombre", label: "Nombre", value: "Juan Pérez", type: "text" },
     { key: "telefono", label: "Teléfono", value: "+58 414-7015219", type: "tel" },
@@ -54,7 +55,7 @@ const DATOS_INICIALES = [
     { key: "nacionalidad", label: "Nacionalidad", value: "Venezolano", type: "text" },
 ];
 
-
+// Actividad de ejemplo que se muestra en la tarjeta de historial.
 const HISTORIAL = [
     "Fecha de login: 1:07, 2023",
     "Fecha de login: 1:08, 2023",
@@ -64,55 +65,64 @@ const HISTORIAL = [
 
 
 export default function Settings() {
+    // Separa los datos guardados del borrador para poder cancelar una edición.
     const [datos, setDatos] = useState(DATOS_INICIALES);
     const [borrador, setBorrador] = useState(DATOS_INICIALES);
     const [editando, setEditando] = useState(false);
 
+    // Estado local de 2FA y preferencias de tema compartidas por el contexto.
     const [dosPasos, setDosPasos] = useState(false);
     const { isDarkMode, toggleDarkMode } = useTheme();
 
 
+    // Copia los valores actuales al borrador antes de activar el modo de edición.
     const iniciarEdicion = () => {
         setBorrador(datos);
         setEditando(true);
     };
 
+    // Abre la edición desde un campo sin reiniciar un borrador ya activo.
     const editarCampo = () => {
         if (!editando) iniciarEdicion();
     };
 
+    // Actualiza únicamente el campo modificado dentro del borrador.
     const cambiarCampo = (key, value) => {
         setBorrador((prev) =>
             prev.map((f) => (f.key === key ? { ...f, value } : f))
         );
     };
 
+    // Confirma el borrador como datos guardados y cierra la edición.
     const guardar = () => {
         setDatos(borrador);
         setEditando(false);
     };
 
+    // Descarta los cambios pendientes y restaura los datos guardados.
     const cancelar = () => {
         setBorrador(datos);
         setEditando(false);
     };
 
+    // El formulario recibe el borrador durante la edición y los datos guardados en lectura.
     const camposVisibles = editando ? borrador : datos;
 
 
     return (
 
         <div className="container-fluid p-4">
-
+                    {/* Presentación de la página de configuración del huésped. */}
                     <RoomRequestsHero
                         {...TEXTO_PAGINA.hero}
                         imageUrl={IMAGEN_FONDO_PEDIDOS}
                     />
 
-
+                    {/* Distribuye los paneles personales, de seguridad y preferencias. */}
                     <div className="row g-4">
 
                         <div className="col-12 col-lg-4">
+                            {/* Datos personales con acciones para editar, guardar o cancelar. */}
                             <PersonalDataCard
                                 fields={camposVisibles}
                                 editing={editando}
@@ -126,6 +136,7 @@ export default function Settings() {
                         </div>
 
                         <div className="col-12 col-lg-4">
+                            {/* Controla el estado de verificación en dos pasos. */}
                             <SecurityCard
                                 enabled={dosPasos}
                                 onToggle={setDosPasos}
@@ -134,6 +145,7 @@ export default function Settings() {
                         </div>
 
                         <div className="col-12 col-lg-4 d-flex flex-column gap-4">
+                            {/* Preferencias de tema e historial reciente de actividad. */}
                             <PreferencesCard
                                 enabled={isDarkMode}
                                 onToggle={toggleDarkMode}

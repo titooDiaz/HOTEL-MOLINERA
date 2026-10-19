@@ -1,4 +1,3 @@
-// Organizamos la lógica de ContactSection.
 import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
 import "./ContactSection.css";

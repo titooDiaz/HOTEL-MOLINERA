@@ -1,3 +1,4 @@
+// Panel para configurar los datos del hotel, usuarios, notificaciones, región y apariencia.
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import HotelInfoForm from "../../components/settings_panels/HotelInfoForm.jsx";
@@ -95,11 +96,13 @@ export default function Configuracion() {
 
   return (
     <>
+          {/* Título y contexto de las opciones administrativas. */}
           <PageHeader
             title={SETTINGS_COPY.header.title}
             subtitle={SETTINGS_COPY.header.subtitle}
           />
 
+          {/* Datos del hotel y usuarios en una columna; ajustes generales en la otra. */}
           <div className="row g-3">
             <div className="col-12 col-xl-7">
               <div className="mb-3">

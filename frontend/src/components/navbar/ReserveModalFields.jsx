@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReserveModalFields.
+// Define el encabezado de los formularios de reserva y el campo reutilizable de contraseña.
 export function FormHeader({ hotelName, labels }) {
   return (
     <div

@@ -1,3 +1,4 @@
+// Formulario administrativo para registrar un huésped con sus datos personales y de contacto.
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -80,6 +81,7 @@ export default function NuevoCliente() {
 
   return (
     <>
+          {/* Encabezado con navegación de regreso al listado de clientes. */}
           <PageHeader
             title={NEW_CLIENT_COPY.header.title}
             subtitle={NEW_CLIENT_COPY.header.subtitle}
@@ -89,6 +91,7 @@ export default function NuevoCliente() {
             </Link>
           </PageHeader>
 
+          {/* Formulario para capturar información personal, contacto y notas del huésped. */}
           <AdminForm
             sections={FORM_SECTIONS}
             labels={NEW_CLIENT_COPY.form}

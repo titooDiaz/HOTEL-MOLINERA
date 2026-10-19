@@ -1,4 +1,4 @@
-// Organizamos la lógica de RestaurantPanel.
+// Alterna entre las tablas administrativas de pedidos y productos del menú.
 import { useState } from "react";
 
 export default function RestaurantPanel({ orders, menu, labels }) {

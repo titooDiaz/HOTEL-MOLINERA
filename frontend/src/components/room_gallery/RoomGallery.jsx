@@ -1,4 +1,4 @@
-// Organizamos la lógica de RoomGallery.
+// Muestra las imágenes de una habitación con controles de navegación y miniaturas.
 import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";

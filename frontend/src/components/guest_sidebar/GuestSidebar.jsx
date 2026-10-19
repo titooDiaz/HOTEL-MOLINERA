@@ -1,4 +1,4 @@
-// Organizamos la lógica de GuestSidebar.
+// Menú lateral del huésped con navegación y cierre de sesión.
 import { LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";

@@ -1,4 +1,3 @@
-// Organizamos la lógica de AdminForm.
 import { useState } from "react";
 import { formatCOP } from "./formUtils.js";
 import Tooltip from "../tooltip/Tooltip.jsx";

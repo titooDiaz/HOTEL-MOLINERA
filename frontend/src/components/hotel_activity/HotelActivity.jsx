@@ -1,4 +1,4 @@
-// Organizamos la lógica de HotelActivity.
+// Presenta una actividad del hotel con imagen, descripción y horario.
 import Icon from "../icon/Icon.jsx";
 import "./HotelActivity.css";
 

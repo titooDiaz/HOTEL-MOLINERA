@@ -1,4 +1,4 @@
-// Organizamos la lógica de OrderStatistics.
+// Presenta las tarjetas con las métricas de pedidos y consumos.
 import "./OrderStatistics.css";
 
 function StatCard({ icon: Icon, iconBg, iconColor, label, value, sub }) {

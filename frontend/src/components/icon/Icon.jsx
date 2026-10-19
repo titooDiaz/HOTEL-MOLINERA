@@ -1,4 +1,4 @@
-// Organizamos la lógica de Icon.
+// Componente SVG base para dibujar iconos personalizables mediante sus elementos hijos.
 export default function Icon({
   children,
   className = "",

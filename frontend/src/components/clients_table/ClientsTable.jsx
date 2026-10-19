@@ -1,4 +1,4 @@
-// Organizamos la lógica de ClientsTable.
+// Muestra los clientes del hotel y sus datos en una tabla administrativa.
 import Tooltip from "../tooltip/Tooltip.jsx";
 
 export default function ClientsTable({ clients, labels }) {

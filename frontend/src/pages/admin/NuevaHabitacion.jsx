@@ -1,3 +1,4 @@
+// Formulario administrativo para registrar una habitación y sus características.
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -142,6 +143,7 @@ export default function NuevaHabitacion() {
 
   return (
     <>
+          {/* Encabezado con enlace de regreso al listado de habitaciones. */}
           <PageHeader
             title={NEW_ROOM_COPY.header.title}
             subtitle={NEW_ROOM_COPY.header.subtitle}
@@ -154,6 +156,7 @@ export default function NuevaHabitacion() {
             </Link>
           </PageHeader>
 
+          {/* Formulario agrupado para registrar datos, servicios y tarifa. */}
           <RoomForm
             sections={FORM_SECTIONS}
             labels={NEW_ROOM_COPY.form}

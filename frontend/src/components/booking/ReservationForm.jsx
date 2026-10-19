@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReservationForm.
+// Recopila habitación, fechas, huéspedes y solicitudes para enviar una reserva.
 import { useState } from "react";
 import "../navbar/ReserveModal.css";
 

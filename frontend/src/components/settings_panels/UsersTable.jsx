@@ -1,4 +1,4 @@
-// Organizamos la lógica de UsersTable.
+// Presenta los usuarios, roles y estados en una tabla de administración.
 export default function UsersTable({ users, labels }) {
   return (
     <section className="card-panel admin-data-panel">

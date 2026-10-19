@@ -1,4 +1,4 @@
-// Organizamos la lógica de DashboardTopbar.
+// Barra superior administrativa con búsqueda, notificaciones y menú de perfil.
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext.js";

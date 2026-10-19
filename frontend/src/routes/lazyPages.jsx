@@ -8,8 +8,8 @@ export const Restaurante = lazy(() => import("../pages/main/Restaurante.jsx"));
 export const NotFound = lazy(() => import("../pages/NotFound.jsx"));
 
 // Páginas de huésped
-export const MyRoom = lazy(() => import("../pages/users/MyRoom.jsx"));
-export const RoomRequests = lazy(() => import("../pages/users/RoomRequests.jsx"));
+export const MyRoom = lazy(() => import("../pages/users/MyHabitacion.jsx"));
+export const RoomRequests = lazy(() => import("../pages/users/Alimentos.jsx"));
 export const Settings = lazy(() => import("../pages/users/Settings.jsx"));
 
 // Páginas de administración

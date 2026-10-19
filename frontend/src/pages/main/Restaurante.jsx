@@ -1,3 +1,4 @@
+// Página del restaurante con su menú, categorías filtrables y opción para reservar mesa.
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import Hero from "../../components/hero/Hero.jsx";
@@ -133,6 +134,7 @@ const COMIDAS = [
 
 function Restaurante() {
   const { hotelData } = useOutletContext() || {};
+  // La selección determina qué productos se muestran en el menú.
   const [activeCategory, setActiveCategory] = useState(null);
 
   const displayedFoods = activeCategory
@@ -141,12 +143,14 @@ function Restaurante() {
 
   return (
     <>
+      {/* Presentación del restaurante con la información general del hotel. */}
       <Hero
         hotelName={hotelData?.name}
         imageUrl={TEXTO_PORTADA.hero.imageUrl}
         labels={TEXTO_PORTADA.hero}
       />
 
+      {/* Menú de productos; las categorías actualizan la lista visible. */}
       <section className="px-3 px-md-5 py-5">
         <div className="text-center mb-4">
           <h2 className="fw-bold text-dark">
@@ -183,6 +187,7 @@ function Restaurante() {
         </div>
       </section>
 
+      {/* Enlace para solicitar una reserva de mesa por WhatsApp. */}
       <section className="px-3 px-md-5 py-5 text-center">
         <h2 className="fw-bold text-dark">
           {TEXTO_PORTADA.reservation.title}

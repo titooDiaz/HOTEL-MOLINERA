@@ -1,4 +1,4 @@
-// Organizamos la lógica de RoomsGrid.
+// Muestra las habitaciones administrativas en una cuadrícula filtrable por estado.
 import { useMemo, useState } from "react";
 
 export default function RoomsGrid({ rooms, labels }) {

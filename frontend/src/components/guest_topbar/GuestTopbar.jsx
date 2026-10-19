@@ -1,4 +1,4 @@
-// Organizamos la lógica de GuestTopbar.
+// Barra superior del huésped con notificaciones, perfil, configuración y cierre de sesión.
 import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

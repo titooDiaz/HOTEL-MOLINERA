@@ -1,4 +1,4 @@
-// Organizamos la lógica de ReservationsOverview.
+// Resume las reservas recientes en una tabla y muestra el porcentaje de ocupación.
 import "./ReservationsOverview.css";
 
 export default function ReservationsOverview({ reservations, labels, occupancy }) {

@@ -1,3 +1,4 @@
+// Panel para consultar, filtrar y crear reservas del hotel.
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -55,6 +56,7 @@ export default function Reservas() {
 
   return (
     <>
+          {/* Encabezado y acción para iniciar el registro de una reserva. */}
           <PageHeader
             title={RESERVATIONS_COPY.header.title}
             subtitle={RESERVATIONS_COPY.header.subtitle}
@@ -62,6 +64,7 @@ export default function Reservas() {
             onAction={() => navigate("/admin/reservas/nueva")}
           />
 
+          {/* Indicadores y tabla con filtros para revisar las reservas. */}
           <SummaryCards cards={SUMMARY_CARDS} />
 
           <ReservationsTable

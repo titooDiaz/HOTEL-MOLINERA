@@ -1,3 +1,4 @@
+// Barra de navegación pública con acceso a las páginas del hotel y al flujo de reserva.
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Icon from "../icon/Icon.jsx";

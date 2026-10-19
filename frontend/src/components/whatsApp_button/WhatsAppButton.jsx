@@ -1,4 +1,4 @@
-// Organizamos la lógica de WhatsAppButton.
+// Enlace flotante que abre una conversación de WhatsApp con un mensaje opcional.
 import "./WhatsAppButton.css";
 import Tooltip from "../tooltip/Tooltip.jsx";
 
