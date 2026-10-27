@@ -13,7 +13,9 @@ app.get("/api/hotel", (req, res) => {
 });
 
 // Código de producción (estáticos y catch-all)
+const frontendPublicPath = path.join(__dirname, '../../frontend/public');
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendPublicPath));
 app.use(express.static(frontendDistPath));
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
