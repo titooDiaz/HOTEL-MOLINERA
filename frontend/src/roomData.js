@@ -71,3 +71,38 @@ export const rooms = [
 ];
 
 export const room = rooms[0];
+
+export function roomFromApi(record) {
+  const image = record.imageUrl || "/images/rooms/cama-blanca.jpeg";
+  const roomGallery = Array.isArray(record.gallery) && record.gallery.length
+    ? record.gallery.map((item) => typeof item === "string" ? { src: item, alt: record.type } : item)
+    : [{ src: image, alt: `Habitación ${record.number}` }, ...roomImages.slice(1)];
+  const amenities = [
+    ["airConditioning", "Aire acondicionado", "person"],
+    ["cableTv", "TV por cable", "tv"],
+    ["safe", "Caja de seguridad", "safe"],
+    ["workstation", "Estación de trabajo", "work"],
+    ["wifi", "Wi-Fi", "wifi"],
+    ["minibar", "Mini bar", "minibar"],
+    ["privateBathroom", "Baño privado", "bath"],
+    ["balcony", "Balcón", "balcony"],
+  ].filter(([key]) => record[key]).map(([, text, icon]) => ({ icon, text }));
+
+  return {
+    id: String(record.id),
+    roomId: record.id,
+    number: record.number,
+    name: `Habitación ${record.number}`,
+    summary: record.description || `${record.type} · ${record.capacity} huéspedes`,
+    description: record.description || `Habitación ${record.type} del Hotel Molinera.`,
+    features: amenities,
+    tags: [`Hasta ${record.capacity} personas`, record.area ? `${record.area} m²` : `Piso ${record.floor}`, record.smokeFree ? "No fumadores" : record.bedType || "Habitación"],
+    priceAmount: Number(record.pricePerNight),
+    price: `Bs. ${new Intl.NumberFormat("es-VE").format(Number(record.pricePerNight))}`,
+    checkIn: record.checkInTime || "3:00 p.m.",
+    checkOut: record.checkOutTime || "12:00 m.",
+    maxGuests: record.capacity,
+    image,
+    gallery: roomGallery,
+  };
+}

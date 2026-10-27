@@ -23,17 +23,5 @@ export function nightsBetween(checkIn, checkOut) {
   return Number.isFinite(diff) ? Math.round(diff) : 0;
 }
 
-/** POST con JSON. Lanza un error si el servidor no responde con 2xx. */
-export async function postJson(url, data) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error ${response.status} al enviar los datos`);
-  }
-
-  return response;
-}
+/** POST con JSON y la sesión actual. El servidor proporciona el detalle de validación. */
+export { postJson } from "../../api.js";

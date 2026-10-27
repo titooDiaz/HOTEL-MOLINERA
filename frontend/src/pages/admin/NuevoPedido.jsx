@@ -1,162 +1,135 @@
-// Formulario administrativo para crear un pedido de restaurante asociado a una habitación.
+// Formulario administrativo para registrar pedidos con menú y habitaciones reales.
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
+import { apiRequest } from "../../api.js";
 import { formatCOP, postJson } from "../../components/admin_form/formUtils.js";
 
-// Datos de ejemplo: mientras no exista la API, estas listas salen de aquí.
-// TODO: cargar habitaciones ocupadas y menú desde el backend.
-const OCCUPIED_ROOMS = [
-  { number: "101", guest: "Juan Pérez" },
-  { number: "201", guest: "Laura Gómez" },
-  { number: "202", guest: "Andrés Ruiz" },
-  { number: "301", guest: "María Torres" },
-  { number: "401", guest: "Camilo Vargas" },
-];
-
-const MENU = [
-  { id: "hamburguesa", name: "Hamburguesa clásica", category: "Platos fuertes", price: 28000 },
-  { id: "pizza", name: "Pizza margarita", category: "Platos fuertes", price: 32000 },
-  { id: "sandwich-pollo", name: "Sándwich de pollo", category: "Platos fuertes", price: 24000 },
-  { id: "sandwich-club", name: "Sándwich club", category: "Platos fuertes", price: 28000 },
-  { id: "ensalada", name: "Ensalada de frutas", category: "Entradas", price: 12000 },
-  { id: "cafe", name: "Café americano", category: "Bebidas", price: 8000, soldOut: true },
-];
-
-const FORM_SECTIONS = [
-  {
-    id: "order",
-    title: "Datos del pedido",
-    fields: [
-      {
-        id: "roomId",
-        label: "Habitación",
-        placeholder: "Selecciona una habitación",
-        required: true,
-        defaultValue: "",
-        hint: "Solo aparecen habitaciones con huésped.",
-        options: OCCUPIED_ROOMS.map((room) => ({
-          value: room.number,
-          label: `Hab. ${room.number} · ${room.guest}`,
-        })),
-      },
-      {
-        id: "paymentMethod",
-        label: "Forma de pago",
-        defaultValue: "cargo",
-        options: [
-          { value: "cargo", label: "Cargar a la habitación" },
-          { value: "efectivo", label: "Efectivo" },
-          { value: "tarjeta", label: "Tarjeta" },
-        ],
-      },
-      {
-        id: "notes",
-        label: "Notas para la cocina",
-        type: "textarea",
-        rows: 3,
-        colClass: "col-12",
-        placeholder: "Sin cebolla, término medio, alergias...",
-      },
-    ],
-  },
-  {
-    id: "items",
-    title: "Productos",
-    description: "Elige los platos y bebidas con el botón +. Los agotados no se pueden agregar.",
-    items: MENU.map((dish) => ({
-      id: dish.id,
-      label: dish.name,
-      description: dish.soldOut ? `${dish.category} · Agotado` : dish.category,
-      price: dish.price,
-      max: 20,
-      disabled: dish.soldOut,
-    })),
-  },
-];
-
-const NEW_ORDER_COPY = {
-  header: {
-    title: "Nuevo pedido",
-    subtitle: "Registra un pedido de alimentos y bebidas para una habitación.",
-    back: "← Volver al restaurante",
-  },
+const COPY = {
   form: {
     submit: "Registrar pedido",
     cancel: "Cancelar",
     sending: "Guardando...",
-    successMessage: "Pedido registrado correctamente. Puedes tomar otro o volver al restaurante.",
-    errorMessage: "No pudimos registrar el pedido. Inténtalo de nuevo.",
+    successMessage: "Pedido registrado correctamente.",
+    errorMessage: "No pudimos registrar el pedido.",
     decrease: "Quitar uno de",
     increase: "Agregar uno de",
-  },
-  summary: {
-    title: "Resumen del pedido",
-    total: "Total del pedido",
   },
   emptyItems: "Agrega al menos un producto al pedido.",
 };
 
-const findDish = (id) => MENU.find((dish) => dish.id === id);
+function createSections(reservations, foods) {
+  const activeByRoom = new Map();
+  const today = new Date().toISOString().slice(0, 10);
+  reservations
+    .filter((reservation) => reservation.checkIn <= today && reservation.checkOut > today && !["cancelada", "cancelado"].includes(reservation.status))
+    .forEach((reservation) => {
+      if (!activeByRoom.has(String(reservation.roomId))) activeByRoom.set(String(reservation.roomId), reservation);
+    });
 
-const validatePedido = (payload) => (payload.items.length === 0 ? NEW_ORDER_COPY.emptyItems : null);
-
-function renderSummary(payload) {
-  if (payload.items.length === 0) return null;
-
-  const total = payload.items.reduce((sum, line) => sum + findDish(line.id).price * line.quantity, 0);
-
-  return (
-    // Desglosa los productos agregados y el total estimado del pedido.
-    <>
-      <h2 className="aform-summary-title">{NEW_ORDER_COPY.summary.title}</h2>
-      <dl className="aform-summary-list">
-        {payload.items.map((line) => {
-          const dish = findDish(line.id);
-          return (
-            <div className="aform-summary-row" key={line.id}>
-              <dt>{line.quantity} × {dish.name}</dt>
-              <dd>{formatCOP(dish.price * line.quantity)}</dd>
-            </div>
-          );
-        })}
-        <div className="aform-summary-row aform-summary-row--total">
-          <dt>{NEW_ORDER_COPY.summary.total}</dt>
-          <dd>{formatCOP(total)}</dd>
-        </div>
-      </dl>
-    </>
-  );
+  return [
+    {
+      id: "order",
+      title: "Datos del pedido",
+      fields: [
+        {
+          id: "roomId",
+          label: "Habitación",
+          placeholder: "Selecciona una habitación con huésped",
+          required: true,
+          options: [...activeByRoom.values()].map((reservation) => ({
+            value: String(reservation.roomId),
+            label: `Hab. ${reservation.habitacion.number} · ${reservation.usuario.huesped.firstName} ${reservation.usuario.huesped.lastName}`,
+          })),
+        },
+        {
+          id: "paymentMethod",
+          label: "Forma de pago",
+          defaultValue: "cargo",
+          options: [
+            { value: "cargo", label: "Cargar a la habitación" },
+            { value: "efectivo", label: "Efectivo" },
+            { value: "tarjeta", label: "Tarjeta" },
+          ],
+        },
+        { id: "notes", label: "Notas para la cocina", type: "textarea", rows: 3, colClass: "col-12" },
+      ],
+    },
+    {
+      id: "items",
+      title: "Productos",
+      description: "Elige los platos y bebidas con el botón +.",
+      items: foods.map((food) => ({
+        id: String(food.id),
+        label: food.name,
+        description: food.categoria?.name || "Menú",
+        price: Number(food.price),
+        max: 20,
+      })),
+    },
+  ];
 }
-
-// TODO: el backend aún no tiene la ruta POST /api/orders (ver backend/src/app.js)
-const crearPedido = (datos) => postJson("/api/orders", datos);
 
 export default function NuevoPedido() {
   const navigate = useNavigate();
+  const [data, setData] = useState({ reservations: [], foods: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([apiRequest("/api/reservations"), apiRequest("/api/foods")])
+      .then(([reservations, foods]) => setData({ reservations, foods }))
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sections = useMemo(() => createSections(data.reservations, data.foods), [data]);
+  const validate = (payload) => payload.items.length ? null : COPY.emptyItems;
+  const renderSummary = (payload) => {
+    if (!payload.items.length) return null;
+    const selected = payload.items.map((line) => ({
+      ...line,
+      food: data.foods.find((food) => String(food.id) === String(line.id)),
+    })).filter((line) => line.food);
+    const total = selected.reduce((sum, line) => sum + Number(line.food.price) * line.quantity, 0);
+    return (
+      <>
+        <h2 className="aform-summary-title">Resumen del pedido</h2>
+        <dl className="aform-summary-list">
+          {selected.map((line) => (
+            <div className="aform-summary-row" key={line.id}>
+              <dt>{line.quantity} × {line.food.name}</dt>
+              <dd>{formatCOP(Number(line.food.price) * line.quantity)}</dd>
+            </div>
+          ))}
+          <div className="aform-summary-row aform-summary-row--total"><dt>Total del pedido</dt><dd>{formatCOP(total)}</dd></div>
+        </dl>
+      </>
+    );
+  };
+  const hasActiveRooms = sections[0].fields[0].options.length > 0;
 
   return (
     <>
-          {/* Encabezado con navegación de regreso al panel del restaurante. */}
-          <PageHeader
-            title={NEW_ORDER_COPY.header.title}
-            subtitle={NEW_ORDER_COPY.header.subtitle}
-          >
-            <Link to="/admin/restaurante" className="admin-action-button admin-action-button--outline">
-              {NEW_ORDER_COPY.header.back}
-            </Link>
-          </PageHeader>
-
-          {/* Formulario con validación de productos y resumen antes de guardar. */}
+      <PageHeader title="Nuevo pedido" subtitle="Registra un pedido de alimentos y bebidas para una habitación.">
+        <Link to="/admin/restaurante" className="admin-action-button admin-action-button--outline">← Volver al restaurante</Link>
+      </PageHeader>
+      {loading && <p role="status">Cargando menú y habitaciones...</p>}
+      {error && <p className="alert alert-danger" role="alert">{error}</p>}
+      {!loading && !error && (
+        hasActiveRooms && data.foods.length ? (
           <AdminForm
-            sections={FORM_SECTIONS}
-            labels={NEW_ORDER_COPY.form}
-            validate={validatePedido}
+            sections={sections}
+            labels={COPY.form}
+            validate={validate}
             summary={renderSummary}
-            onSubmit={crearPedido}
+            onSubmit={(values) => postJson("/api/orders", values)}
             onCancel={() => navigate("/admin/restaurante")}
           />
+        ) : <p className="alert alert-warning">Se necesita una estadía activa y al menos un producto disponible para registrar el pedido.</p>
+      )}
     </>
   );
 }

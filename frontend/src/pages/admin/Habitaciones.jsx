@@ -1,35 +1,13 @@
-// Panel para consultar y filtrar habitaciones, con acceso al formulario de creación.
+// Panel para consultar y filtrar habitaciones guardadas en la base de datos.
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import SummaryCards from "../../components/summary_cards/SummaryCards.jsx";
 import RoomsGrid from "../../components/rooms_grid/RoomsGrid.jsx";
+import { apiRequest } from "../../api.js";
 
-const SUMMARY_CARDS = [
-  { label: "Total habitaciones", value: "24", sub: "en el hotel" },
-  { label: "Disponibles", value: "4", sub: "listas para check-in", dotClass: "summary-dot--emerald" },
-  { label: "Ocupadas", value: "18", sub: "75% de ocupación", dotClass: "summary-dot--rose" },
-  { label: "En mantenimiento", value: "2", sub: "fuera de servicio", dotClass: "summary-dot--slate" },
-];
-
-const ROOMS = [
-  { number: "101", type: "Doble", floor: "1er piso", status: "Ocupada", statusKey: "ocupada", statusClass: "badge-pill-rose", guest: "Juan Pérez" },
-  { number: "102", type: "Doble", floor: "1er piso", status: "Disponible", statusKey: "disponible", statusClass: "badge-pill-emerald", guest: null },
-  { number: "103", type: "Individual", floor: "1er piso", status: "Limpieza", statusKey: "limpieza", statusClass: "badge-pill-amber", guest: null },
-  { number: "201", type: "Suite", floor: "2do piso", status: "Ocupada", statusKey: "ocupada", statusClass: "badge-pill-rose", guest: "Laura Gómez" },
-  { number: "202", type: "Semi doble", floor: "2do piso", status: "Ocupada", statusKey: "ocupada", statusClass: "badge-pill-rose", guest: "Andrés Ruiz" },
-  { number: "203", type: "Doble", floor: "2do piso", status: "Mantenimiento", statusKey: "mantenimiento", statusClass: "badge-pill-slate", guest: null },
-  { number: "301", type: "Doble", floor: "3er piso", status: "Ocupada", statusKey: "ocupada", statusClass: "badge-pill-rose", guest: "María Torres" },
-  { number: "302", type: "Suite", floor: "3er piso", status: "Disponible", statusKey: "disponible", statusClass: "badge-pill-emerald", guest: null },
-  { number: "401", type: "Suite", floor: "4to piso", status: "Ocupada", statusKey: "ocupada", statusClass: "badge-pill-rose", guest: "Camilo Vargas" },
-];
-
-const ROOMS_COPY = {
-  header: {
-    title: "Habitaciones",
-    subtitle: "Gestiona el estado y la disponibilidad de todas las habitaciones.",
-    action: "+ Nueva habitación",
-  },
+const COPY = {
   grid: {
     title: "Todas las habitaciones",
     filterLabel: "Filtrar por estado",
@@ -47,23 +25,65 @@ const ROOMS_COPY = {
   },
 };
 
+const STATUS_COPY = {
+  disponible: ["Disponible", "badge-pill-emerald"],
+  ocupada: ["Ocupada", "badge-pill-rose"],
+  limpieza: ["Limpieza", "badge-pill-amber"],
+  mantenimiento: ["Mantenimiento", "badge-pill-slate"],
+};
+
 export default function Habitaciones() {
   const navigate = useNavigate();
+  const [rooms, setRooms] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([apiRequest("/api/rooms"), apiRequest("/api/reservations")])
+      .then(([roomRecords, reservations]) => {
+        const now = new Date().toISOString().slice(0, 10);
+        const currentByRoom = new Map(
+          reservations
+            .filter((reservation) => reservation.checkIn <= now && reservation.checkOut > now && !["cancelada", "cancelado"].includes(reservation.status))
+            .map((reservation) => [String(reservation.roomId), reservation]),
+        );
+        const roomCards = roomRecords.map((record) => {
+          const current = currentByRoom.get(String(record.id));
+          const statusKey = current ? "ocupada" : record.status;
+          const [status, statusClass] = STATUS_COPY[statusKey] || STATUS_COPY.mantenimiento;
+          const guest = current?.usuario?.huesped;
+          return {
+            number: record.number,
+            type: record.type,
+            floor: `${record.floor}° piso`,
+            status,
+            statusKey,
+            statusClass,
+            guest: guest ? `${guest.firstName} ${guest.lastName}` : null,
+          };
+        });
+        setRooms(roomCards);
+        setStats([
+          { label: "Total habitaciones", value: String(roomCards.length), sub: "registradas en el hotel" },
+          { label: "Disponibles", value: String(roomCards.filter((room) => room.statusKey === "disponible").length), sub: "listas para reservar", dotClass: "summary-dot--emerald" },
+          { label: "Ocupadas", value: String(roomCards.filter((room) => room.statusKey === "ocupada").length), sub: "con huésped alojado", dotClass: "summary-dot--rose" },
+          { label: "En mantenimiento", value: String(roomCards.filter((room) => room.statusKey === "mantenimiento").length), sub: "fuera de servicio", dotClass: "summary-dot--slate" },
+        ]);
+      })
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
-          {/* Encabezado con acceso al formulario para agregar habitaciones. */}
-          <PageHeader
-            title={ROOMS_COPY.header.title}
-            subtitle={ROOMS_COPY.header.subtitle}
-            actionLabel={ROOMS_COPY.header.action}
-            onAction={() => navigate("/admin/habitaciones/nueva")}
-          />
-
-          {/* Resumen de disponibilidad y listado filtrable de habitaciones. */}
-          <SummaryCards cards={SUMMARY_CARDS} />
-
-          <RoomsGrid rooms={ROOMS} labels={ROOMS_COPY.grid} />
+      <PageHeader title="Habitaciones" subtitle="Gestiona el estado y la disponibilidad de todas las habitaciones." actionLabel="+ Nueva habitación" onAction={() => navigate("/admin/habitaciones/nueva")} />
+      {loading && <p role="status">Cargando habitaciones...</p>}
+      {error && <p className="alert alert-danger" role="alert">{error}</p>}
+      {!loading && !error && <>
+        <SummaryCards cards={stats} />
+        <RoomsGrid rooms={rooms} labels={COPY.grid} />
+      </>}
     </>
   );
 }

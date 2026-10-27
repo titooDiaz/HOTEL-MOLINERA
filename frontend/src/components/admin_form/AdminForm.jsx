@@ -115,6 +115,7 @@ function Field({ field, value, onChange }) {
         placeholder={field.placeholder}
         min={field.min}
         max={field.max}
+        minLength={field.minLength}
         step={field.step}
         {...common}
       />
@@ -234,6 +235,7 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
       setStatus("success");
     } catch (error) {
       console.error("Error al enviar el formulario:", error);
+      setProblem(error.message || labels.errorMessage);
       setStatus("error");
     }
   };
@@ -319,7 +321,7 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
       <div className="aform-footer">
         <div className="aform-feedback" role="status" aria-live="polite">
           {status === "success" && <span className="admin-save-message">{labels.successMessage}</span>}
-          {status === "error" && <span className="aform-error">{labels.errorMessage}</span>}
+          {status === "error" && <span className="aform-error">{problem || labels.errorMessage}</span>}
           {status === "invalid" && <span className="aform-error" role="alert">{problem}</span>}
         </div>
 

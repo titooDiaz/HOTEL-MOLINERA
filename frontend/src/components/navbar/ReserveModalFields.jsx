@@ -39,7 +39,7 @@ export function PasswordField({
           autoComplete={autoComplete}
           placeholder={labels.passwordPlaceholder}
           required
-          minLength={6}
+          minLength={8}
         />
         <button
           type="button"

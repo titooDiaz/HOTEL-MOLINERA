@@ -11,6 +11,7 @@ const ADMIN_PATHS = {
 	Reservas: "/admin/reservas",
 	Clientes: "/admin/clientes",
 	Restaurante: "/admin/restaurante",
+	Planes: "/admin/planes",
 	Reportes: "/admin/reportes",
 	Configuración: "/admin/configuracion",
 };

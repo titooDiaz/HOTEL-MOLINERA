@@ -9,7 +9,9 @@ import AccountSummary from "../../components/account_summary/AccountSummary.jsx"
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 import ReservationForm from "../../components/booking/ReservationForm.jsx";
 import { useAuth } from "../../context/authContext.js";
-import { room, rooms } from "../../roomData.js";
+import { room, roomFromApi, rooms as defaultRooms } from "../../roomData.js";
+import { apiRequest } from "../../api.js";
+import { useEffect, useState } from "react";
 
 import "./Alimentos.css";
 import "./MyHabitacion.css";
@@ -50,12 +52,6 @@ const TEXTO_PAGINA = {
 
 
 
-const HABITACION = {
-    valor: 400000,
-    pagado: 300000,
-};
-
-
 const formatoCOP = (valor) => {
     return `Bs. ${valor.toLocaleString("es-VE")}`;
 };
@@ -63,12 +59,16 @@ const formatoCOP = (valor) => {
 
 export default function MyRoom() {
     const { reservation, saveReservation } = useAuth();
-    const totalHabitacion = HABITACION.valor;
+    const [availableRooms, setAvailableRooms] = useState(defaultRooms);
+    const totalHabitacion = Number(reservation?.total || 0);
+    const totalPagado = Number(reservation?.advance || 0);
+    const totalPendiente = Number(reservation?.balance ?? Math.max(0, totalHabitacion - totalPagado));
 
-    const totalPagado = HABITACION.pagado;
-
-    const totalPendiente =
-        totalHabitacion - totalPagado;
+    useEffect(() => {
+        apiRequest("/api/rooms")
+            .then((records) => setAvailableRooms(records.map(roomFromApi)))
+            .catch((error) => console.error("No se pudieron cargar las habitaciones:", error));
+    }, []);
 
 
     if (!reservation) {
@@ -87,7 +87,7 @@ export default function MyRoom() {
                             <h2 className="h4 mb-2">Habitaciones disponibles</h2>
                             <p className="text-secondary mb-4">Encuentra el espacio ideal para tu visita.</p>
                             <div className="d-grid gap-3">
-                                {rooms.map((availableRoom) => (
+                                {availableRooms.map((availableRoom) => (
                                     <div className="border rounded-3 p-3" key={availableRoom.id}>
                                         <div className="d-flex justify-content-between gap-3 flex-wrap">
                                             <img
@@ -111,7 +111,7 @@ export default function MyRoom() {
                     <div className="col-12 col-xl-5">
                         <div className="card border-0 shadow-sm p-4">
                             <h2 className="h4 mb-3">Reserva tu habitación</h2>
-                            <ReservationForm room={room} rooms={rooms} onSubmit={saveReservation} />
+                            <ReservationForm room={availableRooms[0] || room} rooms={availableRooms.length ? availableRooms : [room]} onSubmit={saveReservation} />
                         </div>
                     </div>
                 </div>

@@ -1,86 +1,84 @@
-// Panel administrativo para consultar pedidos y productos del menú del restaurante.
-import { useNavigate } from "react-router-dom";
+// Panel administrativo para pedidos y menú del restaurante, conectado a la base de datos.
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import SummaryCards from "../../components/summary_cards/SummaryCards.jsx";
 import RestaurantPanel from "../../components/restaurant_panel/RestaurantPanel.jsx";
+import { apiRequest } from "../../api.js";
+import { formatCOP } from "../../components/admin_form/formUtils.js";
 
-const SUMMARY_CARDS = [
-  { label: "Pedidos hoy", value: "24", sub: "en toda la propiedad" },
-  { label: "Pendientes", value: "6", sub: "por entregar o cobrar" },
-  { label: "Ingresos del día", value: "Bs. 612.000", sub: "VES acumulado" },
-];
-
-const ORDERS = [
-  { room: "101", client: "Juan Pérez", item: "Hamburguesa clásica", amount: "$28.000", time: "1:24 p. m.", status: "Pagado", statusClass: "badge-pill-emerald" },
-  { room: "201", client: "Laura Gómez", item: "Pizza margarita", amount: "$32.000", time: "7:42 p. m.", status: "Pagado", statusClass: "badge-pill-emerald" },
-  { room: "305", client: "María Torres", item: "Ensalada de frutas", amount: "$12.000", time: "11:18 a. m.", status: "En preparación", statusClass: "badge-pill-amber" },
-  { room: "401", client: "Andrés Ruiz", item: "Sándwich de pollo", amount: "$24.000", time: "9:03 p. m.", status: "Pendiente de pago", statusClass: "badge-pill-rose" },
-  { room: "210", client: "Valentina Díaz", item: "Café americano", amount: "$8.000", time: "8:17 a. m.", status: "Pagado", statusClass: "badge-pill-emerald" },
-  { room: "302", client: "Camilo Vargas", item: "Sándwich club", amount: "$28.000", time: "4:32 p. m.", status: "Entregado", statusClass: "badge-pill-blue" },
-];
-
-const MENU = [
-  { name: "Hamburguesa clásica", category: "Platos fuertes", price: "$28.000", available: true },
-  { name: "Pizza margarita", category: "Platos fuertes", price: "$32.000", available: true },
-  { name: "Ensalada de frutas", category: "Entradas", price: "$12.000", available: true },
-  { name: "Café americano", category: "Bebidas", price: "$8.000", available: false },
-];
-
-const RESTAURANT_COPY = {
-  header: {
-    title: "Restaurante",
-    subtitle: "Gestiona los pedidos de alimentos y bebidas de todas las habitaciones.",
-    action: "+ Nuevo pedido",
-  },
+const LABELS = {
   panel: {
-    tabs: {
-      orders: "Pedidos",
-      menu: "Menú",
-    },
-    orderColumns: {
-      room: "Habitación",
-      client: "Cliente",
-      item: "Pedido",
-      amount: "Monto",
-      time: "Hora",
-      status: "Estado",
-      actions: "Acciones",
-    },
-    menuColumns: {
-      name: "Plato",
-      category: "Categoría",
-      price: "Precio",
-      availability: "Disponibilidad",
-      actions: "Acciones",
-    },
+    tabs: { orders: "Pedidos", menu: "Menú" },
+    orderColumns: { room: "Habitación", client: "Cliente", item: "Pedido", amount: "Monto", time: "Hora", status: "Estado", actions: "Acciones" },
+    menuColumns: { name: "Plato", category: "Categoría", price: "Precio", availability: "Disponibilidad", actions: "Acciones" },
     available: "Disponible",
     soldOut: "Agotado",
   },
 };
 
+const orderStatus = {
+  pendiente: ["Pendiente", "badge-pill-amber"],
+  preparando: ["En preparación", "badge-pill-orange"],
+  preparado: ["Preparado", "badge-pill-blue"],
+  entregado: ["Entregado", "badge-pill-emerald"],
+  cancelado: ["Cancelado", "badge-pill-rose"],
+};
+
 export default function RestauranteAdmin() {
   const navigate = useNavigate();
+  const [data, setData] = useState({ orders: [], menu: [] });
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([apiRequest("/api/orders"), apiRequest("/api/foods")])
+      .then(([orders, foods]) => {
+        const today = new Date().toDateString();
+        const todaysOrders = orders.filter((order) => new Date(order.requestedAt).toDateString() === today);
+        const rows = orders.map((order) => {
+          const [status, statusClass] = orderStatus[order.status] || orderStatus.pendiente;
+          const profile = order.usuario?.huesped;
+          return {
+            room: order.habitacion?.number || "—",
+            client: profile ? `${profile.firstName} ${profile.lastName}` : order.usuario?.email || "—",
+            item: (order.detalles || []).map((line) => `${line.quantity} × ${line.foodName}`).join(", "),
+            amount: formatCOP(Number(order.total)),
+            time: new Intl.DateTimeFormat("es-VE", { hour: "numeric", minute: "2-digit" }).format(new Date(order.requestedAt)),
+            status,
+            statusClass,
+          };
+        });
+        const menu = foods.map((food) => ({
+          name: food.name,
+          category: food.categoria?.name || "Sin categoría",
+          price: formatCOP(Number(food.price)),
+          available: food.isAvailable && !food.isSoldOut,
+        }));
+        setData({ orders: rows, menu });
+        setStats([
+          { label: "Pedidos hoy", value: String(todaysOrders.length), sub: "en toda la propiedad" },
+          { label: "Pendientes", value: String(todaysOrders.filter((order) => order.status === "pendiente").length), sub: "por preparar o entregar" },
+          { label: "Ingresos del día", value: formatCOP(todaysOrders.reduce((total, order) => total + Number(order.total), 0)), sub: "VES acumulado" },
+        ]);
+      })
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
-          {/* Título del panel y acceso al formulario de nuevo pedido. */}
-          <PageHeader
-            title={RESTAURANT_COPY.header.title}
-            subtitle={RESTAURANT_COPY.header.subtitle}
-            actionLabel={RESTAURANT_COPY.header.action}
-            onAction={() => navigate("/admin/restaurante/nuevo")}
-          />
-
-          {/* Métricas de actividad del restaurante. */}
-          <SummaryCards cards={SUMMARY_CARDS} columnClass="col-12 col-sm-4" />
-
-          {/* Tabla con pestañas para consultar pedidos o productos del menú. */}
-          <RestaurantPanel
-            orders={ORDERS}
-            menu={MENU}
-            labels={RESTAURANT_COPY.panel}
-          />
+      <PageHeader title="Restaurante" subtitle="Gestiona pedidos y productos del menú." actionLabel="+ Nuevo pedido" onAction={() => navigate("/admin/restaurante/nuevo")}>
+        <Link to="/admin/restaurante/menu/nuevo" className="admin-action-button admin-action-button--outline">+ Nuevo producto</Link>
+      </PageHeader>
+      {loading && <p role="status">Cargando pedidos y menú...</p>}
+      {error && <p className="alert alert-danger" role="alert">{error}</p>}
+      {!loading && !error && <>
+        <SummaryCards cards={stats} columnClass="col-12 col-sm-4" />
+        <RestaurantPanel orders={data.orders} menu={data.menu} labels={LABELS.panel} />
+      </>}
     </>
   );
 }

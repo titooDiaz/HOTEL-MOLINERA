@@ -5,7 +5,8 @@ import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
-import { room, rooms } from "../roomData.js";
+import { room, roomFromApi, rooms as defaultRooms } from "../roomData.js";
+import { apiRequest } from "../api.js";
 
 const DEFAULT_NAVBAR_LABELS = {
   brandInitials: "HM",
@@ -20,18 +21,21 @@ const WHATSAPP_NUMBER = "584147015219";
 
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
+  const [apiRooms, setApiRooms] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(room);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, login, saveReservation } = useAuth();
+  const { user, login, register, saveReservation } = useAuth();
+  const rooms = apiRooms ?? defaultRooms;
 
   useEffect(() => {
-    fetch("/api/hotel")
-      .then((res) => res.json())
-      .then((data) => setHotelData(data))
-      .catch((err) =>
-        console.error("Error al obtener información del hotel:", err),
-      );
+    apiRequest("/api/hotel").then((hotel) => {
+      const savedInfo = JSON.parse(localStorage.getItem("hotel-molinera-info") || "{}");
+      setHotelData({ ...hotel, name: savedInfo["hotel-name"] || hotel.name });
+    }).catch((err) => console.error("Error al obtener información del hotel:", err));
+    apiRequest("/api/rooms")
+      .then((records) => setApiRooms(records.map(roomFromApi)))
+      .catch((err) => console.error("Error al obtener habitaciones:", err));
   }, []);
 
   const openReserveModal = (availableRoom = room) => {
@@ -40,26 +44,25 @@ export default function PublicLayout() {
   };
   const closeReserveModal = () => setIsReserveOpen(false);
 
-  const handleLogin = ({ email, password, remember }) => {
-    const user = login(email, password, remember);
+  const handleLogin = async ({ email, password, remember }) => {
+    const user = await login(email, password, remember);
     closeReserveModal();
     navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
   };
 
-  const handleRegister = (registerData) => {
+  const handleRegister = async (registerData) => {
+    await register({
+      name: registerData.name,
+      email: registerData.email,
+      phone: registerData.phone,
+      password: registerData.password,
+    });
     closeReserveModal();
-    try {
-      const user = login(registerData.email, registerData.password, true);
-      navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
-    } catch {
-      alert(
-        `¡Registro recibido para ${registerData.name}! Ahora puedes iniciar sesión con tu cuenta.`,
-      );
-    }
+    navigate("/mi-habitacion");
   };
 
-  const handleReservation = (reservationData) => {
-    saveReservation(reservationData);
+  const handleReservation = async (reservationData) => {
+    await saveReservation(reservationData);
     closeReserveModal();
     navigate("/mi-habitacion");
   };
@@ -74,7 +77,7 @@ export default function PublicLayout() {
       />
 
       <main className="public-main flex-grow-1">
-        <Outlet context={{ hotelData, openReserveModal }} />
+        <Outlet context={{ hotelData, openReserveModal, rooms }} />
       </main>
 
       <Footer hotelName={hotelData?.name} />
@@ -90,7 +93,7 @@ export default function PublicLayout() {
         onLogin={handleLogin}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}
-        room={selectedRoom}
+        room={rooms.find(({ id }) => id === selectedRoom.id) || rooms[0] || selectedRoom}
         rooms={rooms}
         onReserve={handleReservation}
       />

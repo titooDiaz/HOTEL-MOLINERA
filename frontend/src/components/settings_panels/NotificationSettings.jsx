@@ -2,7 +2,19 @@
 import { useState } from "react";
 
 export default function NotificationSettings({ options, labels }) {
-  const [enabled, setEnabled] = useState(() => Object.fromEntries(options.map((option) => [option.id, option.defaultChecked])));
+  const [enabled, setEnabled] = useState(() => {
+    try {
+      return { ...Object.fromEntries(options.map((option) => [option.id, option.defaultChecked])), ...JSON.parse(localStorage.getItem("hotel-molinera-notifications") || "{}") };
+    } catch {
+      return Object.fromEntries(options.map((option) => [option.id, option.defaultChecked]));
+    }
+  });
+
+  const update = (id, value) => {
+    const next = { ...enabled, [id]: value };
+    setEnabled(next);
+    localStorage.setItem("hotel-molinera-notifications", JSON.stringify(next));
+  };
 
   return (
     <section className="card-panel admin-settings-panel">
@@ -12,7 +24,7 @@ export default function NotificationSettings({ options, labels }) {
         {options.map((option) => (
           <label className="admin-notification-option" key={option.id} htmlFor={`notification-${option.id}`}>
             <span><strong>{option.label}</strong><small>{option.description}</small></span>
-            <input id={`notification-${option.id}`} type="checkbox" checked={Boolean(enabled[option.id])} onChange={(event) => setEnabled((current) => ({ ...current, [option.id]: event.target.checked }))} />
+            <input id={`notification-${option.id}`} type="checkbox" checked={Boolean(enabled[option.id])} onChange={(event) => update(option.id, event.target.checked)} />
           </label>
         ))}
       </div>

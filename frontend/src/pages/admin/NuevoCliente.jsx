@@ -35,6 +35,7 @@ const FORM_SECTIONS = [
     fields: [
       { id: "email", label: "Correo electrónico", type: "email", placeholder: "cliente@correo.com", required: true },
       { id: "phone", label: "Teléfono", type: "tel", placeholder: "+58 414-7015219", required: true },
+      { id: "password", label: "Contraseña inicial", type: "password", minLength: 8, required: true, hint: "Comparte esta contraseña inicial con el huésped para que pueda iniciar sesión." },
       { id: "city", label: "Ciudad de residencia", placeholder: "Ej. Capacho" },
       { id: "address", label: "Dirección", placeholder: "RMFP+X4X, Capacho 5009, Táchira" },
     ],
@@ -73,7 +74,6 @@ const NEW_CLIENT_COPY = {
   },
 };
 
-// TODO: el backend aún no tiene la ruta POST /api/clients (ver backend/src/app.js)
 const crearCliente = (datos) => postJson("/api/clients", datos);
 
 export default function NuevoCliente() {

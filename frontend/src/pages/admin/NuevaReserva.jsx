@@ -1,118 +1,19 @@
-// Formulario administrativo para registrar una reserva y calcular su resumen de pago.
+// Formulario administrativo para registrar una reserva con datos reales de huésped y habitación.
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
+import { apiRequest } from "../../api.js";
 import { formatCOP, nightsBetween, postJson, todayISO } from "../../components/admin_form/formUtils.js";
 
-// Datos de ejemplo: mientras no exista la API, estas listas salen de aquí.
-// TODO: cargar clientes y habitaciones disponibles desde el backend.
-const CLIENTS = [
-  { id: "cli-1", name: "Juan Pérez", email: "juan.perez@mail.com" },
-  { id: "cli-2", name: "Laura Gómez", email: "laura.gomez@mail.com" },
-  { id: "cli-3", name: "Andrés Ruiz", email: "andres.ruiz@mail.com" },
-  { id: "cli-4", name: "María Torres", email: "maria.torres@mail.com" },
-  { id: "cli-5", name: "Valentina Díaz", email: "valentina.diaz@mail.com" },
-];
-
-const AVAILABLE_ROOMS = [
-  { number: "102", type: "Doble", price: 120000, capacity: 4 },
-  { number: "210", type: "Individual", price: 90000, capacity: 1 },
-  { number: "302", type: "Suite", price: 220000, capacity: 5 },
-  { number: "305", type: "Semi doble", price: 110000, capacity: 3 },
-  { number: "306", type: "Doble", price: 120000, capacity: 4 },
-];
-
-const FORM_SECTIONS = [
-  {
-    id: "guestAndRoom",
-    title: "Cliente y habitación",
-    description: "¿El cliente no aparece en la lista? Regístralo primero en la sección Clientes.",
-    fields: [
-      {
-        id: "clientId",
-        label: "Cliente",
-        placeholder: "Selecciona un cliente",
-        required: true,
-        defaultValue: "",
-        options: CLIENTS.map((client) => ({ value: client.id, label: `${client.name} · ${client.email}` })),
-      },
-      {
-        id: "roomId",
-        label: "Habitación disponible",
-        placeholder: "Selecciona una habitación",
-        required: true,
-        defaultValue: "",
-        options: AVAILABLE_ROOMS.map((room) => ({
-          value: room.number,
-          label: `Hab. ${room.number} · ${room.type} · ${formatCOP(room.price)} / noche`,
-        })),
-      },
-    ],
-  },
-  {
-    id: "stay",
-    title: "Fechas y huéspedes",
-    fields: [
-      { id: "checkIn", label: "Check-in", type: "date", required: true, min: todayISO() },
-      {
-        id: "checkOut",
-        label: "Check-out",
-        type: "date",
-        required: true,
-        min: (values) => values.checkIn || todayISO(),
-      },
-      { id: "adults", label: "Adultos", type: "number", min: 1, max: 12, step: 1, defaultValue: 2, required: true },
-      { id: "children", label: "Niños", type: "number", min: 0, max: 12, step: 1, defaultValue: 0 },
-    ],
-  },
-  {
-    id: "details",
-    title: "Detalles de la reserva",
-    fields: [
-      {
-        id: "status",
-        label: "Estado",
-        defaultValue: "confirmada",
-        options: [
-          { value: "confirmada", label: "Confirmada" },
-          { value: "proceso", label: "En proceso (pendiente de confirmar)" },
-        ],
-      },
-      {
-        id: "advance",
-        label: "Anticipo recibido (VES)",
-        type: "number",
-        prefix: "Bs.",
-        min: 0,
-        step: 1000,
-        placeholder: "0",
-        hint: "Opcional.",
-      },
-      {
-        id: "specialRequests",
-        label: "Solicitudes especiales",
-        type: "textarea",
-        rows: 3,
-        colClass: "col-12",
-        placeholder: "Hora estimada de llegada, cama extra, alergias...",
-      },
-    ],
-  },
-];
-
-const NEW_RESERVATION_COPY = {
-  header: {
-    title: "Nueva reserva",
-    subtitle: "Registra una reserva para un cliente y bloquea la habitación en esas fechas.",
-    back: "← Volver a reservas",
-  },
+const COPY = {
   form: {
     submit: "Crear reserva",
     cancel: "Cancelar",
     sending: "Guardando...",
-    successMessage: "Reserva creada correctamente. Puedes registrar otra o volver al listado.",
-    errorMessage: "No pudimos crear la reserva. Inténtalo de nuevo.",
+    successMessage: "Reserva creada correctamente.",
+    errorMessage: "No pudimos crear la reserva.",
   },
   summary: {
     title: "Resumen de la reserva",
@@ -124,84 +25,139 @@ const NEW_RESERVATION_COPY = {
   },
 };
 
-const findRoom = (roomId) => AVAILABLE_ROOMS.find((room) => room.number === roomId);
-
-function validateReservation(payload) {
-  const room = findRoom(payload.roomId);
-  const nights = nightsBetween(payload.checkIn, payload.checkOut);
-
-  if (nights < 1) {
-    return "La fecha de check-out debe ser posterior a la de check-in.";
-  }
-
-  const guests = (payload.adults ?? 0) + (payload.children ?? 0);
-  if (room && guests > room.capacity) {
-    return `La habitación ${room.number} admite máximo ${room.capacity} ${room.capacity === 1 ? "persona" : "personas"}.`;
-  }
-
-  if (room && (payload.advance ?? 0) > nights * room.price) {
-    return "El anticipo no puede superar el total estimado de la reserva.";
-  }
-
-  return null;
+function createSections(clients, rooms) {
+  return [
+    {
+      id: "guestAndRoom",
+      title: "Cliente y habitación",
+      fields: [
+        {
+          id: "clientId",
+          label: "Cliente",
+          placeholder: "Selecciona un cliente",
+          required: true,
+          options: clients.map(({ id, firstName, lastName, usuario }) => ({
+            value: String(id),
+            label: `${firstName} ${lastName} · ${usuario.email}`,
+          })),
+        },
+        {
+          id: "roomId",
+          label: "Habitación disponible",
+          placeholder: "Selecciona una habitación",
+          required: true,
+          options: rooms.map((room) => ({
+            value: String(room.id),
+            label: `Hab. ${room.number} · ${room.type} · ${formatCOP(Number(room.pricePerNight))} / noche`,
+          })),
+        },
+      ],
+    },
+    {
+      id: "stay",
+      title: "Fechas y huéspedes",
+      fields: [
+        { id: "checkIn", label: "Check-in", type: "date", required: true, min: todayISO() },
+        { id: "checkOut", label: "Check-out", type: "date", required: true, min: (values) => values.checkIn || todayISO() },
+        { id: "adults", label: "Adultos", type: "number", min: 1, max: 12, step: 1, defaultValue: 2, required: true },
+        { id: "children", label: "Niños", type: "number", min: 0, max: 12, step: 1, defaultValue: 0 },
+      ],
+    },
+    {
+      id: "details",
+      title: "Detalles de la reserva",
+      fields: [
+        {
+          id: "status",
+          label: "Estado",
+          defaultValue: "confirmada",
+          options: [
+            { value: "confirmada", label: "Confirmada" },
+            { value: "proceso", label: "En proceso (pendiente de confirmar)" },
+          ],
+        },
+        { id: "advance", label: "Anticipo recibido (VES)", type: "number", prefix: "Bs.", min: 0, step: 1, defaultValue: 0 },
+        { id: "specialRequests", label: "Solicitudes especiales", type: "textarea", rows: 3, colClass: "col-12" },
+      ],
+    },
+  ];
 }
 
-// Genera el desglose de noches, tarifa, anticipo y saldo para el formulario.
-function renderSummary(payload) {
-  const room = findRoom(payload.roomId);
-  const nights = nightsBetween(payload.checkIn, payload.checkOut);
-
-  if (!room || nights < 1) return null;
-
-  const copy = NEW_RESERVATION_COPY.summary;
-  const total = nights * room.price;
-  const advance = payload.advance ?? 0;
-
-  return (
-    <>
-      <h2 className="aform-summary-title">{copy.title}</h2>
-      <dl className="aform-summary-list">
-        <div className="aform-summary-row"><dt>{copy.nights}</dt><dd>{nights}</dd></div>
-        <div className="aform-summary-row"><dt>{copy.pricePerNight}</dt><dd>{formatCOP(room.price)}</dd></div>
-        {advance > 0 && (
-          <div className="aform-summary-row"><dt>{copy.advance}</dt><dd>− {formatCOP(advance)}</dd></div>
-        )}
-        <div className="aform-summary-row aform-summary-row--total">
-          <dt>{advance > 0 ? copy.balance : copy.total}</dt>
-          <dd>{formatCOP(Math.max(0, total - advance))}</dd>
-        </div>
-      </dl>
-    </>
-  );
+function findRoom(rooms, id) {
+  return rooms.find((room) => String(room.id) === String(id));
 }
-
-// TODO: el backend aún no tiene la ruta POST /api/reservations (ver backend/src/app.js)
-const crearReserva = (datos) => postJson("/api/reservations", datos);
 
 export default function NuevaReserva() {
   const navigate = useNavigate();
+  const [data, setData] = useState({ clients: [], rooms: [] });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    Promise.all([apiRequest("/api/clients"), apiRequest("/api/rooms")])
+      .then(([clients, rooms]) => {
+        setData({
+          clients,
+          rooms: rooms.filter((room) => room.status === "disponible" && room.isBookable),
+        });
+      })
+      .catch((error) => setLoadError(error.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sections = useMemo(() => createSections(data.clients, data.rooms), [data]);
+
+  const validate = (payload) => {
+    const room = findRoom(data.rooms, payload.roomId);
+    const nights = nightsBetween(payload.checkIn, payload.checkOut);
+    if (nights < 1) return "La fecha de check-out debe ser posterior a la de check-in.";
+    const guestCount = Number(payload.adults || 0) + Number(payload.children || 0);
+    if (room && guestCount > room.capacity) return `La habitación ${room.number} admite máximo ${room.capacity} personas.`;
+    if (room && Number(payload.advance || 0) > nights * Number(room.pricePerNight)) return "El anticipo no puede superar el total estimado.";
+    return null;
+  };
+
+  const renderSummary = (payload) => {
+    const room = findRoom(data.rooms, payload.roomId);
+    const nights = nightsBetween(payload.checkIn, payload.checkOut);
+    if (!room || nights < 1) return null;
+    const total = nights * Number(room.pricePerNight);
+    const advance = Number(payload.advance || 0);
+    return (
+      <>
+        <h2 className="aform-summary-title">{COPY.summary.title}</h2>
+        <dl className="aform-summary-list">
+          <div className="aform-summary-row"><dt>{COPY.summary.nights}</dt><dd>{nights}</dd></div>
+          <div className="aform-summary-row"><dt>{COPY.summary.pricePerNight}</dt><dd>{formatCOP(Number(room.pricePerNight))}</dd></div>
+          {advance > 0 && <div className="aform-summary-row"><dt>{COPY.summary.advance}</dt><dd>− {formatCOP(advance)}</dd></div>}
+          <div className="aform-summary-row aform-summary-row--total">
+            <dt>{advance > 0 ? COPY.summary.balance : COPY.summary.total}</dt>
+            <dd>{formatCOP(total - advance)}</dd>
+          </div>
+        </dl>
+      </>
+    );
+  };
 
   return (
     <>
-          {/* Encabezado con navegación de regreso a la lista de reservas. */}
-          <PageHeader
-            title={NEW_RESERVATION_COPY.header.title}
-            subtitle={NEW_RESERVATION_COPY.header.subtitle}
-          >
-            <Link to="/admin/reservas" className="admin-action-button admin-action-button--outline">
-              {NEW_RESERVATION_COPY.header.back}
-            </Link>
-          </PageHeader>
-
-          {/* Formulario validado que calcula el resumen y envía la nueva reserva. */}
+      <PageHeader title="Nueva reserva" subtitle="Registra una reserva para un huésped y bloquea la habitación en esas fechas.">
+        <Link to="/admin/reservas" className="admin-action-button admin-action-button--outline">← Volver a reservas</Link>
+      </PageHeader>
+      {loading && <p role="status">Cargando huéspedes y habitaciones...</p>}
+      {loadError && <p className="alert alert-danger" role="alert">{loadError}</p>}
+      {!loading && !loadError && (
+        data.clients.length && data.rooms.length ? (
           <AdminForm
-            sections={FORM_SECTIONS}
-            labels={NEW_RESERVATION_COPY.form}
-            validate={validateReservation}
+            sections={sections}
+            labels={COPY.form}
+            validate={validate}
             summary={renderSummary}
-            onSubmit={crearReserva}
+            onSubmit={(values) => postJson("/api/reservations", values)}
             onCancel={() => navigate("/admin/reservas")}
           />
+        ) : <p className="alert alert-warning">Se necesita al menos un huésped y una habitación disponible para crear una reserva.</p>
+      )}
     </>
   );
 }

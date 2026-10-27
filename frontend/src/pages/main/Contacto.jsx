@@ -1,5 +1,6 @@
 // Página de contacto que presenta la información del hotel y envía mensajes al backend.
 import ContactSection from "../../components/contact_section/ContactSection.jsx";
+import { postJson } from "../../api.js";
 
 const TEXTOS_CONTACTO = {
   information: {
@@ -52,18 +53,7 @@ const TEXTOS_CONTACTO = {
 };
 
 function Contacto() {
-  // TODO: el backend aún no tiene la ruta POST /api/contact (ver backend/src/app.js)
-  const enviarMensaje = async (datos) => {
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status} al enviar el mensaje`);
-    }
-  };
+  const enviarMensaje = (datos) => postJson("/api/contact", datos);
 
   return (
     // La sección presenta los datos de contacto y gestiona el envío del formulario.

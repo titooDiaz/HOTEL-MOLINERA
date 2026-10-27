@@ -1,93 +1,101 @@
 // Compartimos el estado de acceso y las reservas del usuario.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { apiRequest, clearAuthToken, getAuthToken, saveAuthToken } from "../api.js";
 import { AuthContext } from "./authContext.js";
-
-const AUTH_STORAGE_KEY = "hotel-molinera-auth";
-
-const USERS = [
-  {
-    id: "admin-1",
-    email: "admin@hotelmolinera.com",
-    password: "admin123",
-    name: "Administrador",
-    role: "admin",
-  },
-  {
-    id: "guest-1",
-    email: "huesped@hotelmolinera.com",
-    password: "huesped123",
-    name: "Juan Perez",
-    role: "guest",
-  },
-];
-
-function getStoredUser() {
-  // Recuperamos la sesión guardada cuando la aplicación inicia.
-  try {
-    const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
-    return storedUser ? JSON.parse(storedUser) : null;
-  } catch {
-    return null;
-  }
-}
 
 export function AuthProvider({ children }) {
   // Preparamos el usuario actual y la reserva activa.
-  const [user, setUser] = useState(getStoredUser);
+  const [user, setUser] = useState(null);
   const [reservation, setReservation] = useState(null);
+  const [isLoading, setIsLoading] = useState(() => Boolean(getAuthToken()));
 
-  const login = (email, password, remember = true) => {
-    // Buscamos un usuario que coincida con los datos recibidos.
-    const authenticatedUser = USERS.find(
-      (candidate) =>
-        candidate.email === email.trim().toLowerCase() &&
-        candidate.password === password
-    );
+  useEffect(() => {
+    if (!getAuthToken()) return;
 
-    if (!authenticatedUser) {
-      throw new Error("El correo o la contraseña no son válidos.");
-    }
-
-    const sessionUser = {
-      id: authenticatedUser.id,
-      email: authenticatedUser.email,
-      name: authenticatedUser.name,
-      role: authenticatedUser.role,
+    const restoreSession = async () => {
+      try {
+        const { user: sessionUser } = await apiRequest("/api/auth/me");
+        setUser(sessionUser);
+        if (sessionUser.role === "guest") {
+          try {
+            const reservations = await apiRequest("/api/me/reservations");
+            const latest = reservations[0];
+            setReservation(latest ? {
+              ...latest,
+              roomName: latest.habitacion?.number
+                ? `Habitación ${latest.habitacion.number}`
+                : "Habitación por asignar",
+            } : null);
+          } catch (error) {
+            console.error("No se pudieron cargar las reservas del huésped:", error);
+          }
+        }
+      } catch (error) {
+        clearAuthToken();
+        console.error("No se pudo restaurar la sesión:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
+    restoreSession();
+  }, []);
+
+  const login = async (email, password, remember = true) => {
+    const { user: sessionUser, token } = await apiRequest("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    saveAuthToken(token, remember);
     setUser(sessionUser);
     setReservation(null);
-
-    if (remember) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-
     return sessionUser;
   };
 
-  const logout = () => {
-    // Limpiamos la sesión y la reserva al salir.
-    setUser(null);
+  const register = async (registerData, remember = true) => {
+    const { user: sessionUser, token } = await apiRequest("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(registerData),
+    });
+    saveAuthToken(token, remember);
+    setUser(sessionUser);
     setReservation(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return sessionUser;
   };
 
-  const saveReservation = (reservationData) => {
-    // Guardamos la reserva asociada al usuario autenticado.
-    if (!user) {
-      throw new Error("Debes iniciar sesión para reservar una habitación.");
+  const logout = async () => {
+    try {
+      if (getAuthToken()) await apiRequest("/api/auth/logout", { method: "POST" });
+    } finally {
+      clearAuthToken();
+      setUser(null);
+      setReservation(null);
     }
+  };
 
+  const saveReservation = async (reservationData) => {
+    if (!user) throw new Error("Debes iniciar sesión para reservar una habitación.");
+    const reservationResponse = await apiRequest("/api/reservations", {
+      method: "POST",
+      body: JSON.stringify(reservationData),
+    });
     const nextReservation = {
-      ...reservationData,
-      userId: user.id,
-      updatedAt: new Date().toISOString(),
+      ...reservationResponse,
+      roomName: reservationResponse.habitacion?.number
+        ? `Habitación ${reservationResponse.habitacion.number}`
+        : reservationData.roomName,
     };
-
     setReservation(nextReservation);
     return nextReservation;
+  };
+
+  const updateProfile = async (profileData) => {
+    const { user: updatedUser } = await apiRequest("/api/me/profile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    });
+    setUser(updatedUser);
+    return updatedUser;
   };
 
   return (
@@ -95,10 +103,13 @@ export function AuthProvider({ children }) {
       value={{
         user,
         isAuthenticated: Boolean(user),
+        isLoading,
         login,
+        register,
         logout,
         reservation,
         saveReservation,
+        updateProfile,
       }}
     >
       {children}

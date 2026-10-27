@@ -118,11 +118,15 @@ function Field({ field, value, onChange }) {
 export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
   const [state, setState] = useState(() => buildInitialState(sections));
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [problem, setProblem] = useState("");
 
   const isSending = status === "sending";
 
   const clearFeedback = () => {
-    if (status === "success" || status === "error") setStatus("idle");
+    if (status === "success" || status === "error") {
+      setStatus("idle");
+      setProblem("");
+    }
   };
 
   const handleFieldChange = (event) => {
@@ -153,6 +157,7 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
       setStatus("success");
     } catch (error) {
       console.error("Error al guardar la habitación:", error);
+      setProblem(error.message || labels.errorMessage);
       setStatus("error");
     }
   };
@@ -219,7 +224,7 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
             <span className="admin-save-message">{labels.successMessage}</span>
           )}
           {status === "error" && (
-            <span className="room-form-error">{labels.errorMessage}</span>
+            <span className="room-form-error">{problem || labels.errorMessage}</span>
           )}
         </div>
 

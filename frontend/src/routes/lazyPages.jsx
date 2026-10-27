@@ -22,6 +22,9 @@ export const Clientes = lazy(() => import("../pages/admin/Clientes.jsx"));
 export const NuevoCliente = lazy(() => import("../pages/admin/NuevoCliente.jsx"));
 export const RestauranteAdmin = lazy(() => import("../pages/admin/RestauranteAdmin.jsx"));
 export const NuevoPedido = lazy(() => import("../pages/admin/NuevoPedido.jsx"));
+export const NuevoProducto = lazy(() => import("../pages/admin/NuevoProducto.jsx"));
+export const PlanesAdmin = lazy(() => import("../pages/admin/PlanesAdmin.jsx"));
+export const NuevoPlan = lazy(() => import("../pages/admin/NuevoPlan.jsx"));
 export const Reportes = lazy(() => import("../pages/admin/Reportes.jsx"));
 export const Configuracion = lazy(() => import("../pages/admin/Configuracion.jsx"));
 

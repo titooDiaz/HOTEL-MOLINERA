@@ -1,4 +1,5 @@
 // Panel para configurar los datos del hotel, usuarios, notificaciones, región y apariencia.
+import { useEffect, useState } from "react";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import HotelInfoForm from "../../components/settings_panels/HotelInfoForm.jsx";
@@ -6,6 +7,7 @@ import UsersTable from "../../components/settings_panels/UsersTable.jsx";
 import NotificationSettings from "../../components/settings_panels/NotificationSettings.jsx";
 import RegionalSettings from "../../components/settings_panels/RegionalSettings.jsx";
 import AppearanceSettings from "../../components/settings_panels/AppearanceSettings.jsx";
+import { apiRequest, postJson } from "../../api.js";
 
 const HOTEL_FIELDS = [
   { id: "hotel-name", label: "Nombre del hotel", defaultValue: "Hotel Molinera" },
@@ -22,13 +24,6 @@ const HOTEL_FIELDS = [
     ],
   },
   { id: "hotel-address", label: "Dirección", colClass: "col-12", defaultValue: "RMFP+X4X, Capacho 5009, Táchira, Venezuela" },
-];
-
-const USERS = [
-  { name: "Admin Principal", email: "admin@hotelmoderno.com", role: "Administrador", status: "Activo", statusClass: "badge-pill-emerald" },
-  { name: "Recepción Turno 1", email: "recepcion1@hotelmoderno.com", role: "Recepción", status: "Activo", statusClass: "badge-pill-emerald" },
-  { name: "Recepción Turno 2", email: "recepcion2@hotelmoderno.com", role: "Recepción", status: "Inactivo", statusClass: "badge-pill-slate" },
-  { name: "Chef Ejecutivo", email: "restaurante@hotelmoderno.com", role: "Restaurante", status: "Activo", statusClass: "badge-pill-emerald" },
 ];
 
 const NOTIFICATION_OPTIONS = [
@@ -93,6 +88,19 @@ const SETTINGS_COPY = {
 };
 
 export default function Configuracion() {
+  const [users, setUsers] = useState([]);
+  const [userError, setUserError] = useState("");
+
+  const loadUsers = () => apiRequest("/api/admin/users").then(setUsers).catch((error) => setUserError(error.message));
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const inviteUser = async (data) => {
+    await postJson("/api/admin/users", data);
+    await loadUsers();
+  };
 
   return (
     <>
@@ -108,7 +116,16 @@ export default function Configuracion() {
               <div className="mb-3">
                 <HotelInfoForm fields={HOTEL_FIELDS} labels={SETTINGS_COPY.hotelForm} />
               </div>
-              <UsersTable users={USERS} labels={SETTINGS_COPY.users} />
+              {userError && <p className="alert alert-danger" role="alert">{userError}</p>}
+              <UsersTable
+                users={users.map((user) => ({
+                  ...user,
+                  status: user.isActive ? "Activo" : "Inactivo",
+                  statusClass: user.isActive ? "badge-pill-emerald" : "badge-pill-slate",
+                }))}
+                labels={SETTINGS_COPY.users}
+                onInvite={inviteUser}
+              />
             </div>
 
             <div className="col-12 col-xl-5">

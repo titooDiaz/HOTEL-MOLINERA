@@ -10,7 +10,7 @@ export default function ReportsAnalytics({ revenue, roomTypeStats, labels }) {
           <div className="admin-chart" role="img" aria-label={labels.revenueTitle}>
             {revenue.values.map((value, index) => (
               <div className="admin-chart-column" key={revenue.labels[index]}>
-                <span className="admin-chart-value">${(value / 1000000).toFixed(1)} M</span>
+                <span className="admin-chart-value">{`Bs. ${new Intl.NumberFormat("es-VE", { notation: "compact", maximumFractionDigits: 1 }).format(value)}`}</span>
                 <div className="admin-chart-track"><div className="admin-chart-bar" style={{ height: `${Math.max(value / maxRevenue * 100, 5)}%` }} /></div>
                 <span className="admin-chart-label">{revenue.labels[index]}</span>
               </div>

@@ -2,7 +2,7 @@
 import { useOutletContext } from "react-router-dom";
 import Hero from "./components/hero/Hero.jsx";
 import RoomSection from "./components/room_section/RoomSection.jsx";
-import { roomImages, rooms } from "./roomData.js";
+import { roomImages, rooms as defaultRooms } from "./roomData.js";
 
 // Reunimos los textos que usan la portada y las habitaciones.
 const TEXTOS_PORTADA = {
@@ -37,7 +37,7 @@ const TEXTOS_PORTADA = {
 
 function App() {
   // Tomamos los datos del hotel y la acción para abrir una reserva.
-  const { hotelData, openReserveModal } = useOutletContext() || {};
+  const { hotelData, openReserveModal, rooms = defaultRooms } = useOutletContext() || {};
 
   return (
     <>

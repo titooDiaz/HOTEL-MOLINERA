@@ -69,8 +69,8 @@ export default function Navbar({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, []);
 
-  const handleLogin = ({ email, password, remember }) => {
-    const loggedUser = login(email, password, remember);
+  const handleLogin = async ({ email, password, remember }) => {
+    const loggedUser = await login(email, password, remember);
     closeReserveModal();
     setIsMenuOpen(false);
     navigate(loggedUser.role === "admin" ? "/admin" : "/mi-habitacion");
@@ -146,11 +146,7 @@ export default function Navbar({
               {user.role === "admin" ? "Panel Admin" : "Mi Habitación"}
             </button>
           ) : (
-            <button
-              type="button"
-              className="btn-reserve"
-              onClick={handleOpenReserve}
-            >
+            <button type="button" className="btn-reserve" onClick={handleOpenReserve}>
               {labels.reserve}
             </button>
           )}

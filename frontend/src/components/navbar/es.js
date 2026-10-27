@@ -37,7 +37,7 @@ const reserveModalEs = {
   registerSubmit: "Crear mi cuenta",
   haveAccount: "¿Ya tienes cuenta?",
   passMismatch: "Las contraseñas no coinciden.",
-  passShort: "La contraseña debe tener al menos 6 caracteres.",
+  passShort: "La contraseña debe tener al menos 8 caracteres.",
   loginError: "No fue posible iniciar sesión.",
   emailPlaceholder: "tucorreo@ejemplo.com",
   namePlaceholder: "Ej: María Gómez",

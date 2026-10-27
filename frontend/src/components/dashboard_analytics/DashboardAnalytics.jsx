@@ -5,6 +5,7 @@ import "./DashboardAnalytics.css";
 
 export default function DashboardAnalytics({ roomTypes, recentActivity, labels }) {
   const gradientId = `area-fill-${useId().replaceAll(":", "")}`;
+  const totalRoomCount = roomTypes.reduce((total, room) => total + room.count, 0);
 
   return (
     <div className="row g-3 mb-4">
@@ -81,10 +82,27 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels }
           <div className="d-flex align-items-center justify-content-center">
             <svg viewBox="0 0 120 120" width="150" height="150">
               <circle cx="60" cy="60" r="45" fill="none" stroke="#e2e8f0" strokeWidth="16" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#3b82f6" strokeWidth="16" strokeDasharray="141.4 282.7" strokeDashoffset="0" transform="rotate(-90 60 60)" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" strokeWidth="16" strokeDasharray="70.7 282.7" strokeDashoffset="-141.4" transform="rotate(-90 60 60)" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#f97316" strokeWidth="16" strokeDasharray="48.1 282.7" strokeDashoffset="-212.1" transform="rotate(-90 60 60)" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#8b5cf6" strokeWidth="16" strokeDasharray="22.6 282.7" strokeDashoffset="-260.2" transform="rotate(-90 60 60)" />
+              {roomTypes.reduce((segments, room) => {
+                const circumference = 2 * Math.PI * 45;
+                const offset = segments.offset;
+                const length = circumference * (totalRoomCount ? room.count / totalRoomCount : 0);
+                segments.circles.push(
+                  <circle
+                    key={room.label}
+                    cx="60"
+                    cy="60"
+                    r="45"
+                    fill="none"
+                    stroke={room.color}
+                    strokeWidth="16"
+                    strokeDasharray={`${length} ${circumference - length}`}
+                    strokeDashoffset={-offset}
+                    transform="rotate(-90 60 60)"
+                  />,
+                );
+                segments.offset += length;
+                return segments;
+              }, { offset: 0, circles: [] }).circles}
                     <text x="60" y="57" textAnchor="middle" fontSize="18" fontWeight="600" fill="currentColor">{labels.roomCount}</text>
                     <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">{labels.roomCountCaption}</text>
             </svg>

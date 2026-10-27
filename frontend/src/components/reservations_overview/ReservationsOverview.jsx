@@ -1,5 +1,6 @@
 // Resume las reservas recientes en una tabla y muestra el porcentaje de ocupación.
 import "./ReservationsOverview.css";
+import { Link } from "react-router-dom";
 
 export default function ReservationsOverview({ reservations, labels, occupancy }) {
   return (
@@ -10,9 +11,9 @@ export default function ReservationsOverview({ reservations, labels, occupancy }
             <h2 className="fw-semibold text-slate-700 mb-0 dashboard-section-title">
               {labels.title}
             </h2>
-            <a href="#" className="text-rose-500 fw-medium text-decoration-none reservations-view-all">
+            <Link to="/admin/reservas" className="text-rose-500 fw-medium text-decoration-none reservations-view-all">
               {labels.viewAll}
-            </a>
+            </Link>
           </div>
           <div className="table-scroll">
             <table className="tw-table">

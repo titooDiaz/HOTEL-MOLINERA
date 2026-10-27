@@ -23,6 +23,9 @@ import {
   NuevaReserva,
   NuevoCliente,
   NuevoPedido,
+  NuevoProducto,
+  NuevoPlan,
+  PlanesAdmin,
   Planes,
   Reportes,
   Restaurante,
@@ -69,6 +72,9 @@ createRoot(document.getElementById("root")).render(
               <Route path="/admin/clientes/nuevo" element={<RoutePage component={NuevoCliente} />} />
               <Route path="/admin/restaurante" element={<RoutePage component={RestauranteAdmin} />} />
               <Route path="/admin/restaurante/nuevo" element={<RoutePage component={NuevoPedido} />} />
+              <Route path="/admin/restaurante/menu/nuevo" element={<RoutePage component={NuevoProducto} />} />
+              <Route path="/admin/planes" element={<RoutePage component={PlanesAdmin} />} />
+              <Route path="/admin/planes/nuevo" element={<RoutePage component={NuevoPlan} />} />
               <Route path="/admin/reportes" element={<RoutePage component={Reportes} />} />
               <Route path="/admin/configuracion" element={<RoutePage component={Configuracion} />} />
             </Route>

@@ -47,6 +47,15 @@ export const NAV_ITEMS = [
     ),
   },
   {
+    label: "Planes",
+    icon: (
+      <>
+        <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+        <path d="m2 12 10 5 10-5M2 16l10 5 10-5" />
+      </>
+    ),
+  },
+  {
     label: "Reportes",
     icon: (
       <>

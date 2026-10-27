@@ -1,6 +1,7 @@
 // Recopila habitación, fechas, huéspedes y solicitudes para enviar una reserva.
 import { useState } from "react";
 import "../navbar/ReserveModal.css";
+import { todayISO } from "../admin_form/formUtils.js";
 
 const initialForm = {
   checkIn: "",
@@ -10,16 +11,16 @@ const initialForm = {
 };
 
 export default function ReservationForm({ room, rooms = [room], onSubmit, onCancel, compact = false }) {
-  const [selectedRoomId, setSelectedRoomId] = useState(room.id);
+  const [selectedRoomId, setSelectedRoomId] = useState(String(room.id));
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
-  const selectedRoom = rooms.find(({ id }) => id === selectedRoomId) ?? room;
+  const selectedRoom = rooms.find(({ id }) => String(id) === selectedRoomId) ?? room;
 
   const update = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
@@ -28,12 +29,20 @@ export default function ReservationForm({ room, rooms = [room], onSubmit, onCanc
       return;
     }
 
-    onSubmit({
-      ...form,
-      guests: Number(form.guests),
-      roomName: selectedRoom.name,
-      room: selectedRoom,
-    });
+    try {
+      await onSubmit({
+        roomId: selectedRoom.roomId ?? selectedRoom.id,
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        guests: Number(form.guests),
+        adults: Number(form.guests),
+        children: 0,
+        roomName: selectedRoom.name,
+        specialRequests: form.requests,
+      });
+    } catch (submitError) {
+      setError(submitError.message || "No se pudo crear la reserva.");
+    }
   };
 
   return (
@@ -72,11 +81,11 @@ export default function ReservationForm({ room, rooms = [room], onSubmit, onCanc
       <div className="reservation-fields">
         <label>
           Fecha de entrada
-          <input type="date" value={form.checkIn} onChange={(event) => update("checkIn", event.target.value)} required />
+          <input type="date" min={todayISO()} value={form.checkIn} onChange={(event) => update("checkIn", event.target.value)} required />
         </label>
         <label>
           Fecha de salida
-          <input type="date" value={form.checkOut} onChange={(event) => update("checkOut", event.target.value)} required />
+          <input type="date" min={form.checkIn || todayISO()} value={form.checkOut} onChange={(event) => update("checkOut", event.target.value)} required />
         </label>
         <label>
           Huéspedes

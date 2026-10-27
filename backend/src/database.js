@@ -287,6 +287,17 @@ const Auditoria = sequelize.define('Auditoria', {
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
 }, { tableName: 'auditoria', updatedAt: false });
 
+// Mensajes enviados desde el formulario público de contacto.
+const MensajeContacto = sequelize.define('MensajeContacto', {
+    id: { type: DataTypes.BIGINT.UNSIGNED, autoIncrement: true, primaryKey: true },
+    name: { type: DataTypes.STRING(200), allowNull: false },
+    email: { type: DataTypes.STRING(254), allowNull: false },
+    subject: { type: DataTypes.STRING(200), allowNull: false },
+    message: { type: DataTypes.TEXT, allowNull: false },
+    ipAddress: DataTypes.STRING(45),
+    createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+}, { tableName: 'mensajes_contacto', updatedAt: false });
+
 // Relacionamos usuarios con sus perfiles de huésped y administrador.
 Usuario.hasOne(Huesped, { foreignKey: 'userId', as: 'huesped' });
 Huesped.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
@@ -319,7 +330,7 @@ Auditoria.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 // Reunimos todos los modelos para exportarlos y sincronizarlos.
 const models = {
     Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan,
-    Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria
+    Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria, MensajeContacto
 };
 
 // Creamos la base de datos y las tablas que todavía no existan.
@@ -353,6 +364,40 @@ async function connectDatabase() {
     for (const model of Object.values(models)) {
         if (!existingTables.has(model.getTableName())) {
             console.log(`Tabla ${model.getTableName()} creada.`);
+        }
+    }
+
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (Boolean(adminEmail) !== Boolean(adminPassword)) {
+        throw new Error('Configura ADMIN_EMAIL y ADMIN_PASSWORD juntos para crear el administrador inicial');
+    }
+    if (adminEmail && adminPassword) {
+        if (adminPassword.length < 8) {
+            throw new Error('ADMIN_PASSWORD debe tener al menos 8 caracteres');
+        }
+        const existingAdmin = await Usuario.findOne({ where: { email: adminEmail } });
+        if (!existingAdmin) {
+            const { hashPassword } = require('./auth');
+            const [firstName, ...lastNameParts] = (process.env.ADMIN_NAME || 'Administrador Hotel').trim().split(/\s+/);
+            const transaction = await sequelize.transaction();
+            try {
+                const user = await Usuario.create({
+                    email: adminEmail,
+                    passwordHash: await hashPassword(adminPassword),
+                    role: 'admin'
+                }, { transaction });
+                await Admin.create({
+                    userId: user.id,
+                    firstName,
+                    lastName: lastNameParts.join(' ') || 'Hotel'
+                }, { transaction });
+                await transaction.commit();
+                console.log(`Administrador inicial creado para ${adminEmail}.`);
+            } catch (error) {
+                await transaction.rollback();
+                throw error;
+            }
         }
     }
 }

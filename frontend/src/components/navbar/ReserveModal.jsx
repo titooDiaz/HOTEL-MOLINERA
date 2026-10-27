@@ -148,12 +148,16 @@ function ReserveModalContent({
     event.preventDefault();
     setError("");
 
-    if (registerData.password.length < 6) return setError(t.passShort);
+    if (registerData.password.length < 8) return setError(t.passShort);
     if (registerData.password !== registerData.confirm) {
       return setError(t.passMismatch);
     }
 
-    if (onRegister) onRegister(registerData);
+    if (onRegister) {
+      Promise.resolve(onRegister(registerData)).catch((registerError) => {
+        setError(registerError.message || t.registerError || t.loginError);
+      });
+    }
     else console.log("Register:", registerData);
   };
 

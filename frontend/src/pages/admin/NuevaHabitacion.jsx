@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import RoomForm from "../../components/room_form/RoomForm.jsx";
+import { postJson } from "../../components/admin_form/formUtils.js";
 
 const FORM_SECTIONS = [
   {
@@ -124,18 +125,7 @@ const NEW_ROOM_COPY = {
   },
 };
 
-// TODO: el backend aún no tiene la ruta POST /api/rooms (ver backend/src/app.js)
-async function crearHabitacion(datos) {
-  const response = await fetch("/api/rooms", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error ${response.status} al crear la habitación`);
-  }
-}
+const crearHabitacion = (datos) => postJson("/api/rooms", datos);
 
 export default function NuevaHabitacion() {
   const navigate = useNavigate();
