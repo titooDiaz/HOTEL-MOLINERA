@@ -74,8 +74,16 @@ export const room = rooms[0];
 
 export function roomFromApi(record) {
   const image = record.imageUrl || null;
-  const roomGallery = Array.isArray(record.gallery) && record.gallery.length
-    ? record.gallery.map((item) => typeof item === "string" ? { src: item, alt: record.type } : item)
+  let galleryData = record.gallery;
+  if (typeof galleryData === "string") {
+    try {
+      galleryData = JSON.parse(galleryData);
+    } catch {
+      galleryData = [];
+    }
+  }
+  const roomGallery = Array.isArray(galleryData) && galleryData.length
+    ? galleryData.map((item) => typeof item === "string" ? { src: item, alt: record.type } : item)
     : image ? [{ src: image, alt: `Habitación ${record.number}` }] : [];
   const amenities = [
     ["airConditioning", "Aire acondicionado", "person"],
