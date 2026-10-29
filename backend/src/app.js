@@ -1,12 +1,35 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { randomBytes } = require('crypto');
+const multer = require('multer');
 const { Op } = require('sequelize');
 const { models, sequelize } = require('./database');
 const { hashPassword, verifyPassword, hashToken, createToken } = require('./auth');
 
 const app = express();
 const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, MensajeContacto } = models;
+const uploadDirectory = path.join(__dirname, '../uploads');
+const imageExtensions = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/gif': '.gif'
+};
+fs.mkdirSync(uploadDirectory, { recursive: true });
+const uploadRoomImage = multer({
+    storage: multer.diskStorage({
+        destination: uploadDirectory,
+        filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${imageExtensions[file.mimetype]}`)
+    }),
+    limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    fileFilter: (_req, file, callback) => {
+        if (!imageExtensions[file.mimetype]) {
+            return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
+        }
+        callback(null, true);
+    }
+}).single('image');
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
@@ -235,12 +258,23 @@ app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
     res.json(rooms);
 }));
 
-app.post('/api/rooms', ...adminOnly, asyncHandler(async (req, res) => {
+app.post('/api/rooms', ...adminOnly, uploadRoomImage, asyncHandler(async (req, res) => {
     const data = req.body;
     requireFields(data, ['number', 'floor', 'type', 'capacity', 'pricePerNight']);
-    const { amenities = {}, ...fields } = data;
+    let amenities = {};
+    try {
+        amenities = data.amenities ? JSON.parse(data.amenities) : {};
+    } catch {
+        throw new HttpError(400, 'Los servicios de la habitación no son válidos.');
+    }
+    const fields = { ...data };
+    delete fields.amenities;
+    for (const key of ['floor', 'capacity', 'area', 'beds', 'pricePerNight']) {
+        if (fields[key] !== undefined) fields[key] = fields[key] === '' ? null : Number(fields[key]);
+    }
     const room = await Habitacion.create({
         ...fields,
+        imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
         ...Object.fromEntries(['airConditioning', 'cableTv', 'safe', 'workstation', 'wifi', 'minibar', 'privateBathroom', 'balcony', 'smokeFree'].map((key) => [key, Boolean(amenities[key])])),
         createdByUserId: req.user.id
     });
@@ -579,6 +613,7 @@ app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta API no encont
 
 const frontendPublicPath = path.join(__dirname, '../../frontend/public');
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+app.use('/uploads', express.static(uploadDirectory));
 app.use(express.static(frontendPublicPath));
 app.use(express.static(frontendDistPath));
 app.get(/.*/, (_req, res) => {
@@ -587,6 +622,13 @@ app.get(/.*/, (_req, res) => {
 
 app.use((error, _req, res, _next) => {
     if (res.headersSent) return;
+    if (error instanceof multer.MulterError) {
+        const status = error.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+        const message = error.code === 'LIMIT_FILE_SIZE'
+            ? 'La imagen no puede superar los 5 MB.'
+            : 'No se pudo procesar el archivo de imagen.';
+        return res.status(status).json({ error: message });
+    }
     if (error.name === 'SequelizeUniqueConstraintError') {
         return res.status(409).json({ error: 'Ya existe un registro con esos datos.' });
     }
