@@ -41,14 +41,23 @@ function ReserveModalContent({
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loginData, setLoginData] = useState({
-    email: "",
+    identifier: "",
     password: "",
     remember: true,
   });
   const [registerData, setRegisterData] = useState({
     name: "",
     email: "",
+    documentType: "CC",
+    documentNumber: "",
+    birthDate: "",
+    nationality: "Venezuela",
     phone: "",
+    city: "",
+    address: "",
+    emergencyName: "",
+    emergencyPhone: "",
+    notes: "",
     password: "",
     confirm: "",
     terms: false,

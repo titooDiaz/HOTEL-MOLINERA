@@ -45,6 +45,18 @@ export default function UsersTable({ users, labels, onInvite }) {
               <option value="admin">Administrador</option>
             </select>
           </label>
+          <label className="col-12 col-md-4">Tipo de documento
+            <select className="form-select" name="documentType" defaultValue="CC">
+              <option value="CC">Cédula de ciudadanía</option>
+              <option value="CE">Cédula de extranjería</option>
+              <option value="PA">Pasaporte</option>
+              <option value="NIT">NIT</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </label>
+          <label className="col-12 col-md-4">Número de documento
+            <input className="form-control" name="documentNumber" placeholder="Requerido para huéspedes" />
+          </label>
           <label className="col-12 col-md-4">Teléfono
             <input className="form-control" name="phone" type="tel" />
           </label>

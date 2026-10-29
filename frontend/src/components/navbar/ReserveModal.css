@@ -53,8 +53,14 @@ body.guest-dark-mode .reserve-form-panel {
 }
 
 [data-theme="dark"] .reserve-modal input,
+[data-theme="dark"] .reserve-modal select,
+[data-theme="dark"] .reserve-modal textarea,
 .dark .reserve-modal input,
-body.guest-dark-mode .reserve-modal input {
+.dark .reserve-modal select,
+.dark .reserve-modal textarea,
+body.guest-dark-mode .reserve-modal input,
+body.guest-dark-mode .reserve-modal select,
+body.guest-dark-mode .reserve-modal textarea {
   background: var(--bg-primary);
   border-color: var(--border-color);
   color: var(--text-primary);
@@ -481,6 +487,16 @@ body.guest-dark-mode .reserve-link:hover {
   font-size: 0.88rem;
   color: var(--muted, #6b7385);
 }
+.reserve-required-note {
+  margin: -0.65rem 0 1.1rem;
+  color: var(--muted, #6b7385);
+  font-size: 0.76rem;
+}
+.reserve-required-mark,
+.reserve-required-note span {
+  color: var(--gold, #b8924a);
+  font-weight: 800;
+}
 
 /* Form */
 .reserve-form {
@@ -511,7 +527,8 @@ body.guest-dark-mode .reserve-link:hover {
   display: flex;
   align-items: center;
 }
-.reserve-input-wrap input {
+.reserve-input-wrap input,
+.reserve-field-control {
   width: 100%;
   padding: 0.7rem 0.9rem;
   border: 1.5px solid #e3dfd2;
@@ -522,10 +539,20 @@ body.guest-dark-mode .reserve-link:hover {
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.reserve-input-wrap input::placeholder { color: #aab0bd; }
-.reserve-input-wrap input:focus {
+.reserve-field-control {
+  font-family: inherit;
+}
+.reserve-field-control::placeholder { color: #aab0bd; }
+.reserve-input-wrap input:focus,
+.reserve-field-control:focus {
   border-color: var(--gold, #b8924a);
   box-shadow: 0 0 0 4px rgba(184, 146, 74, 0.15);
+}
+.reserve-field-control[type="date"] {
+  min-height: 2.55rem;
+}
+.reserve-field-control:is(textarea) {
+  resize: vertical;
 }
 .reserve-input-wrap input[type="password"],
 .reserve-input-wrap input[type="text"]#login-password,

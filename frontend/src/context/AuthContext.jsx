@@ -41,10 +41,10 @@ export function AuthProvider({ children }) {
     restoreSession();
   }, []);
 
-  const login = async (email, password, remember = true) => {
+  const login = async (identifier, password, remember = true) => {
     const { user: sessionUser, token } = await apiRequest("/api/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
     saveAuthToken(token, remember);
     setUser(sessionUser);

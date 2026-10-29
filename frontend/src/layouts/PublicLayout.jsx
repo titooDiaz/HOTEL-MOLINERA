@@ -44,8 +44,8 @@ export default function PublicLayout() {
   };
   const closeReserveModal = () => setIsReserveOpen(false);
 
-  const handleLogin = async ({ email, password, remember }) => {
-    const user = await login(email, password, remember);
+  const handleLogin = async ({ identifier, password, remember }) => {
+    const user = await login(identifier, password, remember);
     closeReserveModal();
     navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
   };
@@ -54,7 +54,16 @@ export default function PublicLayout() {
     await register({
       name: registerData.name,
       email: registerData.email,
+      documentType: registerData.documentType,
+      documentNumber: registerData.documentNumber,
+      birthDate: registerData.birthDate,
+      nationality: registerData.nationality,
       phone: registerData.phone,
+      city: registerData.city,
+      address: registerData.address,
+      emergencyName: registerData.emergencyName,
+      emergencyPhone: registerData.emergencyPhone,
+      notes: registerData.notes,
       password: registerData.password,
     });
     closeReserveModal();

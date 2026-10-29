@@ -26,9 +26,17 @@ const COPY = {
 
 const createFields = (profile, email) => [
   { key: "name", label: "Nombre", value: `${profile?.firstName || ""} ${profile?.lastName || ""}`.trim(), type: "text" },
+  { key: "documentType", label: "Tipo de documento", value: profile?.documentType || "CC", type: "text" },
+  { key: "documentNumber", label: "Número de documento", value: profile?.documentNumber || "", type: "text" },
   { key: "phone", label: "Teléfono", value: profile?.phone || "", type: "tel" },
   { key: "email", label: "Correo electrónico", value: email || "", type: "email" },
   { key: "nationality", label: "Nacionalidad", value: profile?.nationality || "", type: "text" },
+  { key: "birthDate", label: "Fecha de nacimiento", value: profile?.birthDate || "", type: "date" },
+  { key: "city", label: "Ciudad", value: profile?.city || "", type: "text" },
+  { key: "address", label: "Dirección", value: profile?.address || "", type: "text" },
+  { key: "emergencyName", label: "Contacto de emergencia", value: profile?.emergencyName || "", type: "text" },
+  { key: "emergencyPhone", label: "Teléfono de emergencia", value: profile?.emergencyPhone || "", type: "tel" },
+  { key: "notes", label: "Notas y preferencias", value: profile?.notes || "", type: "text" },
 ];
 
 export default function Settings() {

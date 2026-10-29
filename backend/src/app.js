@@ -77,8 +77,8 @@ const parseDate = (value) => new Date(`${value}T00:00:00.000Z`);
 app.get('/api/hotel', (_req, res) => res.json({ name: process.env.HOTEL_NAME || 'Hotel Molinera' }));
 
 app.post('/api/auth/register', asyncHandler(async (req, res) => {
-    const { name, email, password, phone } = req.body;
-    requireFields(req.body, ['name', 'email', 'password', 'phone']);
+    const { name, email, password, phone, documentType = 'CC', documentNumber, birthDate, nationality, city, address, emergencyName, emergencyPhone, notes } = req.body;
+    requireFields(req.body, ['name', 'email', 'password', 'phone', 'documentNumber']);
     if (String(password).length < 8) throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres.');
     const [firstName, ...lastParts] = String(name).trim().split(/\s+/);
     if (!firstName || !lastParts.length) throw new HttpError(400, 'Ingresa nombres y apellidos.');
@@ -93,7 +93,16 @@ app.post('/api/auth/register', asyncHandler(async (req, res) => {
             userId: user.id,
             firstName,
             lastName: lastParts.join(' '),
-            phone
+            documentType,
+            documentNumber: String(documentNumber).trim(),
+            birthDate: birthDate || null,
+            nationality: nationality || null,
+            phone,
+            city: city || null,
+            address: address || null,
+            emergencyName: emergencyName || null,
+            emergencyPhone: emergencyPhone || null,
+            notes: notes || null
         }, { transaction });
         const token = createToken();
         await user.update({ rememberTokenHash: hashToken(token) }, { transaction });
@@ -107,12 +116,23 @@ app.post('/api/auth/register', asyncHandler(async (req, res) => {
 }));
 
 app.post('/api/auth/login', asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    requireFields(req.body, ['email', 'password']);
-    const user = await Usuario.findOne({
-        where: { email: String(email).trim().toLowerCase(), isActive: true },
+    const { identifier, email, password } = req.body;
+    const loginIdentifier = String(identifier ?? email ?? '').trim();
+    requireFields({ identifier: loginIdentifier, password }, ['identifier', 'password']);
+    const normalizedEmail = loginIdentifier.toLowerCase();
+    let user = await Usuario.findOne({
+        where: { email: normalizedEmail, isActive: true },
         include: userIncludes
     });
+    if (!user) {
+        user = await Usuario.findOne({
+            where: { isActive: true },
+            include: [
+                { model: Huesped, as: 'huesped', where: { documentNumber: loginIdentifier }, required: true },
+                { model: Admin, as: 'administrador' }
+            ]
+        });
+    }
     if (user?.lockedUntil && user.lockedUntil > new Date()) {
         throw new HttpError(423, 'La cuenta está temporalmente bloqueada. Intenta más tarde.');
     }
@@ -170,7 +190,7 @@ app.post('/api/auth/change-password', authenticate, asyncHandler(async (req, res
 app.get('/api/me/profile', authenticate, (req, res) => res.json({ user: safeUser(req.user) }));
 
 app.put('/api/me/profile', authenticate, asyncHandler(async (req, res) => {
-    const { name, email, phone, nationality } = req.body;
+    const { name, email, documentType, documentNumber, birthDate, phone, nationality, city, address, emergencyName, emergencyPhone, notes } = req.body;
     requireFields(req.body, ['name', 'email']);
     const [firstName, ...lastNameParts] = String(name).trim().split(/\s+/);
     if (!firstName || !lastNameParts.length) throw new HttpError(400, 'Ingresa nombres y apellidos.');
@@ -181,7 +201,17 @@ app.put('/api/me/profile', authenticate, asyncHandler(async (req, res) => {
             firstName,
             lastName: lastNameParts.join(' '),
             phone: phone || null,
-            ...(req.user.role === 'guest' ? { nationality: nationality || null } : {})
+            ...(req.user.role === 'guest' ? {
+                documentType: documentType || 'CC',
+                documentNumber: String(documentNumber || '').trim(),
+                birthDate: birthDate || null,
+                nationality: nationality || null,
+                city: city || null,
+                address: address || null,
+                emergencyName: emergencyName || null,
+                emergencyPhone: emergencyPhone || null,
+                notes: notes || null
+            } : {})
         }, { transaction });
         await req.user.update({ email: String(email).trim().toLowerCase() }, { transaction });
     });
@@ -517,9 +547,10 @@ app.get('/api/admin/users', ...adminOnly, asyncHandler(async (_req, res) => {
 }));
 
 app.post('/api/admin/users', ...adminOnly, asyncHandler(async (req, res) => {
-    const { email, name, password, role = 'guest', phone } = req.body;
+    const { email, name, password, role = 'guest', phone, documentType = 'CC', documentNumber } = req.body;
     requireFields(req.body, ['email', 'name', 'password']);
     if (!['admin', 'guest'].includes(role)) throw new HttpError(400, 'El rol seleccionado no es válido.');
+    if (role === 'guest') requireFields(req.body, ['documentNumber']);
     if (String(password).length < 8) throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres.');
     const [firstName, ...lastNameParts] = String(name).trim().split(/\s+/);
     if (!firstName || !lastNameParts.length) throw new HttpError(400, 'Ingresa nombres y apellidos.');
@@ -533,7 +564,7 @@ app.post('/api/admin/users', ...adminOnly, asyncHandler(async (req, res) => {
         }, { transaction });
         const profile = role === 'admin'
             ? await Admin.create({ userId: user.id, firstName, lastName: lastNameParts.join(' '), phone, createdByUserId: req.user.id }, { transaction })
-            : await Huesped.create({ userId: user.id, firstName, lastName: lastNameParts.join(' '), phone, createdByUserId: req.user.id }, { transaction });
+            : await Huesped.create({ userId: user.id, firstName, lastName: lastNameParts.join(' '), documentType, documentNumber: String(documentNumber).trim(), phone, createdByUserId: req.user.id }, { transaction });
         await transaction.commit();
         const userData = user.toJSON();
         userData[role === 'admin' ? 'administrador' : 'huesped'] = profile;

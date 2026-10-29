@@ -30,15 +30,15 @@ export default function ReserveLoginForm({
 
         <form onSubmit={onSubmit} className="reserve-form">
           <div className="reserve-field">
-            <label htmlFor="login-email">{labels.email}</label>
+            <label htmlFor="login-identifier">{labels.loginIdentifier}</label>
             <div className="reserve-input-wrap">
               <input
-                id="login-email"
-                type="email"
-                value={data.email}
-                onChange={(event) => onChange("email", event.target.value)}
-                autoComplete="email"
-                placeholder={labels.emailPlaceholder}
+                id="login-identifier"
+                type="text"
+                value={data.identifier}
+                onChange={(event) => onChange("identifier", event.target.value)}
+                autoComplete="username"
+                placeholder={labels.loginIdentifierPlaceholder}
                 required
               />
             </div>

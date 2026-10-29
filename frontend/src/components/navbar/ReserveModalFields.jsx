@@ -29,7 +29,9 @@ export function PasswordField({
 }) {
   return (
     <div className="reserve-field">
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label} <span className="reserve-required-mark" aria-hidden="true">*</span>
+      </label>
       <div className="reserve-input-wrap">
         <input
           id={id}
