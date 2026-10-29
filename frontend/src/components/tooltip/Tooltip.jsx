@@ -2,7 +2,7 @@
 import { useState } from "react";
 import "./Tooltip.css";
 
-export default function Tooltip({ label, children }) {
+export default function Tooltip({ label, children, className = "" }) {
   const [placement, setPlacement] = useState("above");
 
   const updatePlacement = (element) => {
@@ -18,7 +18,7 @@ export default function Tooltip({ label, children }) {
   };
 
   return (
-    <span className="tooltip-wrapper" onMouseEnter={updatePlacement} onFocus={updatePlacement}>
+    <span className={`tooltip-wrapper${className ? ` ${className}` : ""}`} onMouseEnter={updatePlacement} onFocus={updatePlacement}>
       {children}
       <span
         className={`tooltip-content${placement === "below" ? " tooltip-content--below" : ""}`}

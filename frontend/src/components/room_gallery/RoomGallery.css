@@ -1,6 +1,7 @@
 /* Comentamos los estilos de RoomGallery. */
 .main-image-wrap {
   height: 330px;
+  isolation: isolate;
 }
 
 .room-image-empty {
@@ -29,16 +30,50 @@
 }
 
 .btn-nav-circle {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   border: 0;
   border-radius: 50%;
-  background: white;
+  padding: 0;
+  background: rgba(255, 255, 255, .96);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
-  color: var(--slate-600);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .24);
+  color: #1e293b;
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.gallery-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+
+.gallery-control--previous {
+  left: .75rem;
+}
+
+.gallery-control--next {
+  right: .75rem;
+}
+
+.btn-nav-circle:hover {
+  background: #fff;
+  color: var(--red-500);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .3);
+  transform: scale(1.06);
+}
+
+.btn-nav-circle:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.gallery-control .tooltip-content {
+  z-index: 2147483647;
 }
 
 .thumbs-grid {

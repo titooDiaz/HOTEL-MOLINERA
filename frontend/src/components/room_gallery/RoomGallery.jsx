@@ -25,33 +25,33 @@ export default function RoomGallery({ images, labels }) {
 
   return (
     <div>
-      <div className="position-relative rounded-4 overflow-hidden bg-light main-image-wrap">
+      <div className="position-relative rounded-4 bg-light main-image-wrap">
         <img
           src={images[currentImage].src}
           alt={images[currentImage].alt}
-          className="w-100 h-100 object-fit-cover"
+          className="w-100 h-100 object-fit-cover rounded-4"
         />
         <span className="image-counter">
           {currentImage + 1} / {images.length}
         </span>
-        <Tooltip label={labels.previousImage}>
+        <Tooltip label={labels.previousImage} className="gallery-control gallery-control--previous">
           <button
             type="button"
             onClick={showPreviousImage}
-            className="position-absolute top-50 start-0 translate-middle-y ms-2 btn-nav-circle"
+            className="btn-nav-circle"
             aria-label={labels.previousImage}
           >
-            <Icon size={16}><path d="M15 18l-6-6 6-6" /></Icon>
+            <Icon size={20}><path d="M15 18l-6-6 6-6" /></Icon>
           </button>
         </Tooltip>
-        <Tooltip label={labels.nextImage}>
+        <Tooltip label={labels.nextImage} className="gallery-control gallery-control--next">
           <button
             type="button"
             onClick={showNextImage}
-            className="position-absolute top-50 end-0 translate-middle-y me-2 btn-nav-circle"
+            className="btn-nav-circle"
             aria-label={labels.nextImage}
           >
-            <Icon size={16}><path d="M9 18l6-6-6 6" /></Icon>
+            <Icon size={20}><path d="M9 18l6-6-6-6" /></Icon>
           </button>
         </Tooltip>
       </div>
