@@ -86,6 +86,7 @@ function Field({ field, value, onChange }) {
         className="form-control admin-form-control"
         type="file"
         accept={field.accept}
+        multiple={field.multiple}
         {...common}
       />
     );
@@ -141,7 +142,9 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
 
   const handleFieldChange = (event) => {
     const { name, value, files } = event.target;
-    const nextValue = event.target.type === "file" ? files?.[0] ?? null : value;
+    const nextValue = event.target.type === "file"
+      ? event.target.multiple ? Array.from(files || []) : files?.[0] ?? null
+      : value;
     setState((current) => ({
       ...current,
       values: { ...current.values, [name]: nextValue },

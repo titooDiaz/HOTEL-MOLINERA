@@ -1,7 +1,14 @@
 // Muestra las habitaciones administrativas en una cuadrícula filtrable por estado.
 import { useMemo, useState } from "react";
 
-export default function RoomsGrid({ rooms, labels }) {
+export default function RoomsGrid({
+  rooms,
+  labels,
+  deletingRoomId,
+  updatingImagesRoomId,
+  onDeleteRoom,
+  onUpdateRoomImages,
+}) {
   const [status, setStatus] = useState(labels.allValue);
   const filteredRooms = useMemo(
     () => status === labels.allValue ? rooms : rooms.filter((room) => room.statusKey === status),
@@ -29,6 +36,35 @@ export default function RoomsGrid({ rooms, labels }) {
               </div>
               <p className="admin-room-type">{room.type} <span>· {room.floor}</span></p>
               <p className="admin-room-guest">{room.guest ? `${labels.guestPrefix} ${room.guest}` : labels.noGuest}</p>
+              {!room.isDeleted && (
+                <label className="admin-action-button admin-action-button--outline admin-room-delete">
+                  {updatingImagesRoomId === room.id ? "Subiendo..." : "Subir imágenes"}
+                  <input
+                    className="room-image-upload-input"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple
+                    disabled={updatingImagesRoomId !== null || deletingRoomId !== null}
+                    onChange={(event) => {
+                      onUpdateRoomImages(room, event.target.files);
+                      event.target.value = "";
+                    }}
+                  />
+                </label>
+              )}
+              <button
+                className="admin-action-button admin-action-button--danger admin-room-delete"
+                type="button"
+                onClick={() => onDeleteRoom(room)}
+                disabled={deletingRoomId !== null || updatingImagesRoomId !== null}
+                aria-label={`${labels.deleteLabel}: ${room.number}`}
+              >
+                {deletingRoomId === room.id
+                  ? "Eliminando..."
+                  : room.isDeleted
+                    ? "Eliminar definitivamente"
+                    : labels.deleteLabel}
+              </button>
             </article>
           ))}
         </div>

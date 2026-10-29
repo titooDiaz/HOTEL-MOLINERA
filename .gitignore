@@ -77,3 +77,6 @@ coverage/
 # =========================
 
 .vite/
+
+
+backend/uploads

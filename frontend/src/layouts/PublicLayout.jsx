@@ -5,7 +5,7 @@ import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
-import { room, roomFromApi, rooms as defaultRooms } from "../roomData.js";
+import { room, roomFromApi } from "../roomData.js";
 import { apiRequest } from "../api.js";
 
 const DEFAULT_NAVBAR_LABELS = {
@@ -21,12 +21,12 @@ const WHATSAPP_NUMBER = "584147015219";
 
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
-  const [apiRooms, setApiRooms] = useState(null);
+  const [apiRooms, setApiRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(room);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
   const { user, login, register, saveReservation } = useAuth();
-  const rooms = apiRooms ?? defaultRooms;
+  const rooms = apiRooms;
 
   useEffect(() => {
     apiRequest("/api/hotel").then((hotel) => {

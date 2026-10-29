@@ -7,6 +7,14 @@ import "./RoomGallery.css";
 export default function RoomGallery({ images, labels }) {
   const [currentImage, setCurrentImage] = useState(0);
 
+  if (!images?.length) {
+    return (
+      <div className="room-image-empty main-image-wrap rounded-4" role="status">
+        El administrador aún no ha subido imágenes para esta habitación.
+      </div>
+    );
+  }
+
   const showPreviousImage = () => {
     setCurrentImage((current) => (current === 0 ? images.length - 1 : current - 1));
   };

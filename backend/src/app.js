@@ -17,19 +17,19 @@ const imageExtensions = {
     'image/gif': '.gif'
 };
 fs.mkdirSync(uploadDirectory, { recursive: true });
-const uploadRoomImage = multer({
+const uploadRoomImages = multer({
     storage: multer.diskStorage({
         destination: uploadDirectory,
         filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${imageExtensions[file.mimetype]}`)
     }),
-    limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    limits: { fileSize: 5 * 1024 * 1024, files: 4 },
     fileFilter: (_req, file, callback) => {
         if (!imageExtensions[file.mimetype]) {
             return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
         }
         callback(null, true);
     }
-}).single('image');
+}).array('images', 4);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
@@ -253,14 +253,20 @@ app.get('/api/me/activity', authenticate, asyncHandler(async (req, res) => {
 }));
 
 app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
-    const where = req.user?.role === 'admin' ? {} : { isVisible: true, isBookable: true, status: 'disponible' };
-    const rooms = await Habitacion.findAll({ where, order: [['number', 'ASC']] });
+    const isAdmin = req.user?.role === 'admin';
+    const where = isAdmin ? {} : { isVisible: true, isBookable: true, status: 'disponible' };
+    const rooms = await Habitacion.findAll({
+        where,
+        order: [['number', 'ASC']],
+        paranoid: !isAdmin
+    });
     res.json(rooms);
 }));
 
-app.post('/api/rooms', ...adminOnly, uploadRoomImage, asyncHandler(async (req, res) => {
+app.post('/api/rooms', ...adminOnly, uploadRoomImages, asyncHandler(async (req, res) => {
     const data = req.body;
     requireFields(data, ['number', 'floor', 'type', 'capacity', 'pricePerNight']);
+    if (!req.files?.length) throw new HttpError(400, 'Selecciona al menos una imagen para la habitación.');
     let amenities = {};
     try {
         amenities = data.amenities ? JSON.parse(data.amenities) : {};
@@ -269,16 +275,64 @@ app.post('/api/rooms', ...adminOnly, uploadRoomImage, asyncHandler(async (req, r
     }
     const fields = { ...data };
     delete fields.amenities;
+    delete fields.imageUrl;
+    delete fields.gallery;
     for (const key of ['floor', 'capacity', 'area', 'beds', 'pricePerNight']) {
         if (fields[key] !== undefined) fields[key] = fields[key] === '' ? null : Number(fields[key]);
     }
+    const gallery = (req.files || []).map((file) => ({
+        src: `/uploads/${file.filename}`,
+        alt: `Habitación ${fields.number}`
+    }));
     const room = await Habitacion.create({
         ...fields,
-        imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+        imageUrl: gallery[0]?.src || null,
+        gallery,
         ...Object.fromEntries(['airConditioning', 'cableTv', 'safe', 'workstation', 'wifi', 'minibar', 'privateBathroom', 'balcony', 'smokeFree'].map((key) => [key, Boolean(amenities[key])])),
         createdByUserId: req.user.id
     });
     res.status(201).json(room);
+}));
+
+app.put('/api/rooms/:id/images', ...adminOnly, uploadRoomImages, asyncHandler(async (req, res) => {
+    if (!req.files?.length) throw new HttpError(400, 'Selecciona al menos una imagen.');
+    const room = await Habitacion.findByPk(req.params.id);
+    if (!room) throw new HttpError(404, 'No se encontró la habitación.');
+
+    const gallery = req.files.map((file) => ({
+        src: `/uploads/${file.filename}`,
+        alt: `Habitación ${room.number}`
+    }));
+    await room.update({ imageUrl: gallery[0].src, gallery });
+    res.json(room);
+}));
+
+app.delete('/api/rooms/:id', ...adminOnly, asyncHandler(async (req, res) => {
+    const room = await Habitacion.findByPk(req.params.id, { paranoid: false });
+    if (!room) throw new HttpError(404, 'No se encontró la habitación.');
+
+    const today = new Date().toISOString().slice(0, 10);
+    const reservation = await Reserva.findOne({
+        where: {
+            roomId: room.id,
+            status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+            checkOut: { [Op.gt]: today }
+        }
+    });
+    if (reservation) {
+        throw new HttpError(409, 'No se puede eliminar una habitación con reservas vigentes o futuras.');
+    }
+
+    const [reservationHistory, orderHistory] = await Promise.all([
+        Reserva.findOne({ where: { roomId: room.id }, paranoid: false }),
+        Pedido.findOne({ where: { roomId: room.id }, paranoid: false })
+    ]);
+    if (reservationHistory || orderHistory) {
+        throw new HttpError(409, 'No se puede eliminar permanentemente una habitación con historial de reservas o pedidos asociado.');
+    }
+
+    await room.destroy({ force: true });
+    res.status(204).end();
 }));
 
 app.get('/api/clients', ...adminOnly, asyncHandler(async (_req, res) => {

@@ -79,6 +79,8 @@
 }
 .admin-action-button--primary { color: #fff; background: var(--rose-500); }
 .admin-action-button--primary:hover { color: #fff; background: var(--rose-600); }
+.admin-action-button--danger { color: #be123c; background: var(--bg-surface); border-color: #fecdd3; }
+.admin-action-button--danger:hover { color: #fff; background: #e11d48; border-color: #e11d48; }
 .admin-action-button--outline { color: var(--text-primary); background: var(--bg-surface); border-color: var(--border-color); }
 .admin-action-button--outline:hover { background: var(--bg-hover); border-color: var(--border-color); }
 
@@ -134,6 +136,8 @@
 .admin-room-type { margin: .75rem 0 .25rem; color: var(--slate-700); font-size: .875rem; font-weight: 600; }
 .admin-room-type span, .admin-room-guest { color: var(--slate-500); font-size: .75rem; font-weight: 400; }
 .admin-room-guest { margin: 0; }
+.admin-room-delete { min-height: 2rem; margin-top: .9rem; padding: .35rem .65rem; font-size: .75rem; }
+.room-image-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
 .admin-report-card { min-width: 0; }
 .admin-chart { display: flex; align-items: flex-end; justify-content: space-around; gap: 1rem; height: 14rem; margin-top: 1.25rem; padding-top: 1.5rem; border-bottom: 1px solid var(--slate-200); }

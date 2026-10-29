@@ -90,11 +90,13 @@ const FORM_SECTIONS = [
         required: true,
       },
       {
-        id: "imageFile",
-        label: "Imagen principal",
+        id: "imageFiles",
+        label: "Imágenes de la habitación",
         type: "file",
         accept: "image/jpeg,image/png,image/webp,image/gif",
-        hint: "Opcional. Formatos JPG, PNG, WEBP o GIF; máximo 5 MB.",
+        multiple: true,
+        required: true,
+        hint: "Selecciona entre 1 y 4 imágenes. Formatos JPG, PNG, WEBP o GIF; máximo 5 MB cada una.",
       },
       {
         id: "description",
@@ -127,12 +129,16 @@ const NEW_ROOM_COPY = {
 
 const crearHabitacion = (datos) => {
   const body = new FormData();
+  const imageFiles = datos.imageFiles || [];
+  if (!imageFiles.length || imageFiles.length > 4) {
+    throw new Error("Selecciona entre 1 y 4 imágenes para la habitación.");
+  }
 
   Object.entries(datos).forEach(([key, value]) => {
     if (key === "amenities") {
       body.append(key, JSON.stringify(value));
-    } else if (key === "imageFile") {
-      if (value) body.append("image", value);
+    } else if (key === "imageFiles") {
+      value.forEach((file) => body.append("images", file));
     } else {
       body.append(key, value == null ? "" : String(value));
     }

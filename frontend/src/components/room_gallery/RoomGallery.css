@@ -3,6 +3,15 @@
   height: 330px;
 }
 
+.room-image-empty {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--slate-600);
+  background: var(--slate-100);
+  text-align: center;
+}
+
 .object-fit-cover {
   object-fit: cover;
 }

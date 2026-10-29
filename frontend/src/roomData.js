@@ -73,10 +73,10 @@ export const rooms = [
 export const room = rooms[0];
 
 export function roomFromApi(record) {
-  const image = record.imageUrl || "/images/rooms/cama-blanca.jpeg";
+  const image = record.imageUrl || null;
   const roomGallery = Array.isArray(record.gallery) && record.gallery.length
     ? record.gallery.map((item) => typeof item === "string" ? { src: item, alt: record.type } : item)
-    : [{ src: image, alt: `Habitación ${record.number}` }, ...roomImages.slice(1)];
+    : image ? [{ src: image, alt: `Habitación ${record.number}` }] : [];
   const amenities = [
     ["airConditioning", "Aire acondicionado", "person"],
     ["cableTv", "TV por cable", "tv"],
