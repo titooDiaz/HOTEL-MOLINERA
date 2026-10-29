@@ -54,7 +54,6 @@ function Field({ field, value, onChange }) {
   const common = {
     id: inputId,
     name: field.id,
-    value,
     onChange,
     required: field.required,
   };
@@ -63,7 +62,7 @@ function Field({ field, value, onChange }) {
 
   if (field.options) {
     control = (
-      <select className="form-select admin-form-control" {...common}>
+      <select className="form-select admin-form-control" value={value} {...common}>
         {field.options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -77,6 +76,16 @@ function Field({ field, value, onChange }) {
         className="form-control admin-form-control room-form-textarea"
         rows={field.rows ?? 4}
         placeholder={field.placeholder}
+        value={value}
+        {...common}
+      />
+    );
+  } else if (field.type === "file") {
+    control = (
+      <input
+        className="form-control admin-form-control"
+        type="file"
+        accept={field.accept}
         {...common}
       />
     );
@@ -89,6 +98,7 @@ function Field({ field, value, onChange }) {
         min={field.min}
         max={field.max}
         step={field.step}
+        value={value}
         {...common}
       />
     );
@@ -130,10 +140,11 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
   };
 
   const handleFieldChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, files } = event.target;
+    const nextValue = event.target.type === "file" ? files?.[0] ?? null : value;
     setState((current) => ({
       ...current,
-      values: { ...current.values, [name]: value },
+      values: { ...current.values, [name]: nextValue },
     }));
     clearFeedback();
   };
@@ -150,9 +161,11 @@ export default function RoomForm({ sections, labels, onSubmit, onCancel }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatus("sending");
+    const form = event.currentTarget;
 
     try {
       await onSubmit(buildPayload(sections, state.values, state.amenities));
+      form.reset();
       setState(buildInitialState(sections));
       setStatus("success");
     } catch (error) {

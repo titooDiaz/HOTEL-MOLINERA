@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import RoomForm from "../../components/room_form/RoomForm.jsx";
-import { postJson } from "../../components/admin_form/formUtils.js";
+import { apiRequest } from "../../api.js";
 
 const FORM_SECTIONS = [
   {
@@ -90,11 +90,11 @@ const FORM_SECTIONS = [
         required: true,
       },
       {
-        id: "imageUrl",
-        label: "URL de la imagen principal",
-        type: "url",
-        placeholder: "https://...",
-        hint: "Opcional.",
+        id: "imageFile",
+        label: "Imagen principal",
+        type: "file",
+        accept: "image/jpeg,image/png,image/webp,image/gif",
+        hint: "Opcional. Formatos JPG, PNG, WEBP o GIF; máximo 5 MB.",
       },
       {
         id: "description",
@@ -125,7 +125,21 @@ const NEW_ROOM_COPY = {
   },
 };
 
-const crearHabitacion = (datos) => postJson("/api/rooms", datos);
+const crearHabitacion = (datos) => {
+  const body = new FormData();
+
+  Object.entries(datos).forEach(([key, value]) => {
+    if (key === "amenities") {
+      body.append(key, JSON.stringify(value));
+    } else if (key === "imageFile") {
+      if (value) body.append("image", value);
+    } else {
+      body.append(key, value == null ? "" : String(value));
+    }
+  });
+
+  return apiRequest("/api/rooms", { method: "POST", body });
+};
 
 export default function NuevaHabitacion() {
   const navigate = useNavigate();
