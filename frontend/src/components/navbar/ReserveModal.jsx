@@ -6,6 +6,7 @@ import Tooltip from "../tooltip/Tooltip.jsx";
 import ReserveLoginForm from "./ReserveLoginForm.jsx";
 import ReserveOptionsView from "./ReserveOptionsView.jsx";
 import ReserveRegisterForm from "./ReserveRegisterForm.jsx";
+import ReserveTwoFactorForm from "./ReserveTwoFactorForm.jsx";
 import ReservationForm from "../booking/ReservationForm.jsx";
 import reserveModalEs from "./es.js";
 import "./ReserveModal.css";
@@ -30,6 +31,8 @@ function ReserveModalContent({
   labels = {},
   whatsappNumber,
   onLogin,
+  onVerifyTwoFactor,
+  onResendTwoFactor,
   onRegister,
   isAuthenticated,
   room,
@@ -40,6 +43,11 @@ function ReserveModalContent({
   const [view, setView] = useState(isAuthenticated ? "booking" : "options");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  // Desafío de verificación en dos pasos devuelto por el servidor tras validar la contraseña.
+  const [challenge, setChallenge] = useState(null);
+  const [verifyCode, setVerifyCode] = useState("");
   const [loginData, setLoginData] = useState({
     identifier: "",
     password: "",
@@ -130,6 +138,7 @@ function ReserveModalContent({
 
   const changeView = (nextView) => {
     setError("");
+    setNotice("");
     setShowPass(false);
     setView(nextView);
   };
@@ -146,10 +155,48 @@ function ReserveModalContent({
     event.preventDefault();
     setError("");
     try {
-      if (onLogin) await onLogin(loginData);
-      else console.log("Login:", loginData);
+      if (!onLogin) return console.log("Login:", loginData);
+      const result = await onLogin(loginData);
+      // La contraseña fue correcta pero la cuenta exige un código enviado al correo.
+      if (result?.twoFactorRequired) {
+        setChallenge(result);
+        setVerifyCode("");
+        changeView("verify");
+      }
     } catch (loginError) {
       setError(loginError.message || t.loginError);
+    }
+  };
+
+  const handleVerify = async (event) => {
+    event.preventDefault();
+    setError("");
+    setNotice("");
+    setSubmitting(true);
+    try {
+      await onVerifyTwoFactor({
+        challengeToken: challenge.challengeToken,
+        code: verifyCode,
+        remember: loginData.remember,
+      });
+    } catch (verifyError) {
+      setError(verifyError.message);
+      setVerifyCode("");
+      setSubmitting(false);
+    }
+  };
+
+  // Devuelve los segundos de espera para que el formulario reinicie su cuenta regresiva.
+  const handleResend = async () => {
+    setError("");
+    setNotice("");
+    try {
+      const { resendSeconds } = await onResendTwoFactor(challenge.challengeToken);
+      setNotice(t.verifyResent);
+      return resendSeconds;
+    } catch (resendError) {
+      setError(resendError.message);
+      return 0;
     }
   };
 
@@ -242,6 +289,22 @@ function ReserveModalContent({
             showPass={showPass}
             onTogglePass={() => setShowPass((current) => !current)}
             error={error}
+          />
+        )}
+
+        {view === "verify" && challenge && (
+          <ReserveTwoFactorForm
+            hotelName={hotelName}
+            labels={t}
+            challenge={challenge}
+            code={verifyCode}
+            onCodeChange={setVerifyCode}
+            onSubmit={handleVerify}
+            onResend={handleResend}
+            onBack={() => changeView("login")}
+            error={error}
+            notice={notice}
+            submitting={submitting}
           />
         )}
 

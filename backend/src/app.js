@@ -6,6 +6,7 @@ const multer = require('multer');
 const { Op } = require('sequelize');
 const { models, sequelize } = require('./database');
 const { hashPassword, verifyPassword, hashToken, createToken } = require('./auth');
+const twoFactor = require('./twoFactor');
 
 const app = express();
 const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, MensajeContacto } = models;
@@ -52,6 +53,7 @@ const safeUser = (user) => ({
     email: user.email,
     role: user.role,
     isActive: user.isActive,
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
     name: user.huesped
         ? `${user.huesped.firstName} ${user.huesped.lastName}`.trim()
         : user.administrador
@@ -96,6 +98,36 @@ const adminOnly = [authenticate, requireAdmin];
 const makeCode = (prefix) => `${prefix}-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
 const makeSlug = (value) => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const parseDate = (value) => new Date(`${value}T00:00:00.000Z`);
+
+// Cierra un inicio de sesión exitoso: crea el token de sesión y deja constancia en la auditoría.
+const completeLogin = async (user, req) => {
+    const token = createToken();
+    await user.update({
+        rememberTokenHash: hashToken(token),
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        lastLoginAt: new Date(),
+        lastLoginIp: req.ip,
+        lastLoginUserAgent: req.get('user-agent')?.slice(0, 500) || null
+    });
+    await models.Auditoria.create({
+        userId: user.id,
+        action: 'Inicio de sesión',
+        entity: 'Usuario',
+        entityId: user.id,
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent')?.slice(0, 500) || null
+    });
+    return token;
+};
+const audit = (req, action) => models.Auditoria.create({
+    userId: req.user.id,
+    action,
+    entity: 'Usuario',
+    entityId: req.user.id,
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent')?.slice(0, 500) || null
+});
 
 app.get('/api/hotel', (_req, res) => res.json({ name: process.env.HOTEL_NAME || 'Hotel Molinera' }));
 
@@ -169,24 +201,34 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
         }
         throw new HttpError(401, 'El correo o la contraseña no son válidos.');
     }
-    const token = createToken();
-    await user.update({
-        rememberTokenHash: hashToken(token),
-        failedLoginAttempts: 0,
-        lockedUntil: null,
-        lastLoginAt: new Date(),
-        lastLoginIp: req.ip,
-        lastLoginUserAgent: req.get('user-agent')?.slice(0, 500) || null
-    });
-    await models.Auditoria.create({
-        userId: user.id,
-        action: 'Inicio de sesión',
-        entity: 'Usuario',
-        entityId: user.id,
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent')?.slice(0, 500) || null
-    });
-    res.json({ user: safeUser(user), token });
+    // Con la verificación en dos pasos activa, la contraseña sola no abre sesión: se envía un código al correo.
+    if (user.twoFactorEnabled) {
+        const challengeToken = await twoFactor.createChallenge(user, 'login', req.ip);
+        return res.json({
+            twoFactorRequired: true,
+            challengeToken,
+            email: twoFactor.maskEmail(user.email),
+            codeMinutes: twoFactor.CODE_MINUTES,
+            resendSeconds: twoFactor.RESEND_SECONDS
+        });
+    }
+    res.json({ user: safeUser(user), token: await completeLogin(user, req) });
+}));
+
+// Segundo paso del inicio de sesión: comprueba el código recibido por correo y abre la sesión.
+app.post('/api/auth/2fa/verify', asyncHandler(async (req, res) => {
+    const { challengeToken, code } = req.body;
+    requireFields(req.body, ['challengeToken', 'code']);
+    const userId = await twoFactor.verifyChallenge(challengeToken, 'login', code);
+    const user = await Usuario.findOne({ where: { id: userId, isActive: true }, include: userIncludes });
+    if (!user) throw new HttpError(401, 'La cuenta no está disponible.');
+    res.json({ user: safeUser(user), token: await completeLogin(user, req) });
+}));
+
+app.post('/api/auth/2fa/resend', asyncHandler(async (req, res) => {
+    requireFields(req.body, ['challengeToken']);
+    await twoFactor.resendChallenge(req.body.challengeToken, 'login');
+    res.json({ message: 'Te enviamos un código nuevo.', resendSeconds: twoFactor.RESEND_SECONDS });
 }));
 
 app.get('/api/auth/me', authenticate, (req, res) => res.json({ user: safeUser(req.user) }));
@@ -208,6 +250,44 @@ app.post('/api/auth/change-password', authenticate, asyncHandler(async (req, res
         passwordChangedAt: new Date()
     });
     res.json({ message: 'Contraseña actualizada.' });
+}));
+
+// Activar la verificación en dos pasos exige confirmar un código enviado al correo de la cuenta.
+app.post('/api/me/2fa/request', authenticate, asyncHandler(async (req, res) => {
+    if (req.user.twoFactorEnabled) throw new HttpError(400, 'La verificación en dos pasos ya está activada.');
+    const challengeToken = await twoFactor.createChallenge(req.user, 'enable', req.ip);
+    res.json({
+        challengeToken,
+        email: twoFactor.maskEmail(req.user.email),
+        codeMinutes: twoFactor.CODE_MINUTES,
+        resendSeconds: twoFactor.RESEND_SECONDS
+    });
+}));
+
+app.post('/api/me/2fa/resend', authenticate, asyncHandler(async (req, res) => {
+    requireFields(req.body, ['challengeToken']);
+    await twoFactor.resendChallenge(req.body.challengeToken, 'enable', req.user.id);
+    res.json({ message: 'Te enviamos un código nuevo.', resendSeconds: twoFactor.RESEND_SECONDS });
+}));
+
+app.post('/api/me/2fa/confirm', authenticate, asyncHandler(async (req, res) => {
+    requireFields(req.body, ['challengeToken', 'code']);
+    const userId = await twoFactor.verifyChallenge(req.body.challengeToken, 'enable', req.body.code);
+    if (String(userId) !== String(req.user.id)) throw new HttpError(401, 'La verificación no es válida.');
+    await req.user.update({ twoFactorEnabled: true });
+    await audit(req, 'Verificación en dos pasos activada');
+    res.json({ user: safeUser(req.user), message: 'Verificación en dos pasos activada.' });
+}));
+
+// Desactivarla exige la contraseña actual, para que una sesión abierta no pueda quitarla sin más.
+app.post('/api/me/2fa/disable', authenticate, asyncHandler(async (req, res) => {
+    requireFields(req.body, ['password']);
+    if (!(await verifyPassword(req.body.password, req.user.passwordHash))) {
+        throw new HttpError(400, 'La contraseña no es correcta.');
+    }
+    await req.user.update({ twoFactorEnabled: false });
+    await audit(req, 'Verificación en dos pasos desactivada');
+    res.json({ user: safeUser(req.user), message: 'Verificación en dos pasos desactivada.' });
 }));
 
 app.get('/api/me/profile', authenticate, (req, res) => res.json({ user: safeUser(req.user) }));

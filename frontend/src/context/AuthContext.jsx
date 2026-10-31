@@ -42,15 +42,38 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (identifier, password, remember = true) => {
-    const { user: sessionUser, token } = await apiRequest("/api/auth/login", {
+    const response = await apiRequest("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ identifier, password }),
+    });
+    // Si la cuenta tiene verificación en dos pasos, todavía no hay sesión: devolvemos el desafío.
+    if (response.twoFactorRequired) {
+      const { challengeToken, email, codeMinutes, resendSeconds } = response;
+      return { twoFactorRequired: true, challengeToken, email, codeMinutes, resendSeconds };
+    }
+    saveAuthToken(response.token, remember);
+    setUser(response.user);
+    setReservation(null);
+    return response.user;
+  };
+
+  // Segundo paso del inicio de sesión: cambia el código del correo por la sesión.
+  const verifyTwoFactor = async ({ challengeToken, code, remember = true }) => {
+    const { user: sessionUser, token } = await apiRequest("/api/auth/2fa/verify", {
+      method: "POST",
+      body: JSON.stringify({ challengeToken, code }),
     });
     saveAuthToken(token, remember);
     setUser(sessionUser);
     setReservation(null);
     return sessionUser;
   };
+
+  const resendTwoFactor = (challengeToken) =>
+    apiRequest("/api/auth/2fa/resend", {
+      method: "POST",
+      body: JSON.stringify({ challengeToken }),
+    });
 
   const register = async (registerData, remember = true) => {
     const { user: sessionUser, token } = await apiRequest("/api/auth/register", {
@@ -105,6 +128,9 @@ export function AuthProvider({ children }) {
         isAuthenticated: Boolean(user),
         isLoading,
         login,
+        verifyTwoFactor,
+        resendTwoFactor,
+        updateSessionUser: setUser,
         register,
         logout,
         reservation,

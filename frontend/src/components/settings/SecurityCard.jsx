@@ -52,7 +52,6 @@ export default function SecurityCard({ labels }) {
           {submitting ? "Actualizando..." : labels.changeButton}
         </button>
       </form>
-      <p className="settings-muted mt-3 mb-0">La verificación en dos pasos aún no está configurada.</p>
     </SettingsCard>
   );
 }

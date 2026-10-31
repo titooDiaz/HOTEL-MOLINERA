@@ -25,7 +25,7 @@ export default function PublicLayout() {
   const [selectedRoom, setSelectedRoom] = useState(room);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, login, register, saveReservation } = useAuth();
+  const { user, login, verifyTwoFactor, resendTwoFactor, register, saveReservation } = useAuth();
   const rooms = apiRooms;
 
   useEffect(() => {
@@ -45,9 +45,17 @@ export default function PublicLayout() {
   const closeReserveModal = () => setIsReserveOpen(false);
 
   const handleLogin = async ({ identifier, password, remember }) => {
-    const user = await login(identifier, password, remember);
+    const result = await login(identifier, password, remember);
+    // Con verificación en dos pasos el modal pide el código antes de abrir sesión.
+    if (result.twoFactorRequired) return result;
     closeReserveModal();
-    navigate(user.role === "admin" ? "/admin" : "/mi-habitacion");
+    navigate(result.role === "admin" ? "/admin" : "/mi-habitacion");
+  };
+
+  const handleVerifyTwoFactor = async (data) => {
+    const verifiedUser = await verifyTwoFactor(data);
+    closeReserveModal();
+    navigate(verifiedUser.role === "admin" ? "/admin" : "/mi-habitacion");
   };
 
   const handleRegister = async (registerData) => {
@@ -100,6 +108,8 @@ export default function PublicLayout() {
         labels={DEFAULT_NAVBAR_LABELS}
         whatsappNumber={WHATSAPP_NUMBER}
         onLogin={handleLogin}
+        onVerifyTwoFactor={handleVerifyTwoFactor}
+        onResendTwoFactor={resendTwoFactor}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}
         room={rooms.find(({ id }) => id === selectedRoom.id) || rooms[0] || selectedRoom}

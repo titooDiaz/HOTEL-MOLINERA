@@ -298,6 +298,21 @@ const MensajeContacto = sequelize.define('MensajeContacto', {
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
 }, { tableName: 'mensajes_contacto', updatedAt: false });
 
+// Códigos de verificación en dos pasos enviados por correo (se guardan solo como hash).
+const CodigoVerificacion = sequelize.define('CodigoVerificacion', {
+    id: { type: DataTypes.BIGINT.UNSIGNED, autoIncrement: true, primaryKey: true },
+    userId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+    purpose: { type: DataTypes.STRING(20), allowNull: false },
+    tokenHash: { type: DataTypes.STRING(64), allowNull: false, unique: true },
+    codeHash: { type: DataTypes.STRING(64), allowNull: false },
+    expiresAt: { type: DataTypes.DATE, allowNull: false },
+    attempts: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+    lastSentAt: DataTypes.DATE,
+    usedAt: DataTypes.DATE,
+    ipAddress: DataTypes.STRING(45),
+    createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+}, { tableName: 'codigos_verificacion', updatedAt: false });
+
 // Relacionamos usuarios con sus perfiles de huésped y administrador.
 Usuario.hasOne(Huesped, { foreignKey: 'userId', as: 'huesped' });
 Huesped.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
@@ -326,11 +341,14 @@ Usuario.hasMany(Notificacion, { foreignKey: 'userId', as: 'notificaciones' });
 Notificacion.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 Usuario.hasMany(Auditoria, { foreignKey: 'userId', as: 'auditoria' });
 Auditoria.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
+Usuario.hasMany(CodigoVerificacion, { foreignKey: 'userId', as: 'codigosVerificacion' });
+CodigoVerificacion.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 
 // Reunimos todos los modelos para exportarlos y sincronizarlos.
 const models = {
     Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan,
-    Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria, MensajeContacto
+    Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria, MensajeContacto,
+    CodigoVerificacion
 };
 
 // Creamos la base de datos y las tablas que todavía no existan.

@@ -41,7 +41,7 @@ export default function Navbar({
   const [internalReserveOpen, setInternalReserveOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user, login, verifyTwoFactor, resendTwoFactor } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   const isControlled = typeof onOpenReserve === "function";
@@ -69,11 +69,21 @@ export default function Navbar({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, []);
 
-  const handleLogin = async ({ email, password, remember }) => {
-    const loggedUser = await login(email, password, remember);
+  const goToDashboard = (loggedUser) => {
     closeReserveModal();
     setIsMenuOpen(false);
     navigate(loggedUser.role === "admin" ? "/admin" : "/mi-habitacion");
+  };
+
+  const handleLogin = async ({ identifier, email, password, remember }) => {
+    const result = await login(identifier ?? email, password, remember);
+    // Con verificación en dos pasos el modal pide el código antes de abrir sesión.
+    if (result.twoFactorRequired) return result;
+    goToDashboard(result);
+  };
+
+  const handleVerifyTwoFactor = async (data) => {
+    goToDashboard(await verifyTwoFactor(data));
   };
 
   return (
@@ -243,6 +253,8 @@ export default function Navbar({
           labels={labels}
           whatsappNumber={whatsappNumber}
           onLogin={handleLogin}
+          onVerifyTwoFactor={handleVerifyTwoFactor}
+          onResendTwoFactor={resendTwoFactor}
         />
       )}
     </div>

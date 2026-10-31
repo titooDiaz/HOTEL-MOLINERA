@@ -825,3 +825,21 @@ body.guest-dark-mode .reservation-request textarea {
 @media (prefers-reduced-motion: reduce) {
   .reserve-swap { animation: none; }
 }
+/* Campo del código de verificación en dos pasos. */
+.reserve-code-input {
+  letter-spacing: 0.5em;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.reserve-notice {
+  margin: 0;
+  color: #1f7a4d;
+  font-size: 0.9rem;
+}
+
+.reserve-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

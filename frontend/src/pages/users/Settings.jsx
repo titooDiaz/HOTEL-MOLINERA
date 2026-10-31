@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import RoomRequestsHero from "../../components/room_requests_hero/RoomRequestsHero.jsx";
 import PersonalDataCard from "../../components/settings/PersonalDataCard.jsx";
 import SecurityCard from "../../components/settings/SecurityCard.jsx";
+import TwoFactorCard from "../../components/settings/TwoFactorCard.jsx";
 import PreferencesCard from "../../components/settings/PreferencesCard.jsx";
 import ActivityHistoryCard from "../../components/settings/ActivityHistoryCard.jsx";
 import { apiRequest } from "../../api.js";
@@ -101,8 +102,9 @@ export default function Settings() {
           />
           {saving && <p role="status">Guardando perfil...</p>}
         </div>
-        <div className="col-12 col-lg-4">
+        <div className="col-12 col-lg-4 d-flex flex-column gap-4">
           <SecurityCard labels={COPY.security} />
+          <TwoFactorCard />
         </div>
         <div className="col-12 col-lg-4 d-flex flex-column gap-4">
           <PreferencesCard enabled={isDarkMode} onToggle={toggleDarkMode} title={COPY.preferences.title} label={COPY.preferences.darkModeLabel} />

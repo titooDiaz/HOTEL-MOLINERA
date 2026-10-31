@@ -7,6 +7,7 @@ import UsersTable from "../../components/settings_panels/UsersTable.jsx";
 import NotificationSettings from "../../components/settings_panels/NotificationSettings.jsx";
 import RegionalSettings from "../../components/settings_panels/RegionalSettings.jsx";
 import AppearanceSettings from "../../components/settings_panels/AppearanceSettings.jsx";
+import TwoFactorCard from "../../components/settings/TwoFactorCard.jsx";
 import { apiRequest, postJson } from "../../api.js";
 
 const HOTEL_FIELDS = [
@@ -129,6 +130,9 @@ export default function Configuracion() {
             </div>
 
             <div className="col-12 col-xl-5">
+              <div className="mb-3">
+                <TwoFactorCard />
+              </div>
               <div className="mb-3">
                 <AppearanceSettings labels={SETTINGS_COPY.appearance} />
               </div>
