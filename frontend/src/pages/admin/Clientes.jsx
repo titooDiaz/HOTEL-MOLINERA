@@ -27,7 +27,9 @@ export default function Clientes() {
   const [clients, setClients] = useState([]);
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [deletingClientId, setDeletingClientId] = useState(null);
 
   useEffect(() => {
     Promise.all([apiRequest("/api/clients"), apiRequest("/api/reservations")])
@@ -60,18 +62,43 @@ export default function Clientes() {
           { label: "Nuevos este mes", value: String(profiles.filter((profile) => new Date(profile.createdAt) >= monthStart).length), sub: "desde el inicio del mes" },
         ]);
       })
-      .catch((requestError) => setError(requestError.message))
+      .catch((requestError) => setLoadError(requestError.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (client) => {
+    if (!window.confirm(`¿Eliminar a ${client.name}? Se conservará su historial, pero ya no podrá iniciar sesión. No es posible eliminarlo si tiene reservas vigentes o futuras.`)) return;
+
+    setDeletingClientId(client.id);
+    setActionError("");
+    try {
+      await apiRequest(`/api/clients/${client.id}`, { method: "DELETE" });
+      setClients((current) => current.filter((item) => item.id !== client.id));
+      setStats((current) => current.map((card) => {
+        if (card.label === "Total clientes") {
+          return { ...card, value: String(Math.max(0, Number(card.value) - 1)) };
+        }
+        if (card.label === "Huéspedes activos" && client.room !== "—") {
+          return { ...card, value: String(Math.max(0, Number(card.value) - 1)) };
+        }
+        return card;
+      }));
+    } catch (requestError) {
+      setActionError(requestError.message);
+    } finally {
+      setDeletingClientId(null);
+    }
+  };
 
   return (
     <>
       <PageHeader title="Clientes" subtitle="Consulta el historial y los datos de contacto de tus huéspedes." actionLabel="+ Registrar cliente" onAction={() => navigate("/admin/clientes/nuevo")} />
       {loading && <p role="status">Cargando clientes...</p>}
-      {error && <p className="alert alert-danger" role="alert">{error}</p>}
-      {!loading && !error && <>
+      {loadError && <p className="alert alert-danger" role="alert">{loadError}</p>}
+      {actionError && <p className="alert alert-danger" role="alert">{actionError}</p>}
+      {!loading && !loadError && <>
         <SummaryCards cards={stats} columnClass="col-12 col-sm-4" />
-        <ClientsTable clients={clients} labels={LABELS.table} />
+        <ClientsTable clients={clients} labels={LABELS.table} onDelete={handleDelete} deletingClientId={deletingClientId} />
       </>}
     </>
   );

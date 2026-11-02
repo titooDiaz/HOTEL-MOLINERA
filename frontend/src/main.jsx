@@ -13,6 +13,7 @@ import PublicLayout from "./layouts/PublicLayout.jsx";
 import {
   App,
   Clientes,
+  ClienteDetalle,
   Configuracion,
   Contacto,
   Habitaciones,
@@ -69,6 +70,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/admin/reservas" element={<RoutePage component={Reservas} />} />
               <Route path="/admin/reservas/nueva" element={<RoutePage component={NuevaReserva} />} />
               <Route path="/admin/clientes" element={<RoutePage component={Clientes} />} />
+              <Route path="/admin/clientes/:id" element={<RoutePage component={ClienteDetalle} />} />
               <Route path="/admin/clientes/nuevo" element={<RoutePage component={NuevoCliente} />} />
               <Route path="/admin/restaurante" element={<RoutePage component={RestauranteAdmin} />} />
               <Route path="/admin/restaurante/nuevo" element={<RoutePage component={NuevoPedido} />} />

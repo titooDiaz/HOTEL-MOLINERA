@@ -8,6 +8,7 @@ import ReserveOptionsView from "./ReserveOptionsView.jsx";
 import ReserveRegisterForm from "./ReserveRegisterForm.jsx";
 import ReserveTwoFactorForm from "./ReserveTwoFactorForm.jsx";
 import ReservationForm from "../booking/ReservationForm.jsx";
+import { isCaptchaEnabled } from "../captcha/captchaConfig.js";
 import reserveModalEs from "./es.js";
 import "./ReserveModal.css";
 
@@ -45,6 +46,9 @@ function ReserveModalContent({
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Token del captcha del registro: se envía al backend junto con el formulario.
+  const [registerCaptchaToken, setRegisterCaptchaToken] = useState("");
+  const [captchaResetKey, setCaptchaResetKey] = useState(0);
   // Desafío de verificación en dos pasos devuelto por el servidor tras validar la contraseña.
   const [challenge, setChallenge] = useState(null);
   const [verifyCode, setVerifyCode] = useState("");
@@ -140,6 +144,9 @@ function ReserveModalContent({
     setError("");
     setNotice("");
     setShowPass(false);
+    // Cada intento de registro necesita un token nuevo.
+    setRegisterCaptchaToken("");
+    setCaptchaResetKey((current) => current + 1);
     setView(nextView);
   };
 
@@ -208,10 +215,18 @@ function ReserveModalContent({
     if (registerData.password !== registerData.confirm) {
       return setError(t.passMismatch);
     }
+    if (isCaptchaEnabled && !registerCaptchaToken) {
+      return setError(t.captchaRequired);
+    }
 
     if (onRegister) {
-      Promise.resolve(onRegister(registerData)).catch((registerError) => {
+      Promise.resolve(
+        onRegister({ ...registerData, captchaToken: registerCaptchaToken }),
+      ).catch((registerError) => {
         setError(registerError.message || t.registerError || t.loginError);
+        // El token es de un solo uso: el siguiente intento pide uno nuevo.
+        setRegisterCaptchaToken("");
+        setCaptchaResetKey((current) => current + 1);
       });
     }
     else console.log("Register:", registerData);
@@ -319,6 +334,9 @@ function ReserveModalContent({
             showPass={showPass}
             onTogglePass={() => setShowPass((current) => !current)}
             error={error}
+            captchaResetKey={captchaResetKey}
+            onCaptchaVerify={setRegisterCaptchaToken}
+            onCaptchaExpire={() => setRegisterCaptchaToken("")}
           />
         )}
 

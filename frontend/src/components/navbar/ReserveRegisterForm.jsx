@@ -1,5 +1,6 @@
 // Formulario de registro que recopila los datos de contacto y valida la contraseña.
 import { FormHeader, PasswordField } from "./ReserveModalFields.jsx";
+import TurnstileWidget from "../captcha/TurnstileWidget.jsx";
 
 export default function ReserveRegisterForm({
   hotelName,
@@ -11,6 +12,9 @@ export default function ReserveRegisterForm({
   showPass,
   onTogglePass,
   error,
+  captchaResetKey,
+  onCaptchaVerify,
+  onCaptchaExpire,
 }) {
   return (
     <aside key="register" className="reserve-form-panel reserve-swap">
@@ -149,6 +153,13 @@ export default function ReserveRegisterForm({
             />
             <span>{labels.terms}</span>
           </label>
+
+          <TurnstileWidget
+            action="register"
+            onVerify={onCaptchaVerify}
+            onExpire={onCaptchaExpire}
+            resetKey={captchaResetKey}
+          />
 
           {error && <p className="reserve-error">{error}</p>}
 

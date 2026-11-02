@@ -47,6 +47,7 @@ const reserveModalEs = {
   haveAccount: "¿Ya tienes cuenta?",
   passMismatch: "Las contraseñas no coinciden.",
   passShort: "La contraseña debe tener al menos 8 caracteres.",
+  captchaRequired: "Completa la verificación de seguridad.",
   loginError: "No fue posible iniciar sesión.",
   emailPlaceholder: "tucorreo@ejemplo.com",
   loginIdentifierPlaceholder: "tucorreo@ejemplo.com o 1098765432",

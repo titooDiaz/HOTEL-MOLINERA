@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Icon from "../icon/Icon.jsx";
+import TurnstileWidget from "../captcha/TurnstileWidget.jsx";
+import { isCaptchaEnabled } from "../captcha/captchaConfig.js";
 import "./ContactSection.css";
 
 const EMPTY_FORM = { name: "", email: "", subject: "", message: "" };
@@ -11,11 +13,20 @@ const EMPTY_FORM = { name: "", email: "", subject: "", message: "" };
  *  - information: { title, description, phone, email, address }  (cada uno con { label, value })
  *  - form: textos del formulario (name, namePlaceholder, ..., submit)
  *          opcionales: sending, successMessage, errorMessage
- *  - onSubmit: async (datos) => void. Si lanza error se muestra errorMessage.
+ *  - onSubmit: async (datos) => void. Si lanza error se muestra el mensaje del
+ *    servidor o, si no hay uno, errorMessage.
  */
 export default function ContactSection({ information, form, onSubmit }) {
   const [values, setValues] = useState(EMPTY_FORM);
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [errorMessage, setErrorMessage] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaResetKey, setCaptchaResetKey] = useState(0);
+
+  const resetCaptcha = () => {
+    setCaptchaToken("");
+    setCaptchaResetKey((current) => current + 1);
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -25,15 +36,28 @@ export default function ContactSection({ information, form, onSubmit }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (isCaptchaEnabled && !captchaToken) {
+      setErrorMessage("Completa la verificación de seguridad.");
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
+    setErrorMessage("");
 
     try {
-      await onSubmit?.(values);
+      await onSubmit?.({ ...values, captchaToken });
       setValues(EMPTY_FORM);
       setStatus("success");
+      resetCaptcha();
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
+      // Un TypeError viene de fetch (sin red); ahí preferimos el texto amable del formulario.
+      setErrorMessage(error instanceof TypeError ? "" : error.message);
       setStatus("error");
+      // El token es de un solo uso: hay que pedir uno nuevo para reintentar.
+      resetCaptcha();
     }
   };
 
@@ -178,6 +202,13 @@ export default function ContactSection({ information, form, onSubmit }) {
             </div>
           </div>
 
+          <TurnstileWidget
+            action="contact"
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken("")}
+            resetKey={captchaResetKey}
+          />
+
           <button type="submit" className="btn-reserve contact-submit" disabled={isSending}>
             {isSending ? form.sending ?? "Enviando..." : form.submit}
             {!isSending && (
@@ -195,7 +226,7 @@ export default function ContactSection({ information, form, onSubmit }) {
             )}
             {status === "error" && (
               <p className="contact-feedback contact-feedback-error">
-                {form.errorMessage ?? "No pudimos enviar tu mensaje. Inténtalo de nuevo."}
+                {errorMessage || form.errorMessage || "No pudimos enviar tu mensaje. Inténtalo de nuevo."}
               </p>
             )}
           </div>

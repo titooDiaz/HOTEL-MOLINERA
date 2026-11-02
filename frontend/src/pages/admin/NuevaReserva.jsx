@@ -1,6 +1,6 @@
 // Formulario administrativo para registrar una reserva con datos reales de huésped y habitación.
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
@@ -25,7 +25,7 @@ const COPY = {
   },
 };
 
-function createSections(clients, rooms) {
+function createSections(clients, rooms, selectedClientId) {
   return [
     {
       id: "guestAndRoom",
@@ -35,6 +35,7 @@ function createSections(clients, rooms) {
           id: "clientId",
           label: "Cliente",
           placeholder: "Selecciona un cliente",
+          defaultValue: selectedClientId || "",
           required: true,
           options: clients.map(({ id, firstName, lastName, usuario }) => ({
             value: String(id),
@@ -89,6 +90,8 @@ function findRoom(rooms, id) {
 
 export default function NuevaReserva() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedClientId = searchParams.get("clientId") || "";
   const [data, setData] = useState({ clients: [], rooms: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -105,7 +108,10 @@ export default function NuevaReserva() {
       .finally(() => setLoading(false));
   }, []);
 
-  const sections = useMemo(() => createSections(data.clients, data.rooms), [data]);
+  const sections = useMemo(
+    () => createSections(data.clients, data.rooms, selectedClientId),
+    [data, selectedClientId],
+  );
 
   const validate = (payload) => {
     const room = findRoom(data.rooms, payload.roomId);

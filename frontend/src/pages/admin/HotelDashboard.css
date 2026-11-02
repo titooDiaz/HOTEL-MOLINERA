@@ -120,6 +120,14 @@
 .admin-table-secondary { display: block; margin-top: .2rem; color: var(--text-muted); font-size: .75rem; font-weight: 400; }
 .admin-table-action { min-width: 2rem; border: 0; border-radius: .4rem; color: var(--text-secondary); background: transparent; font-weight: 700; letter-spacing: .08em; }
 .admin-table-action:hover { color: var(--text-primary); background: var(--bg-hover); }
+.client-actions { position: relative; }
+.client-actions > summary { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; list-style: none; }
+.client-actions > summary::-webkit-details-marker { display: none; }
+.client-actions-menu { position: absolute; z-index: 5; top: calc(100% + .25rem); right: 0; display: grid; min-width: 12rem; padding: .35rem; border: 1px solid var(--border-color); border-radius: .625rem; background: var(--bg-surface); box-shadow: 0 .5rem 1rem rgb(15 23 42 / 12%); }
+.client-actions-menu a, .client-actions-menu button { padding: .55rem .65rem; border: 0; border-radius: .35rem; color: var(--text-primary); background: transparent; font: inherit; font-size: .8125rem; text-align: left; text-decoration: none; white-space: nowrap; }
+.client-actions-menu a:hover, .client-actions-menu button:hover { background: var(--bg-hover); }
+.client-actions-menu .client-actions-delete { color: #be123c; }
+.client-actions-menu button:disabled { opacity: .6; cursor: wait; }
 .admin-status-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .3rem .55rem; font-size: .7rem; font-weight: 600; white-space: nowrap; }
 .admin-status-badge.badge-pill-emerald { color: #047857; background: #d1fae5; }
 .admin-status-badge.badge-pill-rose { color: #be123c; background: #ffe4e6; }

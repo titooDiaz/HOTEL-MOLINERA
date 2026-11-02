@@ -73,6 +73,7 @@ export default function PublicLayout() {
       emergencyPhone: registerData.emergencyPhone,
       notes: registerData.notes,
       password: registerData.password,
+      captchaToken: registerData.captchaToken,
     });
     closeReserveModal();
     navigate("/mi-habitacion");

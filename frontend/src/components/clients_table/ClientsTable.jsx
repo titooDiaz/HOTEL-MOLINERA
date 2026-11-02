@@ -1,7 +1,8 @@
 // Muestra los clientes del hotel y sus datos en una tabla administrativa.
+import { Link } from "react-router-dom";
 import Tooltip from "../tooltip/Tooltip.jsx";
 
-export default function ClientsTable({ clients, labels }) {
+export default function ClientsTable({ clients, labels, onDelete, deletingClientId }) {
   return (
     <section className="card-panel admin-data-panel">
       <div className="admin-panel-heading"><h2 className="admin-panel-title">{labels.title}</h2></div>
@@ -15,9 +16,23 @@ export default function ClientsTable({ clients, labels }) {
                 <td>{client.room}</td><td>{client.spent}</td>
                 <td><span className={`admin-status-badge ${client.statusClass}`}>{client.status}</span></td>
                 <td>
-                  <Tooltip label={`Acciones para ${client.name}`}>
-                    <button className="admin-table-action" type="button" aria-label={`Acciones para ${client.name}`}>•••</button>
-                  </Tooltip>
+                  <details className="client-actions">
+                    <summary className="admin-table-action" aria-label={`Acciones para ${client.name}`}>
+                      <Tooltip label={`Acciones para ${client.name}`}>•••</Tooltip>
+                    </summary>
+                    <div className="client-actions-menu">
+                      <Link to={`/admin/clientes/${client.id}`}>Ver perfil e historial</Link>
+                      <Link to={`/admin/reservas/nueva?clientId=${client.id}`}>Crear reserva</Link>
+                      <button
+                        type="button"
+                        className="client-actions-delete"
+                        disabled={deletingClientId === client.id}
+                        onClick={() => onDelete(client)}
+                      >
+                        {deletingClientId === client.id ? "Eliminando..." : "Eliminar cliente"}
+                      </button>
+                    </div>
+                  </details>
                 </td>
               </tr>
             ))}

@@ -19,6 +19,7 @@ export const NuevaHabitacion = lazy(() => import("../pages/admin/NuevaHabitacion
 export const Reservas = lazy(() => import("../pages/admin/Reservas.jsx"));
 export const NuevaReserva = lazy(() => import("../pages/admin/NuevaReserva.jsx"));
 export const Clientes = lazy(() => import("../pages/admin/Clientes.jsx"));
+export const ClienteDetalle = lazy(() => import("../pages/admin/ClienteDetalle.jsx"));
 export const NuevoCliente = lazy(() => import("../pages/admin/NuevoCliente.jsx"));
 export const RestauranteAdmin = lazy(() => import("../pages/admin/RestauranteAdmin.jsx"));
 export const NuevoPedido = lazy(() => import("../pages/admin/NuevoPedido.jsx"));

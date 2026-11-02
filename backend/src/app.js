@@ -7,6 +7,7 @@ const { Op } = require('sequelize');
 const { models, sequelize } = require('./database');
 const { hashPassword, verifyPassword, hashToken, createToken } = require('./auth');
 const twoFactor = require('./twoFactor');
+const { verifyCaptcha } = require('./captcha');
 
 const app = express();
 const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, MensajeContacto } = models;
@@ -131,7 +132,7 @@ const audit = (req, action) => models.Auditoria.create({
 
 app.get('/api/hotel', (_req, res) => res.json({ name: process.env.HOTEL_NAME || 'Hotel Molinera' }));
 
-app.post('/api/auth/register', asyncHandler(async (req, res) => {
+app.post('/api/auth/register', verifyCaptcha('register'), asyncHandler(async (req, res) => {
     const { name, email, password, phone, documentType = 'CC', documentNumber, birthDate, nationality, city, address, emergencyName, emergencyPhone, notes } = req.body;
     requireFields(req.body, ['name', 'email', 'password', 'phone', 'documentNumber']);
     if (String(password).length < 8) throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres.');
@@ -424,6 +425,54 @@ app.get('/api/clients', ...adminOnly, asyncHandler(async (_req, res) => {
     res.json(clients);
 }));
 
+app.get('/api/clients/:id', ...adminOnly, asyncHandler(async (req, res) => {
+    const client = await Huesped.findByPk(req.params.id, {
+        include: [{ model: Usuario, as: 'usuario', attributes: ['id', 'email', 'createdAt'] }]
+    });
+    if (!client || !client.isActive) throw new HttpError(404, 'No se encontró el cliente.');
+
+    const reservations = await Reserva.findAll({
+        where: { userId: client.userId },
+        include: [{ model: Habitacion, as: 'habitacion', attributes: ['id', 'number', 'type'] }],
+        order: [['createdAt', 'DESC']]
+    });
+    res.json({ ...client.toJSON(), reservas: reservations });
+}));
+
+app.delete('/api/clients/:id', ...adminOnly, asyncHandler(async (req, res) => {
+    const client = await Huesped.findByPk(req.params.id, {
+        include: [{ model: Usuario, as: 'usuario' }]
+    });
+    if (!client || !client.isActive || !client.usuario) throw new HttpError(404, 'No se encontró el cliente.');
+
+    const today = new Date().toISOString().slice(0, 10);
+    const activeReservation = await Reserva.findOne({
+        where: {
+            userId: client.userId,
+            status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+            checkOut: { [Op.gt]: today }
+        }
+    });
+    if (activeReservation) {
+        throw new HttpError(409, 'No se puede eliminar un cliente con reservas vigentes o futuras.');
+    }
+
+    const transaction = await sequelize.transaction();
+    try {
+        await client.destroy({ transaction });
+        await client.usuario.update({
+            isActive: false,
+            rememberTokenHash: null
+        }, { transaction });
+        await client.usuario.destroy({ transaction });
+        await transaction.commit();
+        res.status(204).end();
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
 app.post('/api/clients', ...adminOnly, asyncHandler(async (req, res) => {
     const data = req.body;
     requireFields(data, ['firstName', 'lastName', 'documentNumber', 'email', 'phone', 'password']);
@@ -693,7 +742,7 @@ app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
     }
 }));
 
-app.post('/api/contact', asyncHandler(async (req, res) => {
+app.post('/api/contact', verifyCaptcha('contact'), asyncHandler(async (req, res) => {
     requireFields(req.body, ['name', 'email', 'subject', 'message']);
     const message = await MensajeContacto.create({
         name: String(req.body.name).trim(),
