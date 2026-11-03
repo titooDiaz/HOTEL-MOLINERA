@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar.jsx";
 import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
+import Chatbot from "../components/chatbot/Chatbot.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
 import { room, roomFromApi } from "../roomData.js";
@@ -101,6 +102,7 @@ export default function PublicLayout() {
       <Footer hotelName={hotelData?.name} />
 
       <WhatsAppButton ariaLabel="Contactar por WhatsApp" phone={WHATSAPP_NUMBER} />
+      <Chatbot />
 
       <ReserveModal
         isOpen={isReserveOpen}

@@ -10,6 +10,69 @@ const twoFactor = require('./twoFactor');
 const { verifyCaptcha } = require('./captcha');
 
 const app = express();
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:0.5b';
+const CHAT_SYSTEM_PROMPT = [
+    'Eres el asistente virtual de Hotel Molinera.',
+    'Responde siempre en español, de forma amable, breve y útil.',
+    'Ayuda con habitaciones, reservas, planes, restaurante y contacto.',
+    'No inventes precios, disponibilidad ni políticas. Si no tienes el dato, indica que deben contactar al hotel por WhatsApp.',
+    'No solicites contraseñas, datos bancarios ni claves de acceso.'
+].join(' ');
+
+const buildChatContext = async (user) => {
+    const [rooms, plans, foods] = await Promise.all([
+        Habitacion.findAll({
+            where: { isVisible: true, isBookable: true, status: 'disponible' },
+            attributes: ['number', 'type', 'capacity', 'pricePerNight', 'beds', 'bedType', 'description', 'wifi', 'airConditioning', 'privateBathroom'],
+            order: [['number', 'ASC']]
+        }),
+        Plan.findAll({
+            where: { isVisible: true, isBookable: true },
+            attributes: ['name', 'summary', 'description', 'price', 'currency', 'services', 'terms'],
+            order: [['sortOrder', 'ASC']]
+        }),
+        Comida.findAll({
+            where: { isVisible: true, isAvailable: true, isSoldOut: false },
+            attributes: ['name', 'description', 'price', 'currency', 'ingredients', 'allergens'],
+            order: [['sortOrder', 'ASC']]
+        })
+    ]);
+
+    const context = {
+        fecha: new Date().toISOString().slice(0, 10),
+        habitacionesDisponibles: rooms.map((room) => room.toJSON()),
+        planesDisponibles: plans.map((plan) => plan.toJSON()),
+        menuDisponible: foods.map((food) => food.toJSON())
+    };
+
+    if (!user) return context;
+
+    const [reservations, orders] = await Promise.all([
+        Reserva.findAll({
+            where: { userId: user.id },
+            attributes: ['reservationCode', 'checkIn', 'checkOut', 'status', 'guests', 'total', 'balance', 'paymentStatus'],
+            include: [{ model: Habitacion, as: 'habitacion', attributes: ['number', 'type'] }],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+        }),
+        Pedido.findAll({
+            where: { userId: user.id },
+            attributes: ['orderCode', 'status', 'paymentStatus', 'total', 'requestedAt'],
+            include: [{ model: DetallePedido, as: 'detalles', attributes: ['foodName', 'quantity', 'totalPrice'] }],
+            order: [['requestedAt', 'DESC']],
+            limit: 10
+        })
+    ]);
+
+    context.usuario = {
+        nombre: user.huesped ? `${user.huesped.firstName} ${user.huesped.lastName}`.trim() : user.email,
+        rol: user.role
+    };
+    context.misReservas = reservations.map((reservation) => reservation.toJSON());
+    context.misPedidos = orders.map((order) => order.toJSON());
+    return context;
+};
 const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, MensajeContacto } = models;
 const uploadDirectory = path.join(__dirname, '../uploads');
 const imageExtensions = {
@@ -131,6 +194,51 @@ const audit = (req, action) => models.Auditoria.create({
 });
 
 app.get('/api/hotel', (_req, res) => res.json({ name: process.env.HOTEL_NAME || 'Hotel Molinera' }));
+
+app.post('/api/chat', optionalAuthentication, asyncHandler(async (req, res) => {
+    const inputMessages = Array.isArray(req.body?.messages) ? req.body.messages : [];
+    const messages = inputMessages
+        .filter((message) => ['user', 'assistant'].includes(message?.role) && typeof message.content === 'string')
+        .slice(-10)
+        .map((message) => ({ role: message.role, content: message.content.trim().slice(0, 500) }))
+        .filter((message) => message.content);
+
+    if (!messages.length || messages[messages.length - 1].role !== 'user') {
+        throw new HttpError(400, 'Escribe una pregunta para el asistente.');
+    }
+
+    let response;
+    try {
+        const context = await buildChatContext(req.user);
+        response = await fetch(`${OLLAMA_URL}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: OLLAMA_MODEL,
+                stream: false,
+                messages: [
+                    { role: 'system', content: `${CHAT_SYSTEM_PROMPT}\n\nDATOS ACTUALES DEL HOTEL Y DEL USUARIO (úsalos como fuente de verdad; no reveles datos privados):\n${JSON.stringify(context)}` },
+                    ...messages
+                ]
+            }),
+            signal: AbortSignal.timeout(30000)
+        });
+    } catch (error) {
+        console.error('No se pudo conectar con Ollama:', error.message);
+        throw new HttpError(503, 'El asistente local no está disponible. Ejecuta Ollama y descarga el modelo configurado.');
+    }
+
+    if (!response.ok) {
+        const detail = await response.text();
+        console.error(`Ollama respondió HTTP ${response.status}:`, detail);
+        throw new HttpError(503, 'El asistente local no está disponible. Verifica que el modelo esté descargado.');
+    }
+
+    const payload = await response.json();
+    const message = payload.message?.content?.trim();
+    if (!message) throw new HttpError(503, 'El asistente no pudo generar una respuesta.');
+    res.json({ message });
+}));
 
 app.post('/api/auth/register', verifyCaptcha('register'), asyncHandler(async (req, res) => {
     const { name, email, password, phone, documentType = 'CC', documentNumber, birthDate, nationality, city, address, emergencyName, emergencyPhone, notes } = req.body;
