@@ -6,7 +6,7 @@ import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
 import Chatbot from "../components/chatbot/Chatbot.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
-import { room, roomFromApi } from "../roomData.js";
+import { room as defaultRoom, roomFromApi } from "../roomData.js";
 import { apiRequest } from "../api.js";
 
 const DEFAULT_NAVBAR_LABELS = {
@@ -23,23 +23,35 @@ const WHATSAPP_NUMBER = "584147015219";
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
   const [apiRooms, setApiRooms] = useState([]);
-  const [selectedRoom, setSelectedRoom] = useState(room);
+  const [selectedRoom, setSelectedRoom] = useState(defaultRoom);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, login, verifyTwoFactor, resendTwoFactor, register, saveReservation } = useAuth();
+  const { user, reservation, login, verifyTwoFactor, resendTwoFactor, register, saveReservation } = useAuth();
   const rooms = apiRooms;
+  const reservableRooms = rooms.filter((currentRoom) => currentRoom.isAvailable !== false);
 
   useEffect(() => {
     apiRequest("/api/hotel").then((hotel) => {
       const savedInfo = JSON.parse(localStorage.getItem("hotel-molinera-info") || "{}");
       setHotelData({ ...hotel, name: savedInfo["hotel-name"] || hotel.name });
     }).catch((err) => console.error("Error al obtener información del hotel:", err));
-    apiRequest("/api/rooms")
+    apiRequest("/api/rooms?catalog=true", { cache: "no-store" })
       .then((records) => setApiRooms(records.map(roomFromApi)))
       .catch((err) => console.error("Error al obtener habitaciones:", err));
   }, []);
 
-  const openReserveModal = (availableRoom = room) => {
+  const openReserveModal = (requestedRoom = null) => {
+    if (user?.role === "guest" && reservation) {
+      navigate("/mi-habitacion");
+      return;
+    }
+    if (!reservableRooms.length) {
+      window.alert("En este momento no hay habitaciones disponibles para reservar.");
+      return;
+    }
+    const availableRoom = requestedRoom?.isAvailable !== false && requestedRoom
+      ? requestedRoom
+      : reservableRooms[0];
     setSelectedRoom(availableRoom);
     setIsReserveOpen(true);
   };
@@ -115,8 +127,8 @@ export default function PublicLayout() {
         onResendTwoFactor={resendTwoFactor}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}
-        room={rooms.find(({ id }) => id === selectedRoom.id) || rooms[0] || selectedRoom}
-        rooms={rooms}
+        room={reservableRooms.find(({ id }) => id === selectedRoom.id) || reservableRooms[0] || selectedRoom}
+        rooms={reservableRooms}
         onReserve={handleReservation}
       />
     </div>

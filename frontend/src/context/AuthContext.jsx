@@ -1,5 +1,5 @@
 // Compartimos el estado de acceso y las reservas del usuario.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiRequest, clearAuthToken, getAuthToken, saveAuthToken } from "../api.js";
 import { AuthContext } from "./authContext.js";
 
@@ -9,14 +9,14 @@ export function AuthProvider({ children }) {
   const [reservation, setReservation] = useState(null);
   const [isLoading, setIsLoading] = useState(() => Boolean(getAuthToken()));
 
-  const loadGuestReservation = async (sessionUser) => {
+  const loadGuestReservation = useCallback(async (sessionUser) => {
     if (sessionUser.role !== "guest") {
       setReservation(null);
       return;
     }
 
     try {
-      const reservations = await apiRequest("/api/me/reservations");
+      const reservations = await apiRequest("/api/me/reservations", { cache: "no-store" });
       const latest = reservations[0];
       setReservation(latest ? {
         ...latest,
@@ -25,10 +25,26 @@ export function AuthProvider({ children }) {
           : "Habitación por asignar",
       } : null);
     } catch (error) {
-      setReservation(null);
       console.error("No se pudieron cargar las reservas del huésped:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (user?.role !== "guest") return undefined;
+
+    const refreshVisibleReservation = () => {
+      if (document.visibilityState === "visible") loadGuestReservation(user);
+    };
+    const intervalId = window.setInterval(refreshVisibleReservation, 5000);
+    document.addEventListener("visibilitychange", refreshVisibleReservation);
+    window.addEventListener("focus", refreshVisibleReservation);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", refreshVisibleReservation);
+      window.removeEventListener("focus", refreshVisibleReservation);
+    };
+  }, [user, loadGuestReservation]);
 
   useEffect(() => {
     if (!getAuthToken()) return;
@@ -116,9 +132,7 @@ export function AuthProvider({ children }) {
         ? `Habitación ${reservationResponse.habitacion.number}`
         : reservationData.roomName,
     };
-    // Las solicitudes pendientes se guardan en la base de datos, pero no se
-    // muestran al huésped hasta que un administrador las apruebe.
-    setReservation(nextReservation.status === "confirmada" ? nextReservation : null);
+    setReservation(nextReservation);
     return nextReservation;
   };
 

@@ -443,15 +443,19 @@ app.get('/api/me/activity', authenticate, asyncHandler(async (req, res) => {
 
 app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
     const isAdmin = req.user?.role === 'admin';
-    const where = isAdmin ? {} : { isVisible: true, isBookable: true, status: 'disponible' };
+    const catalogMode = req.query.catalog === 'true';
+    const adminManagementMode = isAdmin && !catalogMode;
+    const where = adminManagementMode
+        ? {}
+        : { isVisible: true, isBookable: true, ...(catalogMode ? {} : { status: 'disponible' }) };
     let rooms = await Habitacion.findAll({
         where,
         order: [['number', 'ASC']],
-        paranoid: !isAdmin
+        paranoid: !adminManagementMode
     });
     // Una solicitud pendiente también bloquea la habitación para evitar que
     // otro huésped la seleccione mientras el administrador la revisa.
-    if (!isAdmin) {
+    if (!adminManagementMode) {
         const today = new Date().toISOString().slice(0, 10);
         const blockedReservations = await Reserva.findAll({
             attributes: ['roomId'],
@@ -462,7 +466,18 @@ app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
             raw: true
         });
         const blockedRoomIds = new Set(blockedReservations.map(({ roomId }) => String(roomId)));
-        rooms = rooms.filter((room) => !blockedRoomIds.has(String(room.id)));
+        if (catalogMode) {
+            rooms = rooms.map((room) => {
+                const isReserved = blockedRoomIds.has(String(room.id));
+                return {
+                    ...room.toJSON(),
+                    isReserved,
+                    isAvailable: room.status === 'disponible' && !isReserved
+                };
+            });
+        } else {
+            rooms = rooms.filter((room) => !blockedRoomIds.has(String(room.id)));
+        }
     }
     res.json(rooms);
 }));
@@ -633,10 +648,13 @@ app.get('/api/reservations', ...adminOnly, asyncHandler(async (_req, res) => {
 }));
 
 app.get('/api/me/reservations', authenticate, asyncHandler(async (req, res) => {
+    const today = new Date().toISOString().slice(0, 10);
     const reservations = await Reserva.findAll({
-        // Las solicitudes en revisión no se muestran al huésped hasta que
-        // un administrador las confirme.
-        where: { userId: req.user.id, status: 'confirmada' },
+        where: {
+            userId: req.user.id,
+            status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+            checkOut: { [Op.gte]: today }
+        },
         include: [{ model: Habitacion, as: 'habitacion' }],
         order: [['createdAt', 'DESC']]
     });
@@ -650,6 +668,19 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
     const end = parseDate(checkOut);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
         throw new HttpError(400, 'La fecha de salida debe ser posterior a la fecha de entrada.');
+    }
+    if (req.user.role === 'guest') {
+        const today = new Date().toISOString().slice(0, 10);
+        const activeReservation = await Reserva.findOne({
+            where: {
+                userId: req.user.id,
+                status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+                checkOut: { [Op.gte]: today }
+            }
+        });
+        if (activeReservation) {
+            throw new HttpError(409, 'Ya tienes una solicitud o reserva activa. Revisa “Mi habitación” antes de enviar otra.');
+        }
     }
     const room = await Habitacion.findByPk(roomId);
     if (!room || !room.isActive || !room.isVisible || !room.isBookable || room.status !== 'disponible') {
@@ -838,6 +869,102 @@ app.get('/api/orders', ...adminOnly, asyncHandler(async (_req, res) => {
         order: [['requestedAt', 'DESC']]
     });
     res.json(orders);
+}));
+
+app.patch('/api/orders/:id/items', ...adminOnly, asyncHandler(async (req, res) => {
+    const { items } = req.body;
+    if (!Array.isArray(items) || !items.length) throw new HttpError(400, 'Agrega al menos un producto para actualizar el pedido.');
+
+    const order = await Pedido.findByPk(req.params.id, {
+        include: [{ model: DetallePedido, as: 'detalles' }]
+    });
+    if (!order) throw new HttpError(404, 'No se encontró el pedido.');
+    if (order.status === 'cancelado') throw new HttpError(400, 'No se pueden agregar productos a un pedido cancelado.');
+
+    const foodIds = [...new Set(items.map((item) => Number(item.id)))];
+    const foods = await Comida.findAll({ where: { id: foodIds, isVisible: true, isAvailable: true, isSoldOut: false } });
+    const foodsById = new Map(foods.map((food) => [String(food.id), food]));
+    if (foods.length !== foodIds.length) throw new HttpError(400, 'Uno o más productos ya no están disponibles.');
+
+    const lines = items.map((item) => {
+        const food = foodsById.get(String(item.id));
+        const quantity = Number(item.quantity);
+        if (!food) throw new HttpError(400, 'Uno o más productos no están disponibles.');
+        if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) throw new HttpError(400, 'Cantidad de producto no válida.');
+        return { food, quantity, totalPrice: Number(food.price) * quantity };
+    });
+
+    const addition = lines.reduce((total, line) => total + line.totalPrice, 0);
+    const orderLines = await DetallePedido.bulkCreate(lines.map(({ food, quantity, totalPrice }) => ({
+        orderId: order.id,
+        foodId: food.id,
+        foodName: food.name,
+        quantity,
+        unitPrice: food.price,
+        totalPrice,
+        createdByUserId: req.user.id
+    })));
+
+    order.subtotal = Number(order.subtotal) + addition;
+    order.total = Number(order.total) + addition;
+    if (req.body.notes) {
+        order.notes = req.body.notes;
+    }
+    await order.save();
+
+    res.json({
+        order: await Pedido.findByPk(order.id, { include: [{ model: DetallePedido, as: 'detalles' }] }),
+        addedItems: orderLines.length
+    });
+}));
+
+app.patch('/api/orders/:id/status', ...adminOnly, asyncHandler(async (req, res) => {
+    const { status, reason } = req.body;
+    const allowedStatus = ['pendiente', 'preparando', 'preparado', 'entregado', 'cancelado'];
+    if (!allowedStatus.includes(status)) {
+        throw new HttpError(400, 'El estado del pedido no es válido.');
+    }
+    const order = await Pedido.findByPk(req.params.id);
+    if (!order) throw new HttpError(404, 'No se encontró el pedido.');
+
+    const nextData = { status, updatedByUserId: req.user.id };
+    if (status === 'cancelado') {
+        nextData.cancelledAt = new Date();
+        nextData.cancellationReason = reason || 'Cancelado por el administrador.';
+    } else {
+        nextData.cancelledAt = null;
+        nextData.cancellationReason = null;
+    }
+    if (status === 'entregado') nextData.deliveredAt = new Date();
+    if (status === 'preparado') nextData.preparedAt = new Date();
+
+    await order.update(nextData);
+    res.json(order);
+}));
+
+app.patch('/api/orders/:id/payment', ...adminOnly, asyncHandler(async (req, res) => {
+    const { paymentStatus, paymentMethod } = req.body;
+    if (!['pendiente', 'pagado'].includes(paymentStatus)) {
+        throw new HttpError(400, 'El estado de pago no es válido.');
+    }
+    const order = await Pedido.findByPk(req.params.id);
+    if (!order) throw new HttpError(404, 'No se encontró el pedido.');
+    if (order.status === 'cancelado' && paymentStatus === 'pagado') {
+        throw new HttpError(400, 'No se puede marcar como pagado un pedido cancelado.');
+    }
+    if (paymentStatus === 'pagado' && !['efectivo', 'tarjeta', 'cargo'].includes(paymentMethod)) {
+        throw new HttpError(400, 'Selecciona un método de pago válido.');
+    }
+
+    const update = { paymentStatus, updatedByUserId: req.user.id };
+    if (paymentStatus === 'pagado') {
+        update.paidAt = new Date();
+        update.paymentMethod = paymentMethod;
+    } else {
+        update.paidAt = null;
+    }
+    await order.update(update);
+    res.json(order);
 }));
 
 app.get('/api/me/orders', authenticate, asyncHandler(async (req, res) => {

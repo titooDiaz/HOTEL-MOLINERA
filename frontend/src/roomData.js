@@ -110,6 +110,8 @@ export function roomFromApi(record) {
     checkIn: record.checkInTime || "3:00 p.m.",
     checkOut: record.checkOutTime || "12:00 m.",
     maxGuests: record.capacity,
+    isAvailable: record.isAvailable ?? record.status === "disponible",
+    isReserved: Boolean(record.isReserved),
     image,
     gallery: roomGallery,
   };

@@ -4,8 +4,12 @@ import InfoRow from "../info_row/InfoRow.jsx";
 import "./BookingCard.css";
 
 export default function BookingCard({ room, labels, onReserve }) {
+  const canReserve = room.isAvailable !== false;
+  const unavailableLabel = room.isReserved ? labels.reserved : labels.unavailable;
+
   return (
     <div className="booking-card">
+      {!canReserve && <p className="room-availability-badge" role="status">{unavailableLabel}</p>}
       <p className="small text-secondary mb-1">{labels.from}</p>
       <p className="fw-bold text-dark mb-0 price">{room.price}</p>
       <p className="small text-secondary mb-4">{labels.perNight}</p>
@@ -14,9 +18,11 @@ export default function BookingCard({ room, labels, onReserve }) {
         type="button"
         className="w-100 btn-reserve booking-button mb-4"
         onClick={onReserve}
+        disabled={!canReserve}
+        aria-label={canReserve ? labels.reserve : unavailableLabel}
       >
-        {labels.reserve}
-        <Icon size={16}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
+        {canReserve ? labels.reserve : unavailableLabel}
+        {canReserve && <Icon size={16}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>}
       </button>
 
       <div className="d-flex align-items-start gap-3 pb-4 mb-4 border-bottom">

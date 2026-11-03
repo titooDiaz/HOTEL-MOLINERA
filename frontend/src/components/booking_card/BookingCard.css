@@ -1,3 +1,5 @@
+.room-availability-badge { display: inline-flex; margin: 0 0 .75rem; padding: .35rem .65rem; border-radius: 999px; color: #9f1239; background: #ffe4e6; font-size: .75rem; font-weight: 700; }
+.booking-button:disabled { opacity: .58; cursor: not-allowed; filter: grayscale(.25); }
 /* Comentamos los estilos de BookingCard. */
 .booking-card {
   height: fit-content;

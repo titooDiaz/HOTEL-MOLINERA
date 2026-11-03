@@ -1,6 +1,6 @@
 // Formulario administrativo para registrar pedidos con menú y habitaciones reales.
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import AdminForm from "../../components/admin_form/AdminForm.jsx";
@@ -20,7 +20,7 @@ const COPY = {
   emptyItems: "Agrega al menos un producto al pedido.",
 };
 
-function createSections(reservations, foods) {
+function createSections(reservations, foods, defaultRoomId = "") {
   const activeByRoom = new Map();
   const today = new Date().toISOString().slice(0, 10);
   reservations
@@ -39,6 +39,7 @@ function createSections(reservations, foods) {
           label: "Habitación",
           placeholder: "Selecciona una habitación con huésped",
           required: true,
+          defaultValue: defaultRoomId,
           options: [...activeByRoom.values()].map((reservation) => ({
             value: String(reservation.roomId),
             label: `Hab. ${reservation.habitacion.number} · ${reservation.usuario.huesped.firstName} ${reservation.usuario.huesped.lastName}`,
@@ -74,9 +75,13 @@ function createSections(reservations, foods) {
 
 export default function NuevoPedido() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState({ reservations: [], foods: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const params = new URLSearchParams(location.search);
+  const existingOrderId = params.get("orderId");
+  const defaultRoomId = params.get("roomId") || "";
 
   useEffect(() => {
     Promise.all([apiRequest("/api/reservations"), apiRequest("/api/foods")])
@@ -85,8 +90,21 @@ export default function NuevoPedido() {
       .finally(() => setLoading(false));
   }, []);
 
-  const sections = useMemo(() => createSections(data.reservations, data.foods), [data]);
+  const sections = useMemo(() => createSections(data.reservations, data.foods, defaultRoomId), [data, defaultRoomId]);
   const validate = (payload) => payload.items.length ? null : COPY.emptyItems;
+  const formTitle = existingOrderId ? "Agregar productos al pedido" : "Nuevo pedido";
+  const formSubtitle = existingOrderId
+    ? "Añade más elementos al mismo pedido sin crear uno nuevo."
+    : "Registra un pedido de alimentos y bebidas para una habitación.";
+  const submitOrder = async (values) => {
+    if (existingOrderId) {
+      return apiRequest(`/api/orders/${existingOrderId}/items`, {
+        method: "PATCH",
+        body: JSON.stringify(values),
+      });
+    }
+    return postJson("/api/orders", values);
+  };
   const renderSummary = (payload) => {
     if (!payload.items.length) return null;
     const selected = payload.items.map((line) => ({
@@ -113,7 +131,7 @@ export default function NuevoPedido() {
 
   return (
     <>
-      <PageHeader title="Nuevo pedido" subtitle="Registra un pedido de alimentos y bebidas para una habitación.">
+      <PageHeader title={formTitle} subtitle={formSubtitle}>
         <Link to="/admin/restaurante" className="admin-action-button admin-action-button--outline">← Volver al restaurante</Link>
       </PageHeader>
       {loading && <p role="status">Cargando menú y habitaciones...</p>}
@@ -125,7 +143,7 @@ export default function NuevoPedido() {
             labels={COPY.form}
             validate={validate}
             summary={renderSummary}
-            onSubmit={(values) => postJson("/api/orders", values)}
+            onSubmit={submitOrder}
             onCancel={() => navigate("/admin/restaurante")}
           />
         ) : <p className="alert alert-warning">Se necesita una estadía activa y al menos un producto disponible para registrar el pedido.</p>

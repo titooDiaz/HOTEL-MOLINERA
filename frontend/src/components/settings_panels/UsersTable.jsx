@@ -1,5 +1,6 @@
 // Presenta usuarios y permite crear cuentas administrativas o de huésped.
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function UsersTable({ users, labels, onInvite }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -79,7 +80,15 @@ export default function UsersTable({ users, labels, onInvite }) {
               <td><strong>{user.name}</strong><small className="admin-table-secondary">{user.email}</small></td>
               <td>{user.role === "admin" ? "Administrador" : "Huésped"}</td>
               <td><span className={`admin-status-badge ${user.statusClass}`}>{user.status}</span></td>
-              <td><button className="admin-table-action" type="button" aria-label={`Acciones para ${user.name}`}>•••</button></td>
+              <td>
+                <details className="client-actions">
+                  <summary className="admin-table-action" aria-label={`Acciones para ${user.name}`}>•••</summary>
+                  <div className="client-actions-menu">
+                    <Link to={`/admin/clientes/${user.id}`}>Ver perfil</Link>
+                    <Link to={`/admin/reservas/nueva?clientId=${user.id}`}>Crear reserva</Link>
+                  </div>
+                </details>
+              </td>
             </tr>
           ))}</tbody>
         </table>

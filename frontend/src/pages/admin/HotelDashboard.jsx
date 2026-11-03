@@ -45,7 +45,7 @@ export default function HotelDashboard() {
     const occupiedRoomIds = new Set(activeReservations.map((reservation) => String(reservation.roomId)));
     const todayReservations = data.reservations.filter((reservation) => reservation.checkIn === today);
     const todaysOrders = data.orders.filter((order) => new Date(order.requestedAt).toISOString().slice(0, 10) === today);
-    const paidOrdersToday = todaysOrders.filter((order) => order.paymentStatus === "pagado");
+    const paidOrdersToday = todaysOrders.filter((order) => order.paymentStatus === "pagado" && order.status !== "cancelado");
     const clientCount = new Set(activeReservations.map((reservation) => String(reservation.userId))).size;
     const occupancy = data.rooms.length ? Math.round(occupiedRoomIds.size / data.rooms.length * 100) : 0;
     const roomTypeCounts = new Map();

@@ -112,7 +112,7 @@
 .admin-view .filter-select:focus,
 .admin-form-control:focus { border-color: var(--rose-500); outline: 0; box-shadow: 0 0 0 3px var(--rose-200); }
 
-.admin-table-wrap { width: 100%; overflow-x: auto; }
+.admin-table-wrap { position: relative; z-index: 1; width: 100%; overflow-x: auto; overflow-y: visible; }
 .admin-view .admin-table { min-width: 680px; color: var(--text-primary); font-size: .8125rem; }
 .admin-view .admin-table > :not(caption) > * > * { padding: .8rem .75rem; border-bottom-color: var(--border-subtle); }
 .admin-view .admin-table thead th { color: var(--text-secondary); background: var(--bg-subtle); font-size: .7rem; font-weight: 650; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
@@ -120,14 +120,58 @@
 .admin-table-secondary { display: block; margin-top: .2rem; color: var(--text-muted); font-size: .75rem; font-weight: 400; }
 .admin-table-action { min-width: 2rem; border: 0; border-radius: .4rem; color: var(--text-secondary); background: transparent; font-weight: 700; letter-spacing: .08em; }
 .admin-table-action:hover { color: var(--text-primary); background: var(--bg-hover); }
-.client-actions { position: relative; }
-.client-actions > summary { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; list-style: none; }
+.client-actions { position: relative; z-index: 1; }
+.client-actions[open] { z-index: 100; }
+.client-actions > summary { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; list-style: none; }
 .client-actions > summary::-webkit-details-marker { display: none; }
-.client-actions-menu { position: absolute; z-index: 5; top: calc(100% + .25rem); right: 0; display: grid; min-width: 12rem; padding: .35rem; border: 1px solid var(--border-color); border-radius: .625rem; background: var(--bg-surface); box-shadow: 0 .5rem 1rem rgb(15 23 42 / 12%); }
+.client-actions-menu { position: absolute; z-index: 200; top: calc(100% + .25rem); right: 0; display: grid; min-width: 12rem; padding: .35rem; border: 1px solid var(--border-color); border-radius: .625rem; background: var(--bg-surface); box-shadow: 0 .5rem 1rem rgb(15 23 42 / 12%); }
+.admin-view .admin-table td:last-child { position: relative; overflow: visible; }
+.admin-view .admin-table tbody tr { position: relative; }
+.admin-view .admin-table tbody tr:hover { z-index: 2; }
 .client-actions-menu a, .client-actions-menu button { padding: .55rem .65rem; border: 0; border-radius: .35rem; color: var(--text-primary); background: transparent; font: inherit; font-size: .8125rem; text-align: left; text-decoration: none; white-space: nowrap; }
 .client-actions-menu a:hover, .client-actions-menu button:hover { background: var(--bg-hover); }
 .client-actions-menu .client-actions-delete { color: #be123c; }
 .client-actions-menu button:disabled { opacity: .6; cursor: wait; }
+.restaurant-panel .admin-table-wrap { z-index: 2; }
+.restaurant-panel .admin-table tbody tr.restaurant-actions-open { z-index: 1000; }
+.admin-data-panel:has(.reservation-actions) .admin-table-wrap { z-index: 2; }
+.admin-data-panel:has(.reservation-actions) .admin-table tbody tr.reservation-actions-open { z-index: 1000; }
+.restaurant-actions-menu {
+    position: fixed;
+    z-index: 5000;
+    right: auto;
+    width: min(18rem, calc(100vw - 1.5rem));
+    min-width: min(16rem, calc(100vw - 1.5rem));
+    padding: .55rem;
+    border-radius: .8rem;
+    box-shadow: 0 1rem 2.5rem rgb(15 23 42 / 24%);
+}
+.restaurant-actions-menu a,
+.restaurant-actions-menu button { min-height: 2.8rem; padding: .75rem .85rem; font-size: .9rem; white-space: normal; }
+.reservation-actions-menu { width: min(18rem, calc(100vw - 1.5rem)); }
+.restaurant-order-details-trigger { padding: .45rem .7rem; border: 1px solid var(--border-color); border-radius: .5rem; color: var(--text-primary); background: var(--bg-surface); font: inherit; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.restaurant-order-details-trigger:hover { background: var(--bg-hover); }
+.restaurant-order-modal-backdrop { position: fixed; z-index: 6000; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(15 23 42 / 58%); backdrop-filter: blur(3px); }
+.restaurant-order-modal { width: min(100%, 42rem); max-height: min(85vh, 48rem); overflow: auto; padding: 1.35rem; border: 1px solid var(--border-color); border-radius: 1rem; color: var(--text-primary); background: var(--bg-surface); box-shadow: 0 1.5rem 4rem rgb(15 23 42 / 28%); }
+.restaurant-order-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); }
+.restaurant-order-modal-header h2 { margin: 0; color: var(--text-primary); font-size: 1.25rem; font-weight: 700; }
+.restaurant-order-modal-eyebrow { margin: 0 0 .3rem; color: var(--text-secondary); font-size: .8rem; font-weight: 650; }
+.restaurant-order-modal-client { margin: .35rem 0 0; color: var(--text-muted); font-size: .85rem; }
+.restaurant-order-modal-close { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; place-items: center; border: 0; border-radius: .55rem; color: var(--text-secondary); background: var(--bg-subtle); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.restaurant-order-modal-items { display: grid; gap: .25rem; padding: .7rem 0; }
+.restaurant-order-modal-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem .35rem; border-bottom: 1px solid var(--border-subtle); }
+.restaurant-order-modal-item > div { display: grid; gap: .3rem; }
+.restaurant-order-modal-item strong { color: var(--text-primary); font-size: .9rem; }
+.restaurant-order-modal-item span, .restaurant-order-modal-empty { color: var(--text-muted); font-size: .8rem; }
+.restaurant-order-modal-total { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem .35rem .25rem; color: var(--text-primary); font-size: 1rem; }
+.restaurant-order-modal-total strong { font-size: 1.15rem; }
+.restaurant-payment-modal { width: min(100%, 32rem); }
+.restaurant-payment-label { display: block; margin: 1.25rem 0 .45rem; color: var(--text-secondary); font-size: .85rem; font-weight: 650; }
+.restaurant-payment-select { width: 100%; min-height: 3rem; padding: .65rem .8rem; border: 1px solid var(--border-color); border-radius: .65rem; color: var(--text-primary); background: var(--bg-surface); font: inherit; }
+.restaurant-payment-select:focus { border-color: var(--rose-500); outline: 0; box-shadow: 0 0 0 3px var(--rose-200); }
+.restaurant-payment-total { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: .9rem; border-radius: .65rem; color: var(--text-primary); background: var(--bg-subtle); }
+.restaurant-payment-total strong { font-size: 1.1rem; }
+.restaurant-payment-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-top: 1.25rem; }
 .admin-status-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .3rem .55rem; font-size: .7rem; font-weight: 600; white-space: nowrap; }
 .admin-status-badge.badge-pill-emerald { color: #047857; background: #d1fae5; }
 .admin-status-badge.badge-pill-rose { color: #be123c; background: #ffe4e6; }

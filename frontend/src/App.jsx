@@ -24,6 +24,8 @@ const TEXTOS_PORTADA = {
       from: "Desde",
       perNight: "por noche",
       reserve: "Reservar ahora",
+      reserved: "Reservada",
+      unavailable: "No disponible",
       freeCancellation: "Cancelación gratuita",
       cancellationDescription: "Hasta 24h antes de la llegada",
       checkIn: "Check-in",
@@ -47,7 +49,7 @@ function App() {
         labels={TEXTOS_PORTADA.hero}
       />
       {/* Recorremos las habitaciones disponibles para mostrarlas. */}
-      <section id="habitaciones" aria-label="Habitaciones disponibles">
+      <section id="habitaciones" aria-label="Habitaciones del hotel">
         {rooms.map((availableRoom) => (
           <RoomSection
             key={availableRoom.id}

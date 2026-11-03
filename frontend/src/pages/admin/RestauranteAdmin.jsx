@@ -11,7 +11,7 @@ import { formatCOP } from "../../components/admin_form/formUtils.js";
 const LABELS = {
   panel: {
     tabs: { orders: "Pedidos", menu: "Menú" },
-    orderColumns: { room: "Habitación", client: "Cliente", item: "Pedido", amount: "Monto", time: "Hora", status: "Estado", actions: "Acciones" },
+    orderColumns: { room: "Habitación", client: "Cliente", item: "Pedido", details: "Detalle", amount: "Monto", time: "Hora", status: "Estado", actions: "Acciones" },
     menuColumns: { name: "Plato", category: "Categoría", price: "Precio", availability: "Disponibilidad", actions: "Acciones" },
     available: "Disponible",
     soldOut: "Agotado",
@@ -33,40 +33,97 @@ export default function RestauranteAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const loadData = async () => {
+    setError("");
+    try {
+      const [orders, foods] = await Promise.all([apiRequest("/api/orders"), apiRequest("/api/foods")]);
+      const today = new Date().toDateString();
+      const todaysOrders = orders.filter((order) => new Date(order.requestedAt).toDateString() === today);
+      const activeOrdersToday = todaysOrders.filter((order) => order.status !== "cancelado");
+      const paidOrdersToday = activeOrdersToday.filter((order) => order.paymentStatus === "pagado");
+      const rows = orders.map((order) => {
+        const isCancelled = order.status === "cancelado";
+        const isPaid = order.paymentStatus === "pagado" && !isCancelled;
+        const [status, statusClass] = isCancelled
+          ? orderStatus.cancelado
+          : isPaid
+            ? ["Pagado", "badge-pill-emerald"]
+            : ["—", "badge-pill-slate"];
+        const profile = order.usuario?.huesped;
+          const detailLines = (order.detalles || []).map((line) => ({
+            name: line.foodName,
+            quantity: Number(line.quantity),
+            unitPrice: Number(line.unitPrice),
+            totalPrice: Number(line.totalPrice)
+          }));
+        return {
+          id: order.id,
+            roomId: order.roomId || order.habitacion?.id || null,
+          room: order.habitacion?.number || "—",
+          client: profile ? `${profile.firstName} ${profile.lastName}` : order.usuario?.email || "—",
+          item: (order.detalles || []).map((line) => `${line.quantity} × ${line.foodName}`).join(", "),
+            details: detailLines,
+            detailsText: detailLines.map((line) => `${line.quantity}× ${line.name}`).join(" · "),
+          amount: formatCOP(Number(order.total)),
+          time: new Intl.DateTimeFormat("es-VE", { hour: "numeric", minute: "2-digit" }).format(new Date(order.requestedAt)),
+          status,
+          statusClass,
+          rawStatus: order.status,
+          paymentStatus: order.paymentStatus,
+          paymentMethod: order.paymentMethod,
+          paymentMethodLabel: ({ efectivo: "Efectivo", tarjeta: "Tarjeta", cargo: "Cargo a habitación" })[order.paymentMethod] || "",
+        };
+      });
+      const menu = foods.map((food) => ({
+        name: food.name,
+        category: food.categoria?.name || "Sin categoría",
+        price: formatCOP(Number(food.price)),
+        available: food.isAvailable && !food.isSoldOut,
+      }));
+      setData({ orders: rows, menu });
+      setStats([
+        { label: "Pedidos hoy", value: String(todaysOrders.length), sub: "incluye pedidos cancelados" },
+        { label: "Pendientes", value: String(activeOrdersToday.filter((order) => order.status === "pendiente").length), sub: "por preparar o entregar" },
+        { label: "Ventas pagadas hoy", value: formatCOP(paidOrdersToday.reduce((total, order) => total + Number(order.total), 0)), sub: "excluye pedidos cancelados" },
+      ]);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    Promise.all([apiRequest("/api/orders"), apiRequest("/api/foods")])
-      .then(([orders, foods]) => {
-        const today = new Date().toDateString();
-        const todaysOrders = orders.filter((order) => new Date(order.requestedAt).toDateString() === today);
-        const rows = orders.map((order) => {
-          const [status, statusClass] = orderStatus[order.status] || orderStatus.pendiente;
-          const profile = order.usuario?.huesped;
-          return {
-            room: order.habitacion?.number || "—",
-            client: profile ? `${profile.firstName} ${profile.lastName}` : order.usuario?.email || "—",
-            item: (order.detalles || []).map((line) => `${line.quantity} × ${line.foodName}`).join(", "),
-            amount: formatCOP(Number(order.total)),
-            time: new Intl.DateTimeFormat("es-VE", { hour: "numeric", minute: "2-digit" }).format(new Date(order.requestedAt)),
-            status,
-            statusClass,
-          };
-        });
-        const menu = foods.map((food) => ({
-          name: food.name,
-          category: food.categoria?.name || "Sin categoría",
-          price: formatCOP(Number(food.price)),
-          available: food.isAvailable && !food.isSoldOut,
-        }));
-        setData({ orders: rows, menu });
-        setStats([
-          { label: "Pedidos hoy", value: String(todaysOrders.length), sub: "en toda la propiedad" },
-          { label: "Pendientes", value: String(todaysOrders.filter((order) => order.status === "pendiente").length), sub: "por preparar o entregar" },
-          { label: "Ingresos del día", value: formatCOP(todaysOrders.reduce((total, order) => total + Number(order.total), 0)), sub: "VES acumulado" },
-        ]);
-      })
-      .catch((requestError) => setError(requestError.message))
-      .finally(() => setLoading(false));
+    loadData();
   }, []);
+
+  const handleOrderAction = async (order, action, paymentMethod) => {
+    if (action === "add") {
+      const roomId = order.roomId ? String(order.roomId) : "";
+      navigate(`/admin/restaurante/nuevo?orderId=${order.id}${roomId ? `&roomId=${roomId}` : ""}`);
+      return;
+    }
+    if (action === "cancel" && !window.confirm(`¿Deseas cancelar el pedido de la habitación ${order.room}?`)) return;
+
+    try {
+      if (action === "cancel") {
+        await apiRequest(`/api/orders/${order.id}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: "cancelado", reason: "Cancelado desde el panel administrativo." }),
+        });
+      } else if (action === "paid") {
+        await apiRequest(`/api/orders/${order.id}/payment`, {
+          method: "PATCH",
+          body: JSON.stringify({ paymentStatus: "pagado", paymentMethod }),
+        });
+      }
+      // Releer pedidos y estadísticas mediante API, sin recargar la página.
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.message);
+      window.alert(`No se pudo actualizar el pedido: ${requestError.message}`);
+    }
+  };
 
   return (
     <>
@@ -77,7 +134,7 @@ export default function RestauranteAdmin() {
       {error && <p className="alert alert-danger" role="alert">{error}</p>}
       {!loading && !error && <>
         <SummaryCards cards={stats} columnClass="col-12 col-sm-4" />
-        <RestaurantPanel orders={data.orders} menu={data.menu} labels={LABELS.panel} />
+        <RestaurantPanel orders={data.orders} menu={data.menu} labels={LABELS.panel} onOrderAction={handleOrderAction} />
       </>}
     </>
   );

@@ -1,5 +1,5 @@
 // Panel para consultar y filtrar reservas almacenadas en el sistema.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
@@ -51,44 +51,67 @@ export default function Reservas() {
   const [error, setError] = useState("");
   const [updatingReservationId, setUpdatingReservationId] = useState(null);
 
-  useEffect(() => {
-    apiRequest("/api/reservations")
-      .then((records) => {
-        const today = new Date().toISOString().slice(0, 10);
-        const rows = records.map((reservation) => {
-          const statusKey = reservation.status === "confirmada" && reservation.checkIn <= today && reservation.checkOut > today
-            ? "checkin"
-            : reservation.status;
-          const [status, statusClass] = STATUS[statusKey] || STATUS.proceso;
-          const guest = reservation.usuario?.huesped;
-          return {
-            id: reservation.reservationCode,
-            reservationId: reservation.id,
-            client: guest ? `${guest.firstName} ${guest.lastName}` : reservation.usuario?.email || "—",
-            room: `${reservation.habitacion?.type || "Habitación"} (${reservation.habitacion?.number || "—"})`,
-            checkin: formatDate(reservation.checkIn),
-            checkout: formatDate(reservation.checkOut),
-            status,
-            statusKey,
-            statusClass,
-          };
-        });
-        const inMonth = records.filter((record) => record.createdAt?.slice(0, 7) === today.slice(0, 7)).length;
-        setReservations(rows);
-        setStats([
-          { label: "Total reservas", value: String(inMonth), sub: "este mes" },
-          { label: "Confirmadas", value: String(records.filter((item) => item.status === "confirmada").length), sub: "listas para check-in" },
-          { label: "En proceso", value: String(records.filter((item) => item.status === "proceso").length), sub: "pendientes de confirmar" },
-          { label: "Check-ins hoy", value: String(records.filter((item) => item.checkIn === today && item.status === "confirmada").length), sub: "programados para hoy" },
-        ]);
-      })
-      .catch((requestError) => setError(requestError.message))
-      .finally(() => setLoading(false));
+  const refreshReservations = useCallback(async ({ quiet = false } = {}) => {
+    if (!quiet) setError("");
+    try {
+      const records = await apiRequest("/api/reservations", { cache: "no-store" });
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = records.map((reservation) => {
+        const statusKey = reservation.status === "confirmada" && reservation.checkIn <= today && reservation.checkOut > today
+          ? "checkin"
+          : reservation.status;
+        const [status, statusClass] = STATUS[statusKey] || STATUS.proceso;
+        const guest = reservation.usuario?.huesped;
+        return {
+          id: reservation.reservationCode,
+          reservationId: reservation.id,
+          client: guest ? `${guest.firstName} ${guest.lastName}` : reservation.usuario?.email || "—",
+          room: `${reservation.habitacion?.type || "Habitación"} (${reservation.habitacion?.number || "—"})`,
+          checkin: formatDate(reservation.checkIn),
+          checkout: formatDate(reservation.checkOut),
+          status,
+          statusKey,
+          statusClass,
+        };
+      });
+      const inMonth = records.filter((record) => record.createdAt?.slice(0, 7) === today.slice(0, 7)).length;
+      setReservations(rows);
+      setStats([
+        { label: "Total reservas", value: String(inMonth), sub: "este mes" },
+        { label: "Confirmadas", value: String(records.filter((item) => item.status === "confirmada").length), sub: "listas para check-in" },
+        { label: "En proceso", value: String(records.filter((item) => item.status === "proceso").length), sub: "pendientes de confirmar" },
+        { label: "Check-ins hoy", value: String(records.filter((item) => item.checkIn === today && item.status === "confirmada").length), sub: "programados para hoy" },
+      ]);
+    } catch (requestError) {
+      if (!quiet) throw requestError;
+    }
   }, []);
 
+  useEffect(() => {
+    refreshReservations()
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, [refreshReservations]);
+
+  useEffect(() => {
+    const refreshVisibleReservations = () => {
+      if (document.visibilityState === "visible") refreshReservations({ quiet: true });
+    };
+    const intervalId = window.setInterval(refreshVisibleReservations, 5000);
+    document.addEventListener("visibilitychange", refreshVisibleReservations);
+    window.addEventListener("focus", refreshVisibleReservations);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", refreshVisibleReservations);
+      window.removeEventListener("focus", refreshVisibleReservations);
+    };
+  }, [refreshReservations]);
+
   const handleStatusChange = async (reservation, status) => {
-    const action = status === "confirmada" ? "aceptar" : "rechazar";
-    if (!window.confirm(`¿Deseas ${action} la solicitud ${reservation.id}?`)) return;
+    const isAccepting = status === "confirmada";
+    const isCancellingExisting = reservation.statusKey === "confirmada" || reservation.statusKey === "checkin";
+    const actionLabel = isAccepting ? "aceptar la solicitud" : isCancellingExisting ? "cancelar la reserva" : "rechazar la solicitud";
+    if (!window.confirm(`¿Deseas ${actionLabel} ${reservation.id}?`)) return;
     setUpdatingReservationId(reservation.id);
     setError("");
     try {
@@ -96,15 +119,13 @@ export default function Reservas() {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
-      setReservations((current) => current.map((item) => item.id === reservation.id
-        ? {
-          ...item,
-          status: status === "confirmada" ? "Confirmada" : "Cancelada",
-          statusKey: status,
-          statusClass: status === "confirmada" ? "badge-pill-emerald" : "badge-pill-rose",
-        }
-        : item));
-      window.alert(status === "confirmada" ? "La reserva fue aceptada correctamente." : "La solicitud fue rechazada.");
+      await refreshReservations();
+      const successMessage = isAccepting
+        ? "La reserva fue aceptada correctamente."
+        : isCancellingExisting
+          ? "La reserva fue cancelada correctamente."
+          : "La solicitud fue rechazada.";
+      window.alert(successMessage);
     } catch (requestError) {
       setError(requestError.message);
       window.alert(`No se pudo actualizar la reserva: ${requestError.message}`);

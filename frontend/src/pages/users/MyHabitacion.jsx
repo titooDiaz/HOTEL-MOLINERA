@@ -140,6 +140,17 @@ export default function MyRoom() {
                         imageUrl={IMAGEN_FONDO_PEDIDOS}
                     />
 
+                    {reservation.status === "proceso" && (
+                        <div className="alert alert-info mt-3" role="status">
+                            Tu solicitud para {reservation.roomName || "la habitación seleccionada"} está pendiente de aprobación. Ya no necesitas enviarla de nuevo.
+                        </div>
+                    )}
+                    {reservation.status === "confirmada" && (
+                        <div className="alert alert-success mt-3" role="status">
+                            Tu reserva está confirmada. La información de la habitación ya está actualizada.
+                        </div>
+                    )}
+
 
                     <div className="row g-4">
 
@@ -230,7 +241,7 @@ export default function MyRoom() {
 
                                 <dl className="reservation-details-list">
                                     <div><dt>Habitación</dt><dd>{reservation.roomName || "Pendiente de asignación"}</dd></div>
-                                    <div><dt>Estado de reserva</dt><dd>{reservation.status || "No disponible"}</dd></div>
+                                    <div><dt>Estado de reserva</dt><dd>{reservation.status === "proceso" ? "Pendiente de aprobación" : reservation.status === "confirmada" ? "Confirmada" : reservation.status || "No disponible"}</dd></div>
                                     <div><dt>Entrada</dt><dd>{formatoFecha(reservation.checkIn)}</dd></div>
                                     <div><dt>Salida</dt><dd>{formatoFecha(reservation.checkOut)}</dd></div>
                                     <div><dt>Noches</dt><dd>{reservation.nights ?? "No disponible"}</dd></div>
