@@ -30,7 +30,7 @@ export default function ReservationForm({ room, rooms = [room], onSubmit, onCanc
     }
 
     try {
-      await onSubmit({
+      const reservation = await onSubmit({
         roomId: selectedRoom.roomId ?? selectedRoom.id,
         checkIn: form.checkIn,
         checkOut: form.checkOut,
@@ -40,8 +40,12 @@ export default function ReservationForm({ room, rooms = [room], onSubmit, onCanc
         roomName: selectedRoom.name,
         specialRequests: form.requests,
       });
+      window.alert(reservation?.status === "confirmada"
+        ? "La reserva se agregó exitosamente."
+        : "La solicitud se envió exitosamente y está pendiente de aprobación del administrador.");
     } catch (submitError) {
       setError(submitError.message || "No se pudo crear la reserva.");
+      window.alert(submitError.message || "No se pudo crear la reserva.");
     }
   };
 

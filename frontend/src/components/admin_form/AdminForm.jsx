@@ -233,10 +233,12 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
       await onSubmit(payload);
       setState(buildInitialState(sections));
       setStatus("success");
+      window.alert(labels.successMessage);
     } catch (error) {
       console.error("Error al enviar el formulario:", error);
       setProblem(error.message || labels.errorMessage);
       setStatus("error");
+      window.alert(error.message || labels.errorMessage);
     }
   };
 

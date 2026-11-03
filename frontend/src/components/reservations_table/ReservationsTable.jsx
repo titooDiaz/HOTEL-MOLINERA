@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 import Tooltip from "../tooltip/Tooltip.jsx";
 
-export default function ReservationsTable({ reservations, labels }) {
+export default function ReservationsTable({ reservations, labels, onStatusChange, updatingReservationId }) {
   const [status, setStatus] = useState(labels.allValue);
   const filteredReservations = useMemo(
     () => status === labels.allValue ? reservations : reservations.filter((reservation) => reservation.statusKey === status),
@@ -33,7 +33,29 @@ export default function ReservationsTable({ reservations, labels }) {
                 <td><span className={`admin-status-badge ${reservation.statusClass}`}>{reservation.status}</span></td>
                 <td>
                   <Tooltip label={`Acciones para ${reservation.id}`}>
-                    <button className="admin-table-action" type="button" aria-label={`Acciones para ${reservation.id}`}>•••</button>
+                    <details className="client-actions">
+                      <summary className="admin-table-action" aria-label={`Acciones para ${reservation.id}`}>•••</summary>
+                      <div className="client-actions-menu">
+                        {reservation.statusKey === "proceso" && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={updatingReservationId === reservation.id}
+                              onClick={() => onStatusChange(reservation, "confirmada")}
+                            >
+                              {updatingReservationId === reservation.id ? "Guardando..." : "Aceptar solicitud"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={updatingReservationId === reservation.id}
+                              onClick={() => onStatusChange(reservation, "cancelada")}
+                            >
+                              Rechazar solicitud
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </details>
                   </Tooltip>
                 </td>
               </tr>

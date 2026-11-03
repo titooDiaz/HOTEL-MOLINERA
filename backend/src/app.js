@@ -336,11 +336,26 @@ app.get('/api/me/activity', authenticate, asyncHandler(async (req, res) => {
 app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
     const isAdmin = req.user?.role === 'admin';
     const where = isAdmin ? {} : { isVisible: true, isBookable: true, status: 'disponible' };
-    const rooms = await Habitacion.findAll({
+    let rooms = await Habitacion.findAll({
         where,
         order: [['number', 'ASC']],
         paranoid: !isAdmin
     });
+    // Una solicitud pendiente también bloquea la habitación para evitar que
+    // otro huésped la seleccione mientras el administrador la revisa.
+    if (!isAdmin) {
+        const today = new Date().toISOString().slice(0, 10);
+        const blockedReservations = await Reserva.findAll({
+            attributes: ['roomId'],
+            where: {
+                status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+                checkOut: { [Op.gte]: today }
+            },
+            raw: true
+        });
+        const blockedRoomIds = new Set(blockedReservations.map(({ roomId }) => String(roomId)));
+        rooms = rooms.filter((room) => !blockedRoomIds.has(String(room.id)));
+    }
     res.json(rooms);
 }));
 
@@ -511,7 +526,9 @@ app.get('/api/reservations', ...adminOnly, asyncHandler(async (_req, res) => {
 
 app.get('/api/me/reservations', authenticate, asyncHandler(async (req, res) => {
     const reservations = await Reserva.findAll({
-        where: { userId: req.user.id },
+        // Las solicitudes en revisión no se muestran al huésped hasta que
+        // un administrador las confirme.
+        where: { userId: req.user.id, status: 'confirmada' },
         include: [{ model: Habitacion, as: 'habitacion' }],
         order: [['createdAt', 'DESC']]
     });
@@ -580,6 +597,54 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
         createdByUserId: req.user.id
     });
     res.status(201).json(reservation);
+}));
+
+app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req, res) => {
+    const { status } = req.body;
+    if (!['confirmada', 'cancelada'].includes(status)) {
+        throw new HttpError(400, 'El estado de la reserva no es válido.');
+    }
+    const reservation = await Reserva.findByPk(req.params.id);
+    if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+    if (['cancelada', 'cancelado', 'finalizada'].includes(reservation.status)) {
+        throw new HttpError(409, 'La reserva ya no puede cambiar de estado.');
+    }
+
+    if (status === 'confirmada') {
+        const conflict = await Reserva.findOne({
+            where: {
+                id: { [Op.ne]: reservation.id },
+                roomId: reservation.roomId,
+                status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+                checkIn: { [Op.lt]: reservation.checkOut },
+                checkOut: { [Op.gt]: reservation.checkIn }
+            }
+        });
+        if (conflict) throw new HttpError(409, 'La habitación ya tiene otra reserva en esas fechas.');
+        await reservation.update({
+            status,
+            confirmed: true,
+            confirmedAt: new Date(),
+            confirmedByUserId: req.user.id,
+            updatedByUserId: req.user.id
+        });
+    } else {
+        await reservation.update({
+            status,
+            confirmed: false,
+            cancellationReason: req.body.reason || 'Solicitud rechazada por un administrador.',
+            cancelledAt: new Date(),
+            updatedByUserId: req.user.id
+        });
+    }
+
+    const updatedReservation = await Reserva.findByPk(reservation.id, {
+        include: [
+            { model: Usuario, as: 'usuario', attributes: ['id', 'email'], include: [{ model: Huesped, as: 'huesped' }] },
+            { model: Habitacion, as: 'habitacion', attributes: ['id', 'number', 'type'] }
+        ]
+    });
+    res.json(updatedReservation);
 }));
 
 app.get('/api/foods', optionalAuthentication, asyncHandler(async (req, res) => {

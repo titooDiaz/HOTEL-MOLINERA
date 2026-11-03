@@ -1,5 +1,11 @@
 // Configuración compartida del captcha (sin JSX para no romper Fast Refresh).
-const SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY || "").trim();
+const DEVELOPMENT_TEST_SITE_KEY = "1x00000000000000000000AA";
+const configuredSiteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || "").trim();
+// El widget debe seguir visible al desarrollar localmente aunque todavía no
+// se haya creado una clave del sitio. Esta clave solo funciona en pruebas.
+const SITE_KEY = configuredSiteKey || (
+  import.meta.env.DEV ? DEVELOPMENT_TEST_SITE_KEY : ""
+);
 
 // Claves de prueba oficiales: nunca protegen de verdad.
 const TEST_SITE_KEYS = new Set([

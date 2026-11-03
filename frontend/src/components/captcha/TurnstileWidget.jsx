@@ -79,6 +79,8 @@ export default function TurnstileWidget({
           action,
           theme,
           language: "es",
+          appearance: "always",
+          size: "flexible",
           callback: (token) => handlersRef.current.onVerify?.(token),
           "expired-callback": () => handlersRef.current.onExpire?.(),
           "timeout-callback": () => handlersRef.current.onExpire?.(),
@@ -110,5 +112,10 @@ export default function TurnstileWidget({
 
   if (!isCaptchaEnabled) return null;
 
-  return <div ref={containerRef} className="turnstile-widget" />;
+  return (
+    <div className="turnstile-widget-wrap">
+      <span className="turnstile-widget-label">Verificación de seguridad</span>
+      <div ref={containerRef} className="turnstile-widget" />
+    </div>
+  );
 }

@@ -49,6 +49,7 @@ export default function Reservas() {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingReservationId, setUpdatingReservationId] = useState(null);
 
   useEffect(() => {
     apiRequest("/api/reservations")
@@ -62,6 +63,7 @@ export default function Reservas() {
           const guest = reservation.usuario?.huesped;
           return {
             id: reservation.reservationCode,
+            reservationId: reservation.id,
             client: guest ? `${guest.firstName} ${guest.lastName}` : reservation.usuario?.email || "—",
             room: `${reservation.habitacion?.type || "Habitación"} (${reservation.habitacion?.number || "—"})`,
             checkin: formatDate(reservation.checkIn),
@@ -84,6 +86,33 @@ export default function Reservas() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleStatusChange = async (reservation, status) => {
+    const action = status === "confirmada" ? "aceptar" : "rechazar";
+    if (!window.confirm(`¿Deseas ${action} la solicitud ${reservation.id}?`)) return;
+    setUpdatingReservationId(reservation.id);
+    setError("");
+    try {
+      await apiRequest(`/api/reservations/${reservation.reservationId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      setReservations((current) => current.map((item) => item.id === reservation.id
+        ? {
+          ...item,
+          status: status === "confirmada" ? "Confirmada" : "Cancelada",
+          statusKey: status,
+          statusClass: status === "confirmada" ? "badge-pill-emerald" : "badge-pill-rose",
+        }
+        : item));
+      window.alert(status === "confirmada" ? "La reserva fue aceptada correctamente." : "La solicitud fue rechazada.");
+    } catch (requestError) {
+      setError(requestError.message);
+      window.alert(`No se pudo actualizar la reserva: ${requestError.message}`);
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  };
+
   return (
     <>
       <PageHeader title="Reservas" subtitle="Consulta y gestiona las reservas del hotel." actionLabel="+ Nueva reserva" onAction={() => navigate("/admin/reservas/nueva")} />
@@ -91,7 +120,12 @@ export default function Reservas() {
       {error && <p className="alert alert-danger" role="alert">{error}</p>}
       {!loading && !error && <>
         <SummaryCards cards={stats} />
-        <ReservationsTable reservations={reservations} labels={LABELS.table} />
+        <ReservationsTable
+          reservations={reservations}
+          labels={LABELS.table}
+          onStatusChange={handleStatusChange}
+          updatingReservationId={updatingReservationId}
+        />
       </>}
     </>
   );

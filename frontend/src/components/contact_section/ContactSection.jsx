@@ -51,11 +51,13 @@ export default function ContactSection({ information, form, onSubmit }) {
       setValues(EMPTY_FORM);
       setStatus("success");
       resetCaptcha();
+      window.alert(form.successMessage ?? "El mensaje se envió correctamente.");
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
       // Un TypeError viene de fetch (sin red); ahí preferimos el texto amable del formulario.
       setErrorMessage(error instanceof TypeError ? "" : error.message);
       setStatus("error");
+      window.alert(error.message || form.errorMessage || "No se pudo enviar el mensaje.");
       // El token es de un solo uso: hay que pedir uno nuevo para reintentar.
       resetCaptcha();
     }

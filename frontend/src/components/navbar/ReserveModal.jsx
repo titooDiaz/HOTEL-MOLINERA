@@ -220,14 +220,15 @@ function ReserveModalContent({
     }
 
     if (onRegister) {
-      Promise.resolve(
-        onRegister({ ...registerData, captchaToken: registerCaptchaToken }),
-      ).catch((registerError) => {
-        setError(registerError.message || t.registerError || t.loginError);
-        // El token es de un solo uso: el siguiente intento pide uno nuevo.
-        setRegisterCaptchaToken("");
-        setCaptchaResetKey((current) => current + 1);
-      });
+      Promise.resolve(onRegister({ ...registerData, captchaToken: registerCaptchaToken }))
+        .then(() => window.alert("El registro se agregó exitosamente."))
+        .catch((registerError) => {
+          setError(registerError.message || t.registerError || t.loginError);
+          window.alert(registerError.message || t.registerError || "No se pudo completar el registro.");
+          // El token es de un solo uso: el siguiente intento pide uno nuevo.
+          setRegisterCaptchaToken("");
+          setCaptchaResetKey((current) => current + 1);
+        });
     }
     else console.log("Register:", registerData);
   };

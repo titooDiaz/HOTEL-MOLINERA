@@ -116,7 +116,9 @@ export function AuthProvider({ children }) {
         ? `Habitación ${reservationResponse.habitacion.number}`
         : reservationData.roomName,
     };
-    setReservation(nextReservation);
+    // Las solicitudes pendientes se guardan en la base de datos, pero no se
+    // muestran al huésped hasta que un administrador las apruebe.
+    setReservation(nextReservation.status === "confirmada" ? nextReservation : null);
     return nextReservation;
   };
 
