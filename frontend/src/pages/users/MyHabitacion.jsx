@@ -53,13 +53,24 @@ const TEXTO_PAGINA = {
 
 
 const formatoCOP = (valor) => {
-    return `Bs. ${valor.toLocaleString("es-VE")}`;
+    return `Bs. ${Number(valor).toLocaleString("es-VE")}`;
+};
+
+const formatoFecha = (valor) => {
+    if (!valor) return "No disponible";
+    const fecha = new Date(`${String(valor).slice(0, 10)}T00:00:00Z`);
+    if (Number.isNaN(fecha.getTime())) return "No disponible";
+    return new Intl.DateTimeFormat("es-VE", {
+        dateStyle: "long",
+        timeZone: "UTC",
+    }).format(fecha);
 };
 
 
 export default function MyRoom() {
     const { reservation, saveReservation } = useAuth();
     const [availableRooms, setAvailableRooms] = useState(defaultRooms);
+    const [showReservationDetails, setShowReservationDetails] = useState(false);
     const totalHabitacion = Number(reservation?.total || 0);
     const totalPagado = Number(reservation?.advance || 0);
     const totalPendiente = Number(reservation?.balance ?? Math.max(0, totalHabitacion - totalPagado));
@@ -183,11 +194,75 @@ export default function MyRoom() {
                                 totalPendiente={totalPendiente}
                                 formatCurrency={formatoCOP}
                                 labels={TEXTO_PAGINA.account}
+                                onDetailsClick={() => setShowReservationDetails(true)}
                             />
 
                         </div>
 
                     </div>
+
+                    {showReservationDetails && (
+                        <div
+                            className="reservation-details-backdrop"
+                            onClick={() => setShowReservationDetails(false)}
+                        >
+                            <section
+                                className="reservation-details-dialog"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="reservation-details-title"
+                                onClick={(event) => event.stopPropagation()}
+                            >
+                                <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+                                    <div>
+                                        <h2 className="h4 mb-1" id="reservation-details-title">Detalle de tu habitación</h2>
+                                        <p className="text-secondary mb-0">
+                                            Reserva {reservation.reservationCode || `#${reservation.id}`}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        aria-label="Cerrar detalle"
+                                        onClick={() => setShowReservationDetails(false)}
+                                    />
+                                </div>
+
+                                <dl className="reservation-details-list">
+                                    <div><dt>Habitación</dt><dd>{reservation.roomName || "Pendiente de asignación"}</dd></div>
+                                    <div><dt>Estado de reserva</dt><dd>{reservation.status || "No disponible"}</dd></div>
+                                    <div><dt>Entrada</dt><dd>{formatoFecha(reservation.checkIn)}</dd></div>
+                                    <div><dt>Salida</dt><dd>{formatoFecha(reservation.checkOut)}</dd></div>
+                                    <div><dt>Noches</dt><dd>{reservation.nights ?? "No disponible"}</dd></div>
+                                    <div><dt>Huéspedes</dt><dd>{reservation.guests ?? "No disponible"}</dd></div>
+                                    <div><dt>Precio por noche</dt><dd>{formatoCOP(reservation.pricePerNight || 0)}</dd></div>
+                                    <div><dt>Subtotal</dt><dd>{formatoCOP(reservation.subtotal ?? totalHabitacion)}</dd></div>
+                                    <div><dt>Impuestos</dt><dd>{formatoCOP(reservation.taxes || 0)}</dd></div>
+                                    <div><dt>Total de la habitación</dt><dd>{formatoCOP(totalHabitacion)}</dd></div>
+                                    <div><dt>Pagado</dt><dd>{formatoCOP(totalPagado)}</dd></div>
+                                    <div className="reservation-details-balance">
+                                        <dt>Saldo pendiente</dt><dd>{formatoCOP(totalPendiente)}</dd>
+                                    </div>
+                                    {reservation.paymentMethod && (
+                                        <div><dt>Método de pago</dt><dd>{reservation.paymentMethod}</dd></div>
+                                    )}
+                                    {reservation.specialRequests && (
+                                        <div className="reservation-details-notes">
+                                            <dt>Solicitudes especiales</dt><dd>{reservation.specialRequests}</dd>
+                                        </div>
+                                    )}
+                                </dl>
+
+                                <button
+                                    type="button"
+                                    className="btn account-button w-100"
+                                    onClick={() => setShowReservationDetails(false)}
+                                >
+                                    Cerrar
+                                </button>
+                            </section>
+                        </div>
+                    )}
 
         </div>
     );

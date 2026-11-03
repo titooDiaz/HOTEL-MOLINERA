@@ -9,6 +9,7 @@ export default function AccountSummary({
     totalPendiente,
     formatCurrency,
     labels,
+    onDetailsClick,
     }) {
     return (
         <section className="account-summary bg-white rounded-4 p-4 mb-4">
@@ -40,7 +41,7 @@ export default function AccountSummary({
             <strong>{formatCurrency(totalPendiente)}</strong>
         </div>
 
-        <button type="button" className="btn account-button w-100 mt-3">
+        <button type="button" className="btn account-button w-100 mt-3" onClick={onDetailsClick}>
             {labels.detailsButtonLabel}
         </button>
         </section>

@@ -9,6 +9,27 @@ export function AuthProvider({ children }) {
   const [reservation, setReservation] = useState(null);
   const [isLoading, setIsLoading] = useState(() => Boolean(getAuthToken()));
 
+  const loadGuestReservation = async (sessionUser) => {
+    if (sessionUser.role !== "guest") {
+      setReservation(null);
+      return;
+    }
+
+    try {
+      const reservations = await apiRequest("/api/me/reservations");
+      const latest = reservations[0];
+      setReservation(latest ? {
+        ...latest,
+        roomName: latest.habitacion?.number
+          ? `Habitación ${latest.habitacion.number}`
+          : "Habitación por asignar",
+      } : null);
+    } catch (error) {
+      setReservation(null);
+      console.error("No se pudieron cargar las reservas del huésped:", error);
+    }
+  };
+
   useEffect(() => {
     if (!getAuthToken()) return;
 
@@ -16,20 +37,7 @@ export function AuthProvider({ children }) {
       try {
         const { user: sessionUser } = await apiRequest("/api/auth/me");
         setUser(sessionUser);
-        if (sessionUser.role === "guest") {
-          try {
-            const reservations = await apiRequest("/api/me/reservations");
-            const latest = reservations[0];
-            setReservation(latest ? {
-              ...latest,
-              roomName: latest.habitacion?.number
-                ? `Habitación ${latest.habitacion.number}`
-                : "Habitación por asignar",
-            } : null);
-          } catch (error) {
-            console.error("No se pudieron cargar las reservas del huésped:", error);
-          }
-        }
+        await loadGuestReservation(sessionUser);
       } catch (error) {
         clearAuthToken();
         console.error("No se pudo restaurar la sesión:", error);
@@ -53,7 +61,7 @@ export function AuthProvider({ children }) {
     }
     saveAuthToken(response.token, remember);
     setUser(response.user);
-    setReservation(null);
+    await loadGuestReservation(response.user);
     return response.user;
   };
 
@@ -65,7 +73,7 @@ export function AuthProvider({ children }) {
     });
     saveAuthToken(token, remember);
     setUser(sessionUser);
-    setReservation(null);
+    await loadGuestReservation(sessionUser);
     return sessionUser;
   };
 

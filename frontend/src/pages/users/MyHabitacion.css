@@ -23,3 +23,62 @@
     width: 100%;
     min-height: 100%;
 }
+
+.reservation-details-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    overflow-y: auto;
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.reservation-details-dialog {
+    width: min(100%, 560px);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
+}
+
+.reservation-details-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+
+.reservation-details-list > div {
+    padding: 0.8rem 0.5rem;
+    border-bottom: 1px solid var(--hotel-border);
+}
+
+.reservation-details-list dt {
+    color: #6c757d;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.reservation-details-list dd {
+    margin: 0.2rem 0 0;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+.reservation-details-list .reservation-details-balance {
+    color: var(--hotel-red);
+}
+
+.reservation-details-list .reservation-details-notes {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 575.98px) {
+    .reservation-details-list {
+        grid-template-columns: 1fr;
+    }
+}
