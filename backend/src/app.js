@@ -82,19 +82,26 @@ const imageExtensions = {
     'image/gif': '.gif'
 };
 fs.mkdirSync(uploadDirectory, { recursive: true });
-const uploadRoomImages = multer({
-    storage: multer.diskStorage({
-        destination: uploadDirectory,
-        filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${imageExtensions[file.mimetype]}`)
-    }),
-    limits: { fileSize: 5 * 1024 * 1024, files: 4 },
-    fileFilter: (_req, file, callback) => {
-        if (!imageExtensions[file.mimetype]) {
-            return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
-        }
-        callback(null, true);
+const imageUploadStorage = multer.diskStorage({
+    destination: uploadDirectory,
+    filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${imageExtensions[file.mimetype]}`)
+});
+const imageFileFilter = (_req, file, callback) => {
+    if (!imageExtensions[file.mimetype]) {
+        return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
     }
+    callback(null, true);
+};
+const uploadRoomImages = multer({
+    storage: imageUploadStorage,
+    limits: { fileSize: 5 * 1024 * 1024, files: 4 },
+    fileFilter: imageFileFilter
 }).array('images', 4);
+const uploadFoodImage = multer({
+    storage: imageUploadStorage,
+    limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    fileFilter: imageFileFilter
+}).single('image');
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
@@ -798,7 +805,7 @@ app.get('/api/foods', optionalAuthentication, asyncHandler(async (req, res) => {
     res.json(foods);
 }));
 
-app.post('/api/foods', ...adminOnly, asyncHandler(async (req, res) => {
+app.post('/api/foods', ...adminOnly, uploadFoodImage, asyncHandler(async (req, res) => {
     const { name, categoryName, price } = req.body;
     requireFields(req.body, ['name', 'categoryName', 'price']);
     if (!Number.isFinite(Number(price)) || Number(price) < 0) throw new HttpError(400, 'El precio debe ser un valor válido.');
@@ -817,7 +824,7 @@ app.post('/api/foods', ...adminOnly, asyncHandler(async (req, res) => {
             description: req.body.description || null,
             price: Number(price),
             currency: req.body.currency || 'VES',
-            imageUrl: req.body.imageUrl || null,
+            imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
             ingredients: req.body.ingredients || null,
             allergens: req.body.allergens || null,
             preparationMinutes: req.body.preparationMinutes || null,
@@ -837,7 +844,7 @@ app.get('/api/plans', asyncHandler(async (_req, res) => {
     res.json(await Plan.findAll({ where: { isVisible: true, isBookable: true }, order: [['sortOrder', 'ASC']] }));
 }));
 
-app.post('/api/plans', ...adminOnly, asyncHandler(async (req, res) => {
+app.post('/api/plans', ...adminOnly, uploadFoodImage, asyncHandler(async (req, res) => {
     const { name } = req.body;
     requireFields(req.body, ['name']);
     const plan = await Plan.create({
@@ -847,7 +854,7 @@ app.post('/api/plans', ...adminOnly, asyncHandler(async (req, res) => {
         description: req.body.description || null,
         price: req.body.price === '' || req.body.price == null ? null : Number(req.body.price),
         currency: req.body.currency || 'VES',
-        imageUrl: req.body.imageUrl || null,
+        imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
         services: req.body.services ? String(req.body.services).split(',').map((service) => service.trim()).filter(Boolean) : null,
         terms: req.body.terms || null,
         validFrom: req.body.validFrom || null,
