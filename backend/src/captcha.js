@@ -3,13 +3,14 @@
 const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const REQUEST_TIMEOUT_MS = 5000;
 // Claves oficiales de prueba de Cloudflare: sirven para desarrollo, nunca protegen de verdad.
+const DEVELOPMENT_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 const TEST_SECRET_KEYS = new Set([
     '1x0000000000000000000000000000000AA',
     '2x0000000000000000000000000000000AA',
     '3x0000000000000000000000000000000AA'
 ]);
 
-let warnedAboutMissingSecret = false;
+let warnedAboutDevelopmentTestKey = false;
 
 class CaptchaError extends Error {
     constructor(status, message) {
@@ -32,20 +33,20 @@ const allowedHostnames = () =>
  * para que un token obtenido en un formulario no sirva en otro.
  */
 const verifyCaptcha = (expectedAction) => async (req, _res, next) => {
-    const secret = secretKey();
+    const configuredSecret = secretKey();
+    const usesDevelopmentTestKey = !configuredSecret && process.env.NODE_ENV !== 'production';
+    const secret = configuredSecret || (usesDevelopmentTestKey ? DEVELOPMENT_TEST_SECRET_KEY : '');
 
-    // Sin clave configurada no hay forma de verificar. En desarrollo se omite para no
-    // bloquear el equipo local; en producción se falla cerrado.
+    // En desarrollo usamos la clave oficial de prueba para que cada clon funcione
+    // sin copiar secretos locales. En producción, si falta la clave, se falla cerrado.
     if (!secret) {
-        if (process.env.NODE_ENV === 'production') {
-            console.error('TURNSTILE_SECRET_KEY no está configurada: el captcha rechazará todas las solicitudes.');
-            throw new CaptchaError(503, 'La verificación de seguridad no está disponible en este momento.');
-        }
-        if (!warnedAboutMissingSecret) {
-            warnedAboutMissingSecret = true;
-            console.warn('TURNSTILE_SECRET_KEY no está configurada: el captcha se omite en desarrollo.');
-        }
-        return next();
+        console.error('TURNSTILE_SECRET_KEY no está configurada: el captcha rechazará todas las solicitudes.');
+        throw new CaptchaError(503, 'La verificación de seguridad no está disponible en este momento.');
+    }
+
+    if (usesDevelopmentTestKey && !warnedAboutDevelopmentTestKey) {
+        warnedAboutDevelopmentTestKey = true;
+        console.warn('TURNSTILE_SECRET_KEY no está configurada: se usa la clave de prueba de Cloudflare en desarrollo.');
     }
 
     const usesTestKey = TEST_SECRET_KEYS.has(secret);
