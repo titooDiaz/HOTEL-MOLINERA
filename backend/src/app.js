@@ -169,6 +169,18 @@ const adminOnly = [authenticate, requireAdmin];
 const makeCode = (prefix) => `${prefix}-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
 const makeSlug = (value) => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const parseDate = (value) => new Date(`${value}T00:00:00.000Z`);
+const isValidDateOnly = (value) => {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const parsed = parseDate(value);
+    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
+const getNights = (checkIn, checkOut) => Math.round((parseDate(checkOut) - parseDate(checkIn)) / 86400000);
+const reservationTotal = (room, plan, nights) => Number(room.pricePerNight) * nights + Number(plan?.price || 0);
+const getCancellationDeadline = (checkIn, checkInTime) => {
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(checkInTime || '15:00'));
+    const arrivalTime = match ? `${match[1]}:${match[2]}` : '15:00';
+    return new Date(new Date(`${checkIn}T${arrivalTime}:00.000Z`).getTime() - 24 * 60 * 60 * 1000);
+};
 const notificationStreams = new Map();
 
 const publishNotification = (notification) => {
@@ -744,7 +756,29 @@ app.get('/api/me/reservations', authenticate, asyncHandler(async (req, res) => {
             status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
             checkOut: { [Op.gte]: today }
         },
-        include: [{ model: Habitacion, as: 'habitacion' }],
+        include: [
+            { model: Habitacion, as: 'habitacion' },
+            { model: Plan, as: 'plan' }
+        ],
+        order: [['createdAt', 'DESC']]
+    });
+    res.json(reservations);
+}));
+
+app.get('/api/me/reservations/history', authenticate, asyncHandler(async (req, res) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const reservations = await Reserva.findAll({
+        where: {
+            userId: req.user.id,
+            [Op.or]: [
+                { status: { [Op.in]: ['cancelada', 'cancelado', 'finalizada'] } },
+                { checkOut: { [Op.lt]: today } }
+            ]
+        },
+        include: [
+            { model: Habitacion, as: 'habitacion' },
+            { model: Plan, as: 'plan' }
+        ],
         order: [['createdAt', 'DESC']]
     });
     res.json(reservations);
@@ -753,6 +787,9 @@ app.get('/api/me/reservations', authenticate, asyncHandler(async (req, res) => {
 app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
     const { roomId, checkIn, checkOut } = req.body;
     requireFields(req.body, ['roomId', 'checkIn', 'checkOut']);
+    if (!isValidDateOnly(checkIn) || !isValidDateOnly(checkOut)) {
+        throw new HttpError(400, 'Las fechas de la reserva no son válidas.');
+    }
     const start = parseDate(checkIn);
     const end = parseDate(checkOut);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
@@ -782,14 +819,24 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
     const conflict = await Reserva.findOne({
         where: {
             roomId: room.id,
-            status: { [Op.notIn]: ['cancelada', 'cancelado'] },
+            status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
             checkIn: { [Op.lt]: checkOut },
             checkOut: { [Op.gt]: checkIn }
         }
     });
     if (conflict) throw new HttpError(409, 'La habitación ya está reservada en esas fechas.');
-    const nights = Math.round((end - start) / 86400000);
-    const total = Number(room.pricePerNight) * nights;
+    const nights = getNights(checkIn, checkOut);
+    let plan = null;
+    if (req.body.planId !== undefined && req.body.planId !== null && req.body.planId !== '') {
+        plan = await Plan.findOne({
+            where: { id: req.body.planId, isActive: true, isVisible: true, isBookable: true }
+        });
+        if (!plan) throw new HttpError(404, 'El plan seleccionado no está disponible.');
+        if ((plan.validFrom && checkIn < plan.validFrom) || (plan.validUntil && checkIn > plan.validUntil)) {
+            throw new HttpError(400, 'El plan no está disponible para las fechas seleccionadas.');
+        }
+    }
+    const total = reservationTotal(room, plan, nights);
     const advance = req.user.role === 'admin' ? Number(req.body.advance || 0) : 0;
     if (!Number.isFinite(advance) || advance < 0 || advance > total) {
         throw new HttpError(400, 'El anticipo debe estar entre cero y el total de la reserva.');
@@ -804,6 +851,7 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
     const reservation = await Reserva.create({
         userId: reservationUserId,
         roomId: room.id,
+        planId: plan?.id || null,
         reservationCode: makeCode('RES'),
         checkIn,
         checkOut,
@@ -838,7 +886,313 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
             data: { route: '/mi-habitacion', reservationId: reservation.id }
         });
     }
-    res.status(201).json(reservation);
+    res.status(201).json(await Reserva.findByPk(reservation.id, {
+        include: [
+            { model: Habitacion, as: 'habitacion' },
+            { model: Plan, as: 'plan' }
+        ]
+    }));
+}));
+
+app.post('/api/reservations/:id/check-in', ...adminOnly, asyncHandler(async (req, res) => {
+    requireFields(req.body, ['documentNumber']);
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE,
+            include: [{ model: Usuario, as: 'usuario', include: [{ model: Huesped, as: 'huesped' }] }]
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (reservation.status !== 'confirmada' || reservation.checkedInAt) {
+            throw new HttpError(409, 'Solo se puede registrar el check-in de una reserva confirmada que aún no haya ingresado.');
+        }
+        const guestDocument = reservation.usuario?.huesped?.documentNumber;
+        if (!guestDocument || String(req.body.documentNumber).trim().toUpperCase() !== String(guestDocument).trim().toUpperCase()) {
+            throw new HttpError(403, 'El documento presentado no coincide con el huésped de la reserva.');
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        if (reservation.checkIn > today || reservation.checkOut <= today) {
+            throw new HttpError(409, 'El check-in solo se puede registrar durante las fechas de la reserva.');
+        }
+        const room = await Habitacion.findByPk(reservation.roomId, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!room || room.status !== 'disponible') {
+            throw new HttpError(409, 'La habitación no está disponible para registrar el check-in.');
+        }
+
+        const checkedInAt = new Date();
+        await reservation.update({
+            status: 'checkin',
+            checkedInAt,
+            updatedByUserId: req.user.id
+        }, { transaction });
+        await room.update({ status: 'ocupada', updatedByUserId: req.user.id }, { transaction });
+        await transaction.commit();
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [
+                { model: Habitacion, as: 'habitacion' },
+                { model: Plan, as: 'plan' }
+            ]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
+app.post('/api/reservations/:id/check-out', ...adminOnly, asyncHandler(async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (!reservation.checkedInAt || reservation.checkedOutAt || reservation.status !== 'checkin') {
+            throw new HttpError(409, 'La reserva no tiene un check-in activo para registrar el check-out.');
+        }
+        const balance = Number(reservation.balance ?? Number(reservation.total) - Number(reservation.advance || 0));
+        if (!Number.isFinite(balance) || balance > 0) {
+            throw new HttpError(409, 'No se puede completar el check-out mientras exista saldo pendiente en la habitación.');
+        }
+        const unpaidOrders = await Pedido.findAll({
+            where: {
+                userId: reservation.userId,
+                roomId: reservation.roomId,
+                status: { [Op.ne]: 'cancelado' },
+                paymentStatus: { [Op.ne]: 'pagado' },
+                total: { [Op.gt]: 0 }
+            },
+            attributes: ['id', 'orderCode', 'total', 'paymentStatus'],
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (unpaidOrders.length) {
+            throw new HttpError(409, 'No se puede completar el check-out: hay pedidos del restaurante pendientes de pago.');
+        }
+
+        const room = await Habitacion.findByPk(reservation.roomId, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!room || room.status !== 'ocupada') {
+            throw new HttpError(409, 'El estado de la habitación no permite registrar el check-out.');
+        }
+        const checkedOutAt = new Date();
+        await reservation.update({
+            status: 'finalizada',
+            checkedOutAt,
+            roomCleared: false,
+            roomClearedAt: null,
+            roomClearedByUserId: null,
+            updatedByUserId: req.user.id
+        }, { transaction });
+        await room.update({ status: 'limpieza', updatedByUserId: req.user.id }, { transaction });
+        await transaction.commit();
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [
+                { model: Habitacion, as: 'habitacion' },
+                { model: Plan, as: 'plan' }
+            ]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
+app.post('/api/reservations/:id/room-cleared', ...adminOnly, asyncHandler(async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (reservation.status !== 'finalizada' || !reservation.checkedOutAt) {
+            throw new HttpError(409, 'La habitación solo se puede liberar después del check-out.');
+        }
+        if (reservation.roomCleared) throw new HttpError(409, 'La habitación ya fue marcada como limpia.');
+        const room = await Habitacion.findByPk(reservation.roomId, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!room || room.status !== 'limpieza') {
+            throw new HttpError(409, 'La habitación no está marcada para limpieza.');
+        }
+        await reservation.update({
+            roomCleared: true,
+            roomClearedAt: new Date(),
+            roomClearedByUserId: req.user.id,
+            updatedByUserId: req.user.id
+        }, { transaction });
+        await room.update({ status: 'disponible', updatedByUserId: req.user.id }, { transaction });
+        await transaction.commit();
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [{ model: Habitacion, as: 'habitacion' }]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
+app.patch('/api/reservations/:id', authenticate, asyncHandler(async (req, res) => {
+    const editableFields = ['checkIn', 'checkOut', 'adults', 'children', 'guests', 'specialRequests', 'requests'];
+    if (!editableFields.some((field) => Object.hasOwn(req.body, field))) {
+        throw new HttpError(400, 'Indica al menos un campo para actualizar.');
+    }
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (req.user.role !== 'admin' && String(reservation.userId) !== String(req.user.id)) {
+            throw new HttpError(404, 'No se encontró la reserva.');
+        }
+        if (!['proceso', 'confirmada'].includes(reservation.status) || reservation.checkedInAt) {
+            throw new HttpError(409, 'Esta reserva ya no se puede modificar.');
+        }
+        const checkIn = req.body.checkIn ?? reservation.checkIn;
+        const checkOut = req.body.checkOut ?? reservation.checkOut;
+        if (!isValidDateOnly(checkIn) || !isValidDateOnly(checkOut) || checkOut <= checkIn) {
+            throw new HttpError(400, 'Las fechas de la reserva no son válidas.');
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        if (checkIn < today || checkOut <= today) {
+            throw new HttpError(400, 'Las fechas modificadas deben ser actuales o futuras.');
+        }
+
+        const room = await Habitacion.findByPk(reservation.roomId, { transaction });
+        if (!room) throw new HttpError(404, 'No se encontró la habitación de la reserva.');
+        let adults = reservation.adults;
+        let children = reservation.children;
+        if (req.body.guests !== undefined && req.body.adults === undefined && req.body.children === undefined) {
+            adults = Number(req.body.guests);
+            children = 0;
+        } else {
+            if (req.body.adults !== undefined) adults = Number(req.body.adults);
+            if (req.body.children !== undefined) children = Number(req.body.children);
+        }
+        if (!Number.isInteger(adults) || adults < 1 || !Number.isInteger(children) || children < 0) {
+            throw new HttpError(400, 'La cantidad de adultos y niños no es válida.');
+        }
+        const guests = adults + children;
+        if (guests > room.capacity) {
+            throw new HttpError(400, `La habitación admite un máximo de ${room.capacity} huéspedes.`);
+        }
+        if (checkIn !== reservation.checkIn || checkOut !== reservation.checkOut) {
+            const conflict = await Reserva.findOne({
+                where: {
+                    id: { [Op.ne]: reservation.id },
+                    roomId: reservation.roomId,
+                    status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+                    checkIn: { [Op.lt]: checkOut },
+                    checkOut: { [Op.gt]: checkIn }
+                },
+                transaction
+            });
+            if (conflict) throw new HttpError(409, 'La habitación ya está reservada en esas fechas.');
+        }
+
+        const nights = getNights(checkIn, checkOut);
+        let total = Number(reservation.total);
+        if (checkIn !== reservation.checkIn || checkOut !== reservation.checkOut) {
+            const plan = reservation.planId ? await Plan.findByPk(reservation.planId, { transaction }) : null;
+            if (plan && ((plan.validFrom && checkIn < plan.validFrom) || (plan.validUntil && checkIn > plan.validUntil))) {
+                throw new HttpError(400, 'El plan asociado no está disponible para las fechas modificadas.');
+            }
+            total = reservationTotal(room, plan, nights);
+            if (reservation.paymentStatus === 'pagado' && total !== Number(reservation.total)) {
+                throw new HttpError(409, 'No se pueden cambiar las fechas de una reserva pagada.');
+            }
+            if (total < Number(reservation.advance || 0)) {
+                throw new HttpError(409, 'El cambio requiere devolver parte del anticipo y no se puede aplicar en línea.');
+            }
+        }
+        const updates = {
+            checkIn,
+            checkOut,
+            adults,
+            children,
+            guests,
+            nights,
+            total,
+            subtotal: total,
+            balance: Math.max(0, total - Number(reservation.advance || 0)),
+            updatedByUserId: req.user.id
+        };
+        if (req.body.specialRequests !== undefined || req.body.requests !== undefined) {
+            const requests = req.body.specialRequests ?? req.body.requests;
+            if (requests !== null && typeof requests !== 'string') {
+                throw new HttpError(400, 'Las solicitudes especiales deben ser texto.');
+            }
+            updates.specialRequests = requests?.trim() || null;
+        }
+        await reservation.update(updates, { transaction });
+        await transaction.commit();
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [
+                { model: Habitacion, as: 'habitacion' },
+                { model: Plan, as: 'plan' }
+            ]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
+app.post('/api/me/reservations/:id/cancel', authenticate, asyncHandler(async (req, res) => {
+    if (req.body.reason !== undefined && typeof req.body.reason !== 'string') {
+        throw new HttpError(400, 'El motivo de cancelación debe ser texto.');
+    }
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findOne({
+            where: { id: req.params.id, userId: req.user.id },
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (!['proceso', 'confirmada'].includes(reservation.status) || reservation.checkedInAt) {
+            throw new HttpError(409, 'Esta reserva ya no se puede cancelar.');
+        }
+        const room = await Habitacion.findByPk(reservation.roomId, { transaction });
+        const deadline = getCancellationDeadline(reservation.checkIn, room?.checkInTime);
+        if (Date.now() >= deadline.getTime()) {
+            throw new HttpError(409, 'La reserva solo se puede cancelar hasta 24 horas antes del check-in.');
+        }
+        await reservation.update({
+            status: 'cancelada',
+            confirmed: false,
+            cancellationReason: req.body.reason || 'Cancelada por el huésped.',
+            cancelledAt: new Date(),
+            updatedByUserId: req.user.id
+        }, { transaction });
+        const notification = await createUserNotification(req.user.id, {
+            type: 'reservation_cancelled',
+            title: 'Tu reserva fue cancelada',
+            message: `Tu reserva ${reservation.reservationCode} fue cancelada.`,
+            data: { route: '/mi-habitacion', reservationId: reservation.id }
+        }, transaction);
+        await transaction.commit();
+        publishNotification(notification);
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [
+                { model: Habitacion, as: 'habitacion' },
+                { model: Plan, as: 'plan' }
+            ]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
 }));
 
 app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req, res) => {
@@ -851,6 +1205,9 @@ app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req,
     const previousStatus = reservation.status;
     if (['cancelada', 'cancelado', 'finalizada'].includes(reservation.status)) {
         throw new HttpError(409, 'La reserva ya no puede cambiar de estado.');
+    }
+    if (reservation.checkedInAt) {
+        throw new HttpError(409, 'No se puede cambiar el estado de una reserva después del check-in formal.');
     }
 
     if (status === 'confirmada') {
