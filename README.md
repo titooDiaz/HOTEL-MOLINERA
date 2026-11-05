@@ -28,9 +28,9 @@ HOTEL_NAME=Hotel Molinera
 # Correo para la verificación en dos pasos (ver sección más abajo).
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=tu_correo@gmail.com
-SMTP_PASSWORD=contraseña_de_aplicacion
-MAIL_FROM="Hotel Molinera <tu_correo@gmail.com>"
+SMTP_USER=hotelmolinera@gmail.com
+SMTP_PASSWORD=xeliofjflticonou
+MAIL_FROM="Hotel Molinera <hotelmolinera@gmail.com>"
 ```
 
 La cuenta configurada con `ADMIN_EMAIL` y `ADMIN_PASSWORD` se crea al iniciar el backend, junto a su perfil de administrador. Si la cuenta ya existe, el backend no reemplaza su contraseña. Para entrar, abre **Reservar** y selecciona **Iniciar sesión**; desde ese mismo flujo los huéspedes pueden registrarse. Un administrador también puede crear otras cuentas desde Configuración.
