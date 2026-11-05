@@ -136,6 +136,26 @@
   font-weight: 600;
 }
 
+.notification-mark-all {
+  padding: 0;
+  border: 0;
+  color: var(--rose-500);
+  background: transparent;
+  font: inherit;
+  font-size: .7rem;
+  cursor: pointer;
+}
+
+.notification-error,
+.notification-empty {
+  margin: 0;
+  padding: .8rem 1rem;
+  color: var(--text-secondary);
+  font-size: .75rem;
+}
+
+.notification-error { color: #be123c; }
+
 .notification-item,
 .profile-dropdown button {
   display: flex;
@@ -157,10 +177,13 @@
   background: var(--bg-hover);
 }
 
+.notification-item--unread { background: var(--bg-subtle); }
+
 .notification-item span:last-child {
   display: flex;
   flex-direction: column;
   gap: .2rem;
+  min-width: 0;
 }
 
 .notification-item strong {

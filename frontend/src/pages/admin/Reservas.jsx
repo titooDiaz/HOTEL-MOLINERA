@@ -6,6 +6,7 @@ import PageHeader from "../../components/page_header/PageHeader.jsx";
 import SummaryCards from "../../components/summary_cards/SummaryCards.jsx";
 import ReservationsTable from "../../components/reservations_table/ReservationsTable.jsx";
 import { apiRequest } from "../../api.js";
+import { useAuth } from "../../context/authContext.js";
 
 const LABELS = {
   table: {
@@ -45,6 +46,7 @@ const formatDate = (date) => date ? new Intl.DateTimeFormat("es-VE").format(new 
 
 export default function Reservas() {
   const navigate = useNavigate();
+  const { notificationRevision } = useAuth();
   const [reservations, setReservations] = useState([]);
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,21 +93,7 @@ export default function Reservas() {
     refreshReservations()
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
-  }, [refreshReservations]);
-
-  useEffect(() => {
-    const refreshVisibleReservations = () => {
-      if (document.visibilityState === "visible") refreshReservations({ quiet: true });
-    };
-    const intervalId = window.setInterval(refreshVisibleReservations, 5000);
-    document.addEventListener("visibilitychange", refreshVisibleReservations);
-    window.addEventListener("focus", refreshVisibleReservations);
-    return () => {
-      window.clearInterval(intervalId);
-      document.removeEventListener("visibilitychange", refreshVisibleReservations);
-      window.removeEventListener("focus", refreshVisibleReservations);
-    };
-  }, [refreshReservations]);
+  }, [refreshReservations, notificationRevision]);
 
   const handleStatusChange = async (reservation, status) => {
     const isAccepting = status === "confirmada";

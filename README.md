@@ -62,6 +62,7 @@ Vite envía las llamadas `/api` al backend en `http://localhost:3000`. Para prod
 - Gestión/listado de habitaciones, huéspedes, reservas y pedidos; formularios para publicar productos y planes.
 - En el listado de clientes, administración puede consultar el perfil e historial de reservas, crear una reserva con el cliente preseleccionado y eliminar su acceso. La eliminación conserva el historial y se bloquea si tiene reservas vigentes o futuras.
 - Menú y planes públicos, pedidos de huéspedes y formulario de contacto persistido.
+- Notificaciones por usuario para nuevas reservas, pedidos y mensajes; los huéspedes reciben cambios de reserva y avisos cuando su pedido está preparado o en camino. Se consultan y marcan como leídas desde las barras superiores; los cambios en tiempo real se entregan por SSE autenticado, sin sondeo periódico.
 - Las reservas comprueban disponibilidad, fechas y capacidad; los pedidos validan productos y cantidades en el servidor.
 - Los datos del hotel y las preferencias de apariencia/región del panel se guardan en el navegador; el cambio de contraseña y el perfil del huésped usan la API.
 

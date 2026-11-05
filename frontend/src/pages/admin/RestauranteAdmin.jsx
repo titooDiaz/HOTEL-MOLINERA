@@ -22,6 +22,7 @@ const orderStatus = {
   pendiente: ["Pendiente", "badge-pill-amber"],
   preparando: ["En preparación", "badge-pill-orange"],
   preparado: ["Preparado", "badge-pill-blue"],
+  en_camino: ["En camino", "badge-pill-orange"],
   entregado: ["Entregado", "badge-pill-emerald"],
   cancelado: ["Cancelado", "badge-pill-rose"],
 };
@@ -42,13 +43,7 @@ export default function RestauranteAdmin() {
       const activeOrdersToday = todaysOrders.filter((order) => order.status !== "cancelado");
       const paidOrdersToday = activeOrdersToday.filter((order) => order.paymentStatus === "pagado");
       const rows = orders.map((order) => {
-        const isCancelled = order.status === "cancelado";
-        const isPaid = order.paymentStatus === "pagado" && !isCancelled;
-        const [status, statusClass] = isCancelled
-          ? orderStatus.cancelado
-          : isPaid
-            ? ["Pagado", "badge-pill-emerald"]
-            : ["—", "badge-pill-slate"];
+        const [status, statusClass] = orderStatus[order.status] || ["—", "badge-pill-slate"];
         const profile = order.usuario?.huesped;
           const detailLines = (order.detalles || []).map((line) => ({
             name: line.foodName,
@@ -97,7 +92,7 @@ export default function RestauranteAdmin() {
     loadData();
   }, []);
 
-  const handleOrderAction = async (order, action, paymentMethod) => {
+  const handleOrderAction = async (order, action, value) => {
     if (action === "add") {
       const roomId = order.roomId ? String(order.roomId) : "";
       navigate(`/admin/restaurante/nuevo?orderId=${order.id}${roomId ? `&roomId=${roomId}` : ""}`);
@@ -114,7 +109,12 @@ export default function RestauranteAdmin() {
       } else if (action === "paid") {
         await apiRequest(`/api/orders/${order.id}/payment`, {
           method: "PATCH",
-          body: JSON.stringify({ paymentStatus: "pagado", paymentMethod }),
+          body: JSON.stringify({ paymentStatus: "pagado", paymentMethod: value }),
+        });
+      } else if (action === "status") {
+        await apiRequest(`/api/orders/${order.id}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: value }),
         });
       }
       // Releer pedidos y estadísticas mediante API, sin recargar la página.

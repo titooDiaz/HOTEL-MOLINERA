@@ -76,14 +76,24 @@ function Field({ field, value, onChange }) {
   const common = {
     id: inputId,
     name: field.id,
-    value,
     onChange,
     required: field.required,
+    ...(field.type !== "file" ? { value } : {}),
   };
 
   let control;
 
-  if (field.options) {
+  if (field.type === "file") {
+    control = (
+      <input
+        className="form-control admin-form-control"
+        type="file"
+        accept={field.accept}
+        multiple={field.multiple}
+        {...common}
+      />
+    );
+  } else if (field.options) {
     control = (
       <select className="form-select admin-form-control" {...common}>
         {field.placeholder && (
@@ -201,8 +211,11 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
   const resolve = (valueOrFn) => (typeof valueOrFn === "function" ? valueOrFn(state.values) : valueOrFn);
 
   const handleFieldChange = (event) => {
-    const { name, value } = event.target;
-    setState((current) => ({ ...current, values: { ...current.values, [name]: value } }));
+    const { name, value, files, type, multiple } = event.target;
+    const nextValue = type === "file"
+      ? multiple ? Array.from(files || []) : files?.[0] ?? null
+      : value;
+    setState((current) => ({ ...current, values: { ...current.values, [name]: nextValue } }));
     clearFeedback();
   };
 
@@ -219,6 +232,7 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
 
     const message = validate?.(payload);
     if (message) {
@@ -231,6 +245,7 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
 
     try {
       await onSubmit(payload);
+      form.reset();
       setState(buildInitialState(sections));
       setStatus("success");
       window.alert(labels.successMessage);

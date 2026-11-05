@@ -73,7 +73,7 @@ const buildChatContext = async (user) => {
     context.misPedidos = orders.map((order) => order.toJSON());
     return context;
 };
-const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, MensajeContacto } = models;
+const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, Reserva, Pedido, DetallePedido, Pago, Notificacion, MensajeContacto } = models;
 const uploadDirectory = path.join(__dirname, '../uploads');
 const imageExtensions = {
     'image/jpeg': '.jpg',
@@ -169,6 +169,42 @@ const adminOnly = [authenticate, requireAdmin];
 const makeCode = (prefix) => `${prefix}-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
 const makeSlug = (value) => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const parseDate = (value) => new Date(`${value}T00:00:00.000Z`);
+const notificationStreams = new Map();
+
+const publishNotification = (notification) => {
+    const listeners = notificationStreams.get(String(notification.userId));
+    if (!listeners) return;
+    const event = `event: notification\ndata: ${JSON.stringify(notification.toJSON ? notification.toJSON() : notification)}\n\n`;
+    for (const response of listeners) response.write(event);
+};
+
+const createUserNotification = async (userId, details, transaction) => {
+    const notification = await Notificacion.create({ userId, ...details }, { transaction });
+    if (!transaction) publishNotification(notification);
+    return notification;
+};
+
+const createAdminNotifications = async (details, transaction) => {
+    const admins = await Usuario.findAll({
+        where: { role: 'admin', isActive: true },
+        attributes: ['id'],
+        transaction
+    });
+    if (!admins.length) return [];
+    const notifications = await Notificacion.bulkCreate(
+        admins.map((admin) => ({ userId: admin.id, ...details })),
+        { transaction }
+    );
+    if (!transaction) notifications.forEach(publishNotification);
+    return notifications;
+};
+
+const closeNotificationStream = (userId, response, heartbeat) => {
+    clearInterval(heartbeat);
+    const listeners = notificationStreams.get(userId);
+    listeners?.delete(response);
+    if (listeners?.size === 0) notificationStreams.delete(userId);
+};
 
 // Cierra un inicio de sesión exitoso: crea el token de sesión y deja constancia en la auditoría.
 const completeLogin = async (user, req) => {
@@ -654,6 +690,52 @@ app.get('/api/reservations', ...adminOnly, asyncHandler(async (_req, res) => {
     res.json(reservations);
 }));
 
+app.get('/api/notifications', authenticate, asyncHandler(async (req, res) => {
+    const notifications = await Notificacion.findAll({
+        where: { userId: req.user.id, isActive: true },
+        order: [['createdAt', 'DESC']],
+        limit: 50
+    });
+    res.json(notifications);
+}));
+
+app.get('/api/notifications/stream', authenticate, (req, res) => {
+    const userId = String(req.user.id);
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+    res.flushHeaders();
+    res.write(': connected\n\n');
+
+    const listeners = notificationStreams.get(userId) || new Set();
+    listeners.add(res);
+    notificationStreams.set(userId, listeners);
+    const heartbeat = setInterval(() => res.write(': keep-alive\n\n'), 25000);
+    res.on('close', () => closeNotificationStream(userId, res, heartbeat));
+});
+
+app.patch('/api/notifications/read-all', authenticate, asyncHandler(async (req, res) => {
+    await Notificacion.update(
+        { readAt: new Date(), updatedByUserId: req.user.id },
+        { where: { userId: req.user.id, isActive: true, readAt: null } }
+    );
+    res.json({ message: 'Notificaciones marcadas como leídas.' });
+}));
+
+app.patch('/api/notifications/:id/read', authenticate, asyncHandler(async (req, res) => {
+    const notification = await Notificacion.findOne({
+        where: { id: req.params.id, userId: req.user.id, isActive: true }
+    });
+    if (!notification) throw new HttpError(404, 'No se encontró la notificación.');
+    if (!notification.readAt) {
+        await notification.update({ readAt: new Date(), updatedByUserId: req.user.id });
+    }
+    res.json(notification);
+}));
+
 app.get('/api/me/reservations', authenticate, asyncHandler(async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const reservations = await Reserva.findAll({
@@ -742,6 +824,20 @@ app.post('/api/reservations', authenticate, asyncHandler(async (req, res) => {
         specialRequests: req.body.specialRequests || req.body.requests || null,
         createdByUserId: req.user.id
     });
+    await createAdminNotifications({
+        type: 'new_reservation',
+        title: 'Nueva reserva recibida',
+        message: `Se recibió una reserva para la habitación ${room.number}.`,
+        data: { route: '/admin/reservas', reservationId: reservation.id }
+    });
+    if (reservation.status === 'confirmada') {
+        await createUserNotification(reservationUserId, {
+            type: 'reservation_confirmed',
+            title: 'Tu reserva fue confirmada',
+            message: `Tu reserva ${reservation.reservationCode} está confirmada.`,
+            data: { route: '/mi-habitacion', reservationId: reservation.id }
+        });
+    }
     res.status(201).json(reservation);
 }));
 
@@ -752,6 +848,7 @@ app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req,
     }
     const reservation = await Reserva.findByPk(req.params.id);
     if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+    const previousStatus = reservation.status;
     if (['cancelada', 'cancelado', 'finalizada'].includes(reservation.status)) {
         throw new HttpError(409, 'La reserva ya no puede cambiar de estado.');
     }
@@ -783,6 +880,17 @@ app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req,
             updatedByUserId: req.user.id
         });
     }
+    if (previousStatus !== status) {
+        const isConfirmed = status === 'confirmada';
+        await createUserNotification(reservation.userId, {
+            type: isConfirmed ? 'reservation_confirmed' : 'reservation_cancelled',
+            title: isConfirmed ? 'Tu reserva fue confirmada' : 'Tu reserva fue cancelada',
+            message: isConfirmed
+                ? `Tu reserva ${reservation.reservationCode} está confirmada.`
+                : `Tu reserva ${reservation.reservationCode} fue cancelada.`,
+            data: { route: '/mi-habitacion', reservationId: reservation.id }
+        });
+    }
 
     const updatedReservation = await Reserva.findByPk(reservation.id, {
         include: [
@@ -791,6 +899,63 @@ app.patch('/api/reservations/:id/status', ...adminOnly, asyncHandler(async (req,
         ]
     });
     res.json(updatedReservation);
+}));
+
+app.patch('/api/reservations/:id/payment', ...adminOnly, asyncHandler(async (req, res) => {
+    const { paymentStatus, paymentMethod } = req.body;
+    if (paymentStatus !== 'pagado') {
+        throw new HttpError(400, 'El estado de pago no es válido.');
+    }
+    if (!['efectivo', 'tarjeta', 'transferencia'].includes(paymentMethod)) {
+        throw new HttpError(400, 'Selecciona un método de pago válido.');
+    }
+
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (['cancelada', 'cancelado'].includes(reservation.status)) {
+            throw new HttpError(400, 'No se puede registrar el pago de una reserva cancelada.');
+        }
+        if (reservation.paymentStatus === 'pagado') {
+            throw new HttpError(409, 'La reserva ya está registrada como pagada.');
+        }
+
+        const balance = Number(reservation.balance ?? Number(reservation.total) - Number(reservation.advance || 0));
+        if (!Number.isFinite(balance) || balance < 0) {
+            throw new HttpError(409, 'No se pudo determinar el saldo pendiente de la reserva.');
+        }
+
+        const paidAt = new Date();
+        await reservation.update({
+            paymentStatus: 'pagado',
+            paymentMethod,
+            advance: reservation.total,
+            balance: 0,
+            updatedByUserId: req.user.id
+        }, { transaction });
+        if (balance > 0) {
+            await Pago.create({
+                userId: reservation.userId,
+                reservationId: reservation.id,
+                amount: balance,
+                currency: 'VES',
+                method: paymentMethod,
+                status: 'pagado',
+                paidAt,
+                createdByUserId: req.user.id
+            }, { transaction });
+        }
+
+        await transaction.commit();
+        res.json(reservation);
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
 }));
 
 app.get('/api/foods', optionalAuthentication, asyncHandler(async (req, res) => {
@@ -927,12 +1092,13 @@ app.patch('/api/orders/:id/items', ...adminOnly, asyncHandler(async (req, res) =
 
 app.patch('/api/orders/:id/status', ...adminOnly, asyncHandler(async (req, res) => {
     const { status, reason } = req.body;
-    const allowedStatus = ['pendiente', 'preparando', 'preparado', 'entregado', 'cancelado'];
+    const allowedStatus = ['pendiente', 'preparando', 'preparado', 'en_camino', 'entregado', 'cancelado'];
     if (!allowedStatus.includes(status)) {
         throw new HttpError(400, 'El estado del pedido no es válido.');
     }
     const order = await Pedido.findByPk(req.params.id);
     if (!order) throw new HttpError(404, 'No se encontró el pedido.');
+    const previousStatus = order.status;
 
     const nextData = { status, updatedByUserId: req.user.id };
     if (status === 'cancelado') {
@@ -946,6 +1112,17 @@ app.patch('/api/orders/:id/status', ...adminOnly, asyncHandler(async (req, res) 
     if (status === 'preparado') nextData.preparedAt = new Date();
 
     await order.update(nextData);
+    if (previousStatus !== status && ['preparado', 'en_camino'].includes(status)) {
+        const isOnTheWay = status === 'en_camino';
+        await createUserNotification(order.userId, {
+            type: isOnTheWay ? 'order_on_the_way' : 'order_prepared',
+            title: isOnTheWay ? 'Tu pedido va en camino' : 'Tu pedido está preparado',
+            message: isOnTheWay
+                ? `Tu pedido ${order.orderCode} va en camino.`
+                : `Tu pedido ${order.orderCode} está preparado.`,
+            data: { route: '/pedidos', orderId: order.id }
+        });
+    }
     res.json(order);
 }));
 
@@ -1026,8 +1203,10 @@ app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
     });
     const subtotal = lines.reduce((total, line) => total + line.totalPrice, 0);
     const transaction = await sequelize.transaction();
+    let order;
+    let adminNotifications = [];
     try {
-        const order = await Pedido.create({
+        order = await Pedido.create({
             userId, roomId, orderCode: makeCode('ORD'), subtotal, taxes: 0, total: subtotal,
             paymentMethod: req.body.paymentMethod || 'cargo', notes: req.body.notes || null,
             createdByUserId: req.user.id
@@ -1041,7 +1220,14 @@ app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
             totalPrice,
             createdByUserId: req.user.id
         })), { transaction });
+        adminNotifications = await createAdminNotifications({
+            type: 'new_order',
+            title: 'Nuevo pedido recibido',
+            message: `Se recibió el pedido ${order.orderCode}.`,
+            data: { route: '/admin/restaurante', orderId: order.id }
+        }, transaction);
         await transaction.commit();
+        adminNotifications.forEach(publishNotification);
         res.status(201).json(await Pedido.findByPk(order.id, { include: [{ model: DetallePedido, as: 'detalles' }] }));
     } catch (error) {
         if (!transaction.finished) await transaction.rollback();
@@ -1057,6 +1243,12 @@ app.post('/api/contact', verifyCaptcha('contact'), asyncHandler(async (req, res)
         subject: String(req.body.subject).trim(),
         message: String(req.body.message).trim(),
         ipAddress: req.ip
+    });
+    await createAdminNotifications({
+        type: 'new_contact_message',
+        title: 'Nuevo mensaje de contacto',
+        message: `Nuevo mensaje de ${message.name}: ${message.subject}`,
+        data: { messageId: message.id }
     });
     res.status(201).json({ id: message.id, message: 'Mensaje recibido.' });
 }));

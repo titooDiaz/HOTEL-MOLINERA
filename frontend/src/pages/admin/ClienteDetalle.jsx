@@ -15,6 +15,9 @@ export default function ClienteDetalle() {
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [updatingReservationId, setUpdatingReservationId] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState({});
 
   useEffect(() => {
     apiRequest(`/api/clients/${id}`)
@@ -22,6 +25,35 @@ export default function ClienteDetalle() {
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleRegisterPayment = async (reservation) => {
+    const room = reservation.habitacion
+      ? `${reservation.habitacion.type} (${reservation.habitacion.number})`
+      : "la habitación";
+    if (!window.confirm(`¿Registrar como pagada ${room} de la reserva ${reservation.reservationCode}?`)) return;
+
+    setUpdatingReservationId(reservation.id);
+    setError("");
+    setSuccess("");
+    try {
+      const updatedReservation = await apiRequest(`/api/reservations/${reservation.id}/payment`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          paymentStatus: "pagado",
+          paymentMethod: paymentMethods[reservation.id] || "efectivo",
+        }),
+      });
+      setClient((current) => ({
+        ...current,
+        reservas: current.reservas.map((item) => item.id === updatedReservation.id ? updatedReservation : item),
+      }));
+      setSuccess(`El pago de ${room} se registró correctamente.`);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  };
 
   return (
     <>
@@ -43,6 +75,7 @@ export default function ClienteDetalle() {
       </PageHeader>
       {loading && <p role="status">Cargando perfil...</p>}
       {error && <p className="alert alert-danger" role="alert">{error}</p>}
+      {success && <p className="alert alert-success" role="status">{success}</p>}
       {!loading && client && (
         <>
           <section className="card-panel admin-data-panel">
@@ -69,7 +102,7 @@ export default function ClienteDetalle() {
                 <table className="table admin-table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th>Reserva</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Total</th>
+                      <th>Reserva</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Pago</th><th>Total</th><th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -82,7 +115,40 @@ export default function ClienteDetalle() {
                         <td>{formatDate(reservation.checkIn)}</td>
                         <td>{formatDate(reservation.checkOut)}</td>
                         <td>{reservation.status}</td>
+                        <td>
+                          <span className={`badge rounded-pill ${reservation.paymentStatus === "pagado" ? "text-bg-success" : "text-bg-warning"}`}>
+                            {reservation.paymentStatus === "pagado" ? "Pagado" : "Pendiente"}
+                          </span>
+                        </td>
                         <td>{formatCOP(Number(reservation.total || 0))}</td>
+                        <td>
+                          {reservation.paymentStatus !== "pagado" && !["cancelada", "cancelado"].includes(reservation.status) && (
+                            <div className="d-flex flex-wrap align-items-center gap-2">
+                              <select
+                                aria-label={`Método de pago de la reserva ${reservation.reservationCode}`}
+                                className="form-select form-select-sm"
+                                value={paymentMethods[reservation.id] || "efectivo"}
+                                onChange={(event) => setPaymentMethods((current) => ({
+                                  ...current,
+                                  [reservation.id]: event.target.value,
+                                }))}
+                                disabled={updatingReservationId !== null}
+                              >
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="transferencia">Transferencia</option>
+                              </select>
+                              <button
+                                type="button"
+                                className="admin-action-button admin-action-button--primary"
+                                onClick={() => handleRegisterPayment(reservation)}
+                                disabled={updatingReservationId !== null}
+                              >
+                                {updatingReservationId === reservation.id ? "Guardando..." : "Registrar pago"}
+                              </button>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

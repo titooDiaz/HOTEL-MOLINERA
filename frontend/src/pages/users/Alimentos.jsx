@@ -40,13 +40,16 @@ const formatDate = (date) => new Intl.DateTimeFormat("es-VE", { dateStyle: "medi
 export default function RoomRequests() {
   const [filter, setFilter] = useState("todos");
   const [orders, setOrders] = useState([]);
+  const [orderDetails, setOrderDetails] = useState([]);
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
 
-  const refreshOrders = () => apiRequest("/api/me/orders").then((records) => {
+  const updateOrders = (records) => {
+    setOrderDetails(records);
     setOrders(records.flatMap((order) => (order.detalles || []).map((line) => ({
       id: `${order.id}-${line.id}`,
       nombre: line.foodName,
@@ -56,20 +59,14 @@ export default function RoomRequests() {
       estado: order.paymentStatus === "pagado" ? "pagado" : "pendiente",
       imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
     }))));
-  });
+  };
+
+  const refreshOrders = () => apiRequest("/api/me/orders").then(updateOrders);
 
   useEffect(() => {
     Promise.all([apiRequest("/api/me/orders"), apiRequest("/api/foods")])
       .then(([orderRecords, foodRecords]) => {
-        setOrders(orderRecords.flatMap((order) => (order.detalles || []).map((line) => ({
-          id: `${order.id}-${line.id}`,
-          nombre: line.foodName,
-          detalle: `${line.quantity} × ${line.foodName}`,
-          fecha: formatDate(order.requestedAt),
-          monto: Number(line.totalPrice),
-          estado: order.paymentStatus === "pagado" ? "pagado" : "pendiente",
-          imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
-        }))));
+        updateOrders(orderRecords);
         setFoods(foodRecords);
       })
       .catch((requestError) => setError(requestError.message))
@@ -152,9 +149,92 @@ export default function RoomRequests() {
               totalPendiente={totalPending}
               formatCurrency={formatCurrency}
               labels={COPY.account}
+              onDetailsClick={() => setShowOrderDetails(true)}
             />
             <ReceptionHelp labels={COPY.reception} />
           </div>
+        </div>
+      )}
+      {showOrderDetails && (
+        <div
+          className="food-order-details-backdrop"
+          onClick={() => setShowOrderDetails(false)}
+        >
+          <section
+            className="food-order-details-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="food-order-details-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+              <div>
+                <h2 className="h4 mb-1" id="food-order-details-title">Detalle de alimentos y bebidas</h2>
+                <p className="text-secondary mb-0">Resumen completo de tus pedidos y consumos.</p>
+              </div>
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Cerrar detalle"
+                onClick={() => setShowOrderDetails(false)}
+              />
+            </div>
+
+            {orderDetails.length ? (
+              <>
+                <div className="food-order-details-list">
+                  {orderDetails.map((order) => (
+                    <article className="food-order-details-card" key={order.id}>
+                      <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                        <div>
+                          <h3 className="h6 mb-1">Pedido {order.orderCode || `#${order.id}`}</h3>
+                          <p className="small text-secondary mb-0">{formatDate(order.requestedAt)}</p>
+                        </div>
+                        <span className="badge rounded-pill bg-light text-dark align-self-start">
+                          {order.paymentStatus === "pagado" ? "Pagado" : "Pendiente de pago"}
+                        </span>
+                      </div>
+
+                      <ul className="list-unstyled mb-3">
+                        {(order.detalles || []).map((line) => (
+                          <li className="food-order-details-line" key={line.id}>
+                            <span>{line.quantity} × {line.foodName}</span>
+                            <span>{formatCurrency(line.totalPrice)}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <dl className="food-order-details-totals mb-0">
+                        <div><dt>Subtotal</dt><dd>{formatCurrency(order.subtotal)}</dd></div>
+                        {Number(order.taxes) > 0 && (
+                          <div><dt>Impuestos</dt><dd>{formatCurrency(order.taxes)}</dd></div>
+                        )}
+                        <div className="food-order-details-total">
+                          <dt>Total del pedido</dt><dd>{formatCurrency(order.total)}</dd>
+                        </div>
+                      </dl>
+                      {order.notes && <p className="small text-secondary mt-3 mb-0">Nota: {order.notes}</p>}
+                    </article>
+                  ))}
+                </div>
+
+                <div className="food-order-details-grand-total">
+                  <span>Total consumido</span>
+                  <strong>{formatCurrency(totalPaid + totalPending)}</strong>
+                </div>
+              </>
+            ) : (
+              <p className="text-secondary">Todavía no tienes pedidos de alimentos y bebidas.</p>
+            )}
+
+            <button
+              type="button"
+              className="btn account-button w-100 mt-4"
+              onClick={() => setShowOrderDetails(false)}
+            >
+              Cerrar
+            </button>
+          </section>
         </div>
       )}
     </div>

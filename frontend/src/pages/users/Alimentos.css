@@ -43,6 +43,79 @@
   border-color: var(--border-color);
 }
 
+.food-order-details-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  overflow-y: auto;
+  background: rgb(15 23 42 / 55%);
+}
+
+.food-order-details-dialog {
+  width: min(100%, 640px);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%);
+}
+
+.food-order-details-card {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.food-order-details-line,
+.food-order-details-totals > div,
+.food-order-details-grand-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.food-order-details-line {
+  padding: 0.35rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.food-order-details-totals > div {
+  padding: 0.3rem 0;
+  font-size: 0.875rem;
+}
+
+.food-order-details-totals dt {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.food-order-details-totals dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.food-order-details-totals .food-order-details-total {
+  margin-top: 0.4rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 1rem;
+}
+
+.food-order-details-grand-total {
+  align-items: center;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  color: var(--hotel-red);
+  background: var(--bg-hover);
+}
+
 @media (max-width: 767px) {
   .container-fluid {
     padding: 16px !important;

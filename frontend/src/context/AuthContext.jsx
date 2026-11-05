@@ -7,6 +7,8 @@ export function AuthProvider({ children }) {
   // Preparamos el usuario actual y la reserva activa.
   const [user, setUser] = useState(null);
   const [reservation, setReservation] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationRevision, setNotificationRevision] = useState(0);
   const [isLoading, setIsLoading] = useState(() => Boolean(getAuthToken()));
 
   const loadGuestReservation = useCallback(async (sessionUser) => {
@@ -29,22 +31,111 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const refreshNotifications = useCallback(async () => {
+    const records = await apiRequest("/api/notifications", { cache: "no-store" });
+    setNotifications((current) => {
+      const merged = new Map(records.map((notification) => [notification.id, notification]));
+      current.forEach((notification) => {
+        if (!merged.has(notification.id)) merged.set(notification.id, notification);
+      });
+      return [...merged.values()]
+        .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt))
+        .slice(0, 50);
+    });
+    setNotificationRevision((revision) => revision + 1);
+  }, []);
+
   useEffect(() => {
-    if (user?.role !== "guest") return undefined;
+    if (!user?.id) return undefined;
 
-    const refreshVisibleReservation = () => {
-      if (document.visibilityState === "visible") loadGuestReservation(user);
-    };
-    const intervalId = window.setInterval(refreshVisibleReservation, 5000);
-    document.addEventListener("visibilitychange", refreshVisibleReservation);
-    window.addEventListener("focus", refreshVisibleReservation);
+    const controller = new AbortController();
+    const { signal } = controller;
+    let retryDelay = 1000;
+    const sessionUser = user;
 
-    return () => {
-      window.clearInterval(intervalId);
-      document.removeEventListener("visibilitychange", refreshVisibleReservation);
-      window.removeEventListener("focus", refreshVisibleReservation);
+    const receiveNotification = (notification) => {
+      retryDelay = 1000;
+      setNotifications((current) => [
+        notification,
+        ...current.filter((item) => item.id !== notification.id),
+      ].slice(0, 50));
+      setNotificationRevision((revision) => revision + 1);
+      if (sessionUser.role === "guest" && notification.type?.startsWith("reservation_")) {
+        loadGuestReservation(sessionUser);
+      }
     };
-  }, [user, loadGuestReservation]);
+
+    const waitBeforeReconnect = (delay) => new Promise((resolve) => {
+      const finish = () => {
+        window.clearTimeout(timeoutId);
+        signal.removeEventListener("abort", finish);
+        resolve();
+      };
+      const timeoutId = window.setTimeout(finish, delay);
+      signal.addEventListener("abort", finish, { once: true });
+    });
+
+    const connect = async () => {
+      while (!signal.aborted) {
+        try {
+          const response = await fetch("/api/notifications/stream", {
+            headers: { Authorization: `Bearer ${getAuthToken()}` },
+            signal,
+          });
+          if (response.status === 401 || response.status === 403) {
+            console.error("La sesión ya no permite recibir notificaciones.");
+            return;
+          }
+          if (!response.ok || !response.body) {
+            throw new Error(`No se pudo abrir el canal de notificaciones (HTTP ${response.status}).`);
+          }
+          await refreshNotifications();
+          if (sessionUser.role === "guest") await loadGuestReservation(sessionUser);
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          while (!signal.aborted) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+              const block = buffer.slice(0, boundary).replace(/\r/g, "");
+              buffer = buffer.slice(boundary + 2);
+              const data = block.split("\n")
+                .filter((line) => line.startsWith("data:"))
+                .map((line) => line.slice(5).trim())
+                .join("\n");
+              if (data) receiveNotification(JSON.parse(data));
+              boundary = buffer.indexOf("\n\n");
+            }
+          }
+          if (!signal.aborted) await refreshNotifications();
+        } catch (error) {
+          if (signal.aborted) break;
+          console.error("Se perdió el canal de notificaciones; se intentará reconectar:", error);
+        }
+        await waitBeforeReconnect(retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 30000);
+      }
+    };
+
+    connect();
+    return () => controller.abort();
+  }, [user, loadGuestReservation, refreshNotifications]);
+
+  const markNotificationRead = useCallback(async (notificationId) => {
+    const updated = await apiRequest(`/api/notifications/${notificationId}/read`, { method: "PATCH" });
+    setNotifications((current) => current.map((item) => item.id === updated.id ? updated : item));
+  }, []);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    await apiRequest("/api/notifications/read-all", { method: "PATCH" });
+    setNotifications((current) => current.map((item) => item.readAt
+      ? item
+      : { ...item, readAt: new Date().toISOString() }));
+  }, []);
 
   useEffect(() => {
     if (!getAuthToken()) return;
@@ -63,7 +154,7 @@ export function AuthProvider({ children }) {
     };
 
     restoreSession();
-  }, []);
+  }, [loadGuestReservation]);
 
   const login = async (identifier, password, remember = true) => {
     const response = await apiRequest("/api/auth/login", {
@@ -76,6 +167,7 @@ export function AuthProvider({ children }) {
       return { twoFactorRequired: true, challengeToken, email, codeMinutes, resendSeconds };
     }
     saveAuthToken(response.token, remember);
+    setNotifications([]);
     setUser(response.user);
     await loadGuestReservation(response.user);
     return response.user;
@@ -88,6 +180,7 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ challengeToken, code }),
     });
     saveAuthToken(token, remember);
+    setNotifications([]);
     setUser(sessionUser);
     await loadGuestReservation(sessionUser);
     return sessionUser;
@@ -105,6 +198,7 @@ export function AuthProvider({ children }) {
       body: JSON.stringify(registerData),
     });
     saveAuthToken(token, remember);
+    setNotifications([]);
     setUser(sessionUser);
     setReservation(null);
     return sessionUser;
@@ -117,6 +211,7 @@ export function AuthProvider({ children }) {
       clearAuthToken();
       setUser(null);
       setReservation(null);
+      setNotifications([]);
     }
   };
 
@@ -160,6 +255,10 @@ export function AuthProvider({ children }) {
         reservation,
         saveReservation,
         updateProfile,
+        notifications,
+        notificationRevision,
+        markNotificationRead,
+        markAllNotificationsRead,
       }}
     >
       {children}

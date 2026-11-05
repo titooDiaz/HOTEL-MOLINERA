@@ -45,13 +45,9 @@ export default function PublicLayout() {
       navigate("/mi-habitacion");
       return;
     }
-    if (!reservableRooms.length) {
-      window.alert("En este momento no hay habitaciones disponibles para reservar.");
-      return;
-    }
     const availableRoom = requestedRoom?.isAvailable !== false && requestedRoom
       ? requestedRoom
-      : reservableRooms[0];
+      : reservableRooms[0] || rooms[0] || selectedRoom;
     setSelectedRoom(availableRoom);
     setIsReserveOpen(true);
   };
@@ -127,8 +123,8 @@ export default function PublicLayout() {
         onResendTwoFactor={resendTwoFactor}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}
-        room={reservableRooms.find(({ id }) => id === selectedRoom.id) || reservableRooms[0] || selectedRoom}
-        rooms={reservableRooms}
+        room={rooms.find(({ id }) => id === selectedRoom.id) || reservableRooms[0] || rooms[0] || selectedRoom}
+        rooms={rooms}
         onReserve={handleReservation}
       />
     </div>

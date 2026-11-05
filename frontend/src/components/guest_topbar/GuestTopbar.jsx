@@ -9,8 +9,15 @@ import "./GuestTopbar.css";
 
 export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, menuLabel = "Abrir menú" }) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const {
+    logout,
+    notifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+  } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
+  const [notificationError, setNotificationError] = useState("");
+  const unreadCount = notifications.filter((notification) => !notification.readAt).length;
 
   const toggleMenu = (menu) => {
     setOpenMenu((currentMenu) => (currentMenu === menu ? null : menu));
@@ -19,6 +26,27 @@ export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, m
   const handleLogout = () => {
     logout();
     navigate("/", { replace: true });
+  };
+
+  const openNotification = async (notification) => {
+    setNotificationError("");
+    try {
+      if (!notification.readAt) await markNotificationRead(notification.id);
+      setOpenMenu(null);
+      const route = notification.data?.route;
+      if (typeof route === "string" && route.startsWith("/")) navigate(route);
+    } catch (error) {
+      setNotificationError(error.message);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    setNotificationError("");
+    try {
+      await markAllNotificationsRead();
+    } catch (error) {
+      setNotificationError(error.message);
+    }
   };
 
   return (
@@ -37,22 +65,33 @@ export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, m
               onClick={() => toggleMenu("notifications")}
             >
               <Bell size={18} />
-              <span className="guest-notification-dot" />
+              {unreadCount > 0 && <span className="guest-notification-dot" />}
             </button>
           </Tooltip>
           {openMenu === "notifications" && (
             <div className="guest-dropdown guest-notifications-dropdown">
-              <strong className="guest-dropdown-title">Notificaciones</strong>
-              <button type="button" onClick={() => navigate("/pedidos")}>
-                <span className="guest-notification-mark" />
-                Tu pedido está listo para entregar
-                <small>Hace 10 minutos</small>
-              </button>
-              <button type="button" onClick={() => navigate("/mi-habitacion")}>
-                <span className="guest-notification-mark guest-notification-mark--blue" />
-                Tu habitación está disponible
-                <small>Hace 25 minutos</small>
-              </button>
+              <div className="guest-notification-heading">
+                <strong className="guest-dropdown-title">Notificaciones</strong>
+                {unreadCount > 0 && (
+                  <button type="button" className="guest-mark-all-read" onClick={handleMarkAllRead}>
+                    Marcar todas leídas
+                  </button>
+                )}
+              </div>
+              {notificationError && <p className="guest-notification-error" role="alert">{notificationError}</p>}
+              {notifications.length ? notifications.slice(0, 8).map((notification) => (
+                <button
+                  type="button"
+                  className={notification.readAt ? "guest-notification-read" : "guest-notification-unread"}
+                  key={notification.id}
+                  onClick={() => openNotification(notification)}
+                >
+                  <span className="guest-notification-mark" />
+                  <span>{notification.title}</span>
+                  <small>{notification.message}</small>
+                  <small>{new Intl.DateTimeFormat("es-VE", { dateStyle: "short", timeStyle: "short" }).format(new Date(notification.createdAt))}</small>
+                </button>
+              )) : <p className="guest-notification-empty">No tienes notificaciones.</p>}
             </div>
           )}
         </div>

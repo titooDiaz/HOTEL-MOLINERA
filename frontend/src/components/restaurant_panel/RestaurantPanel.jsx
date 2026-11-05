@@ -33,9 +33,9 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
     };
   }, []);
 
-  const runOrderAction = (row, action) => {
+  const runOrderAction = (row, action, value) => {
     setActiveMenuId(null);
-    onOrderAction?.(row, action);
+    onOrderAction?.(row, action, value);
   };
 
   const submitPayment = (event) => {
@@ -85,7 +85,7 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
                       }
                       const rect = event.currentTarget.getBoundingClientRect();
                       const menuWidth = Math.min(288, window.innerWidth - 24);
-                      const menuHeight = isOrders ? 176 : 112;
+                      const menuHeight = isOrders ? 300 : 112;
                       const top = rect.bottom + menuHeight + 8 > window.innerHeight
                         ? Math.max(12, rect.top - menuHeight - 8)
                         : rect.bottom + 8;
@@ -108,6 +108,10 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
             const row = orders.find((order) => order.id === activeMenuId.key);
             return row ? <>
               <button type="button" onClick={() => { setActiveMenuId(null); setPaymentMethod(row.paymentMethod || "efectivo"); setPaymentOrder(row); }}>{row.paymentStatus === "pagado" ? "Actualizar método de pago" : "Marcar como pagado"}</button>
+              {row.rawStatus === "pendiente" && <button type="button" onClick={() => runOrderAction(row, "status", "preparando")}>Iniciar preparación</button>}
+              {row.rawStatus === "preparando" && <button type="button" onClick={() => runOrderAction(row, "status", "preparado")}>Marcar preparado</button>}
+              {row.rawStatus === "preparado" && <button type="button" onClick={() => runOrderAction(row, "status", "en_camino")}>Marcar en camino</button>}
+              {row.rawStatus === "en_camino" && <button type="button" onClick={() => runOrderAction(row, "status", "entregado")}>Marcar entregado</button>}
               <button type="button" onClick={() => runOrderAction(row, "cancel")}>Cancelar pedido</button>
               <button type="button" onClick={() => runOrderAction(row, "add")}>Agregar más productos</button>
             </> : null;

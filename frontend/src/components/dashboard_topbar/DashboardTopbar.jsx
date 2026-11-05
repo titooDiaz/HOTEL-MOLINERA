@@ -9,9 +9,11 @@ import "./DashboardTopbar.css";
 
 export default function DashboardTopbar({ onOpenSidebar, labels }) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, notifications, markNotificationRead, markAllNotificationsRead } = useAuth();
   const topbarActionsRef = useRef(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [notificationError, setNotificationError] = useState("");
+  const unreadCount = notifications.filter((notification) => !notification.readAt).length;
 
   useEffect(() => {
     const handleDocumentClick = (event) => {
@@ -42,6 +44,27 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
   const handleLogout = () => {
     logout();
     navigate("/", { replace: true });
+  };
+
+  const openNotification = async (notification) => {
+    setNotificationError("");
+    try {
+      if (!notification.readAt) await markNotificationRead(notification.id);
+      setOpenMenu(null);
+      const route = notification.data?.route;
+      if (typeof route === "string" && route.startsWith("/")) navigate(route);
+    } catch (error) {
+      setNotificationError(error.message);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    setNotificationError("");
+    try {
+      await markAllNotificationsRead();
+    } catch (error) {
+      setNotificationError(error.message);
+    }
   };
 
   return (
@@ -80,29 +103,35 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
                   <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                   <path d="M13.73 21a2 2 0 0 0-3.46 0" />
                 </DashboardIcon>
-                <span className="notif-dot" />
+                {unreadCount > 0 && <span className="notif-dot" />}
               </button>
             </Tooltip>
             {openMenu === "notifications" && (
               <div className="topbar-dropdown notifications-dropdown">
                 <div className="topbar-dropdown-heading">
                   <strong>Notificaciones</strong>
-                  <span className="notification-count">2 nuevas</span>
+                  {unreadCount > 0 && (
+                    <button type="button" className="notification-mark-all" onClick={handleMarkAllRead}>
+                      Marcar todas leídas ({unreadCount})
+                    </button>
+                  )}
                 </div>
-                <button type="button" className="notification-item" onClick={() => navigate("/admin/reservas")}>
-                  <span className="notification-item-dot notification-item-dot--rose" />
-                  <span>
-                    <strong>Nueva reserva recibida</strong>
-                    <small>Hace 10 minutos</small>
-                  </span>
-                </button>
-                <button type="button" className="notification-item" onClick={() => navigate("/admin/habitaciones")}>
-                  <span className="notification-item-dot notification-item-dot--blue" />
-                  <span>
-                    <strong>Habitación disponible</strong>
-                    <small>Hace 25 minutos</small>
-                  </span>
-                </button>
+                {notificationError && <p className="notification-error" role="alert">{notificationError}</p>}
+                {notifications.length ? notifications.slice(0, 8).map((notification) => (
+                  <button
+                    type="button"
+                    className={`notification-item${notification.readAt ? "" : " notification-item--unread"}`}
+                    key={notification.id}
+                    onClick={() => openNotification(notification)}
+                  >
+                    <span className="notification-item-dot notification-item-dot--rose" />
+                    <span>
+                      <strong>{notification.title}</strong>
+                      <small>{notification.message}</small>
+                      <small>{new Intl.DateTimeFormat("es-VE", { dateStyle: "short", timeStyle: "short" }).format(new Date(notification.createdAt))}</small>
+                    </span>
+                  </button>
+                )) : <p className="notification-empty">No tienes notificaciones.</p>}
               </div>
             )}
           </div>
