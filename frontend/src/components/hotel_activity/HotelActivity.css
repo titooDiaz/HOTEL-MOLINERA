@@ -122,6 +122,21 @@
   line-height: 1.6;
 }
 
+.activity-book-button {
+  align-self: flex-start;
+  margin-top: 1.25rem;
+  padding: .7rem 1rem;
+  border: 0;
+  border-radius: .65rem;
+  color: #fff;
+  background: var(--rose-500, #e11d48);
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.activity-book-button:hover { background: var(--rose-600, #be123c); }
+
 @media (max-width: 768px) {
   .activity-card {
     grid-template-columns: 1fr;

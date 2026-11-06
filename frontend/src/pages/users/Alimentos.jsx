@@ -16,8 +16,10 @@ const COPY = {
     allOrders: "Todos los pedidos",
     paidOrders: "Pagados",
     pendingOrders: "Pendientes",
+    cancelledOrders: "Cancelados",
     paidStatus: "Pagado",
     pendingStatus: "Pendiente",
+    cancelledStatus: "Cancelado",
   },
   account: {
     title: "Resumen de tu cuenta",
@@ -45,6 +47,7 @@ export default function RoomRequests() {
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [error, setError] = useState("");
   const [showOrderDetails, setShowOrderDetails] = useState(false);
 
@@ -56,7 +59,10 @@ export default function RoomRequests() {
       detalle: `${line.quantity} × ${line.foodName}`,
       fecha: formatDate(order.requestedAt),
       monto: Number(line.totalPrice),
-      estado: order.paymentStatus === "pagado" ? "pagado" : "pendiente",
+      estado: order.status === "cancelado" ? "cancelado" : order.paymentStatus === "pagado" ? "pagado" : "pendiente",
+      orderId: order.id,
+      orderCode: order.orderCode,
+      orderStatus: order.status,
       imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
     }))));
   };
@@ -98,6 +104,23 @@ export default function RoomRequests() {
     }
   };
 
+  const cancelOrder = async (order) => {
+    if (!window.confirm(`¿Cancelar el pedido ${order.orderCode || `#${order.orderId}`}?`)) return;
+    setError("");
+    setCancellingOrderId(order.orderId);
+    try {
+      await apiRequest(`/api/me/orders/${order.orderId}/cancel`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      await refreshOrders();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
+
   return (
     <div className="container-fluid p-4">
       <RoomRequestsHero
@@ -115,7 +138,15 @@ export default function RoomRequests() {
               { icon: CheckCircle2, iconBg: "#DDF3E4", iconColor: "#1D9A5D", label: "Pedidos pagados", value: paidOrders.length, sub: formatCurrency(totalPaid) },
               { icon: Clock, iconBg: "#FDF0D5", iconColor: "#C98A1C", label: "Pedidos pendientes", value: pendingOrders.length, sub: formatCurrency(totalPending) },
             ]} />
-            <OrdersList orders={visibleOrders} filter={filter} onFilterChange={setFilter} formatCurrency={formatCurrency} labels={COPY.orders} />
+            <OrdersList
+              orders={visibleOrders}
+              filter={filter}
+              onFilterChange={setFilter}
+              formatCurrency={formatCurrency}
+              labels={COPY.orders}
+              onCancelOrder={cancelOrder}
+              cancellingOrderId={cancellingOrderId}
+            />
             <form className="card border-0 shadow-sm rounded-4 p-4 mt-4" onSubmit={submitOrder}>
               <h2 className="h5 mb-3">Pedir del menú</h2>
               {foods.length ? (
@@ -191,7 +222,7 @@ export default function RoomRequests() {
                           <p className="small text-secondary mb-0">{formatDate(order.requestedAt)}</p>
                         </div>
                         <span className="badge rounded-pill bg-light text-dark align-self-start">
-                          {order.paymentStatus === "pagado" ? "Pagado" : "Pendiente de pago"}
+                          {order.status === "cancelado" ? "Cancelado" : order.paymentStatus === "pagado" ? "Pagado" : "Pendiente de pago"}
                         </span>
                       </div>
 

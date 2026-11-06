@@ -78,6 +78,18 @@ function createSections(clients, rooms, selectedClientId) {
           ],
         },
         { id: "advance", label: "Anticipo recibido (VES)", type: "number", prefix: "Bs.", min: 0, step: 1, defaultValue: 0 },
+        {
+          id: "paymentMethod",
+          label: "Método del anticipo (si aplica)",
+          defaultValue: "efectivo",
+          options: [
+            { value: "efectivo", label: "Efectivo" },
+            { value: "tarjeta", label: "Tarjeta" },
+            { value: "transferencia", label: "Transferencia" },
+            { value: "pago_movil", label: "Pago Móvil" },
+          ],
+        },
+        { id: "transactionReference", label: "Referencia de transferencia o Pago Móvil", maxLength: 150 },
         { id: "specialRequests", label: "Solicitudes especiales", type: "textarea", rows: 3, colClass: "col-12" },
       ],
     },
@@ -120,6 +132,9 @@ export default function NuevaReserva() {
     const guestCount = Number(payload.adults || 0) + Number(payload.children || 0);
     if (room && guestCount > room.capacity) return `La habitación ${room.number} admite máximo ${room.capacity} personas.`;
     if (room && Number(payload.advance || 0) > nights * Number(room.pricePerNight)) return "El anticipo no puede superar el total estimado.";
+    if (Number(payload.advance || 0) > 0 && ["transferencia", "pago_movil"].includes(payload.paymentMethod) && !payload.transactionReference?.trim()) {
+      return "Indica la referencia de la transferencia o Pago Móvil.";
+    }
     return null;
   };
 

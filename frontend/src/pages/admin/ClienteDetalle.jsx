@@ -1,7 +1,7 @@
 // Perfil administrativo de un cliente con su historial de reservas.
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { apiRequest } from "../../api.js";
+import { apiRequest, downloadProtectedFile } from "../../api.js";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import { formatCOP } from "../../components/admin_form/formUtils.js";
 import "./HotelDashboard.css";
@@ -10,6 +10,11 @@ const formatDate = (date) => date
   ? new Intl.DateTimeFormat("es-VE").format(new Date(`${date}T00:00:00`))
   : "—";
 
+const formatPaymentAmount = (value) => `Bs. ${new Intl.NumberFormat("es-VE", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+}).format(Number(value) || 0)}`;
+
 export default function ClienteDetalle() {
   const { id } = useParams();
   const [client, setClient] = useState(null);
@@ -17,7 +22,7 @@ export default function ClienteDetalle() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [updatingReservationId, setUpdatingReservationId] = useState(null);
-  const [paymentMethods, setPaymentMethods] = useState({});
+  const [paymentDetails, setPaymentDetails] = useState({});
 
   useEffect(() => {
     apiRequest(`/api/clients/${id}`)
@@ -30,7 +35,17 @@ export default function ClienteDetalle() {
     const room = reservation.habitacion
       ? `${reservation.habitacion.type} (${reservation.habitacion.number})`
       : "la habitación";
-    if (!window.confirm(`¿Registrar como pagada ${room} de la reserva ${reservation.reservationCode}?`)) return;
+    const details = paymentDetails[reservation.id] || {};
+    const amount = Number(details.amount ?? reservation.balance ?? reservation.total);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Indica un monto de abono válido.");
+      return;
+    }
+    if (["transferencia", "pago_movil"].includes(details.method) && !details.transactionReference?.trim()) {
+      setError("Indica la referencia de la transferencia o Pago Móvil.");
+      return;
+    }
+    if (!window.confirm(`¿Registrar un abono de ${formatPaymentAmount(amount)} para ${room} de la reserva ${reservation.reservationCode}?`)) return;
 
     setUpdatingReservationId(reservation.id);
     setError("");
@@ -39,8 +54,10 @@ export default function ClienteDetalle() {
       const updatedReservation = await apiRequest(`/api/reservations/${reservation.id}/payment`, {
         method: "PATCH",
         body: JSON.stringify({
-          paymentStatus: "pagado",
-          paymentMethod: paymentMethods[reservation.id] || "efectivo",
+          amount,
+          paymentMethod: details.method || "efectivo",
+          transactionReference: details.transactionReference || "",
+          notes: details.notes || "",
         }),
       });
       setClient((current) => ({
@@ -53,6 +70,31 @@ export default function ClienteDetalle() {
     } finally {
       setUpdatingReservationId(null);
     }
+  };
+
+  const downloadStatement = async (reservation) => {
+    setUpdatingReservationId(reservation.id);
+    setError("");
+    try {
+      await downloadProtectedFile(
+        `/api/reservations/${reservation.id}/receipt.pdf`,
+        `estado-cuenta-${reservation.reservationCode}.pdf`,
+      );
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  };
+
+  const updatePaymentDetail = (reservationId, field, value) => {
+    setPaymentDetails((current) => ({
+      ...current,
+      [reservationId]: {
+        ...current[reservationId],
+        [field]: value,
+      },
+    }));
   };
 
   return (
@@ -102,7 +144,7 @@ export default function ClienteDetalle() {
                 <table className="table admin-table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th>Reserva</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Pago</th><th>Total</th><th>Acciones</th>
+                      <th>Reserva</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Pago</th><th>Total / saldo</th><th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -116,38 +158,74 @@ export default function ClienteDetalle() {
                         <td>{formatDate(reservation.checkOut)}</td>
                         <td>{reservation.status}</td>
                         <td>
-                          <span className={`badge rounded-pill ${reservation.paymentStatus === "pagado" ? "text-bg-success" : "text-bg-warning"}`}>
-                            {reservation.paymentStatus === "pagado" ? "Pagado" : "Pendiente"}
+                          <span className={`badge rounded-pill ${reservation.paymentStatus === "pagado" ? "text-bg-success" : reservation.paymentStatus === "parcial" ? "text-bg-info" : "text-bg-warning"}`}>
+                            {reservation.paymentStatus === "pagado" ? "Pagado" : reservation.paymentStatus === "parcial" ? "Abono parcial" : "Pendiente"}
                           </span>
                         </td>
-                        <td>{formatCOP(Number(reservation.total || 0))}</td>
                         <td>
+                          <div>{formatCOP(Number(reservation.total || 0))}</div>
+                          {Number(reservation.balance || 0) > 0 && (
+                            <small className="text-secondary">Pendiente: {formatCOP(Number(reservation.balance))}</small>
+                          )}
+                        </td>
+                        <td>
+                          <div className="d-flex flex-column gap-2">
                           {reservation.paymentStatus !== "pagado" && !["cancelada", "cancelado"].includes(reservation.status) && (
                             <div className="d-flex flex-wrap align-items-center gap-2">
+                              <input
+                                aria-label={`Monto del abono de la reserva ${reservation.reservationCode}`}
+                                className="form-control form-control-sm"
+                                type="number"
+                                min="0.01"
+                                max={reservation.balance ?? reservation.total}
+                                step="0.01"
+                                placeholder={`Saldo ${reservation.balance ?? reservation.total}`}
+                                value={paymentDetails[reservation.id]?.amount ?? ""}
+                                onChange={(event) => updatePaymentDetail(reservation.id, "amount", event.target.value)}
+                                disabled={updatingReservationId !== null}
+                              />
                               <select
                                 aria-label={`Método de pago de la reserva ${reservation.reservationCode}`}
                                 className="form-select form-select-sm"
-                                value={paymentMethods[reservation.id] || "efectivo"}
-                                onChange={(event) => setPaymentMethods((current) => ({
-                                  ...current,
-                                  [reservation.id]: event.target.value,
-                                }))}
+                                value={paymentDetails[reservation.id]?.method || "efectivo"}
+                                onChange={(event) => updatePaymentDetail(reservation.id, "method", event.target.value)}
                                 disabled={updatingReservationId !== null}
                               >
                                 <option value="efectivo">Efectivo</option>
                                 <option value="tarjeta">Tarjeta</option>
                                 <option value="transferencia">Transferencia</option>
+                                <option value="pago_movil">Pago Móvil</option>
                               </select>
+                              {["transferencia", "pago_movil"].includes(paymentDetails[reservation.id]?.method) && (
+                                <input
+                                  aria-label={`Referencia del pago de la reserva ${reservation.reservationCode}`}
+                                  className="form-control form-control-sm"
+                                  maxLength={150}
+                                  placeholder="Referencia de transacción"
+                                  value={paymentDetails[reservation.id]?.transactionReference || ""}
+                                  onChange={(event) => updatePaymentDetail(reservation.id, "transactionReference", event.target.value)}
+                                  disabled={updatingReservationId !== null}
+                                />
+                              )}
                               <button
                                 type="button"
                                 className="admin-action-button admin-action-button--primary"
                                 onClick={() => handleRegisterPayment(reservation)}
                                 disabled={updatingReservationId !== null}
                               >
-                                {updatingReservationId === reservation.id ? "Guardando..." : "Registrar pago"}
+                                {updatingReservationId === reservation.id ? "Guardando..." : "Registrar abono"}
                               </button>
                             </div>
                           )}
+                          <button
+                            type="button"
+                            className="admin-action-button admin-action-button--outline"
+                            onClick={() => downloadStatement(reservation)}
+                            disabled={updatingReservationId !== null}
+                          >
+                            Descargar estado de cuenta PDF
+                          </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

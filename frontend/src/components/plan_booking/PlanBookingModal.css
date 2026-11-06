@@ -1,0 +1,45 @@
+.plan-booking-backdrop {
+  position: fixed;
+  z-index: 6000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 1rem;
+  background: rgb(15 23 42 / 58%);
+}
+
+.plan-booking-dialog {
+  width: min(100%, 34rem);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 1.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 1.5rem 4rem rgb(15 23 42 / 28%);
+}
+
+.plan-booking-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-booking-heading p { margin: 0 0 .25rem; color: var(--text-secondary); font-size: .8rem; }
+.plan-booking-heading h2 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+.plan-booking-heading > button { width: 2rem; height: 2rem; border: 0; border-radius: .5rem; color: var(--text-secondary); background: var(--bg-subtle); font-size: 1.4rem; line-height: 1; }
+.plan-booking-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding-top: 1rem; }
+.plan-booking-form > label { display: grid; gap: .4rem; color: var(--text-secondary); font-size: .85rem; font-weight: 600; }
+.plan-booking-form .form-control { min-height: 2.5rem; color: var(--text-primary); background: var(--bg-surface); border-color: var(--border-color); }
+.plan-booking-full-width { grid-column: 1 / -1; }
+.plan-booking-summary { margin: 0; padding: .8rem; border-radius: .65rem; color: var(--text-secondary); background: var(--bg-subtle); font-size: .85rem; line-height: 1.55; }
+.plan-booking-actions { display: flex; justify-content: flex-end; gap: .65rem; }
+.plan-booking-actions button:disabled, .plan-booking-heading button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 520px) {
+  .plan-booking-form { grid-template-columns: 1fr; }
+  .plan-booking-full-width { grid-column: auto; }
+}

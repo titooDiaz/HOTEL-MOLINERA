@@ -20,6 +20,7 @@
     "multer": "^2.5.0",
     "mysql2": "^3.14.4",
     "nodemailer": "^10.3.1",
+    "pdfkit": "^0.20.2",
     "sequelize": "^6.37.7"
   }
 }

@@ -6,6 +6,7 @@ export default function RoomsGrid({
   labels,
   deletingRoomId,
   updatingImagesRoomId,
+  onManageRoom,
   onDeleteRoom,
   onUpdateRoomImages,
 }) {
@@ -34,23 +35,33 @@ export default function RoomsGrid({
                 <strong className="admin-room-number">{room.number}</strong>
                 <span className={`admin-status-badge ${room.statusClass}`}>{room.status}</span>
               </div>
-              <p className="admin-room-type">{room.type} <span>· {room.floor}</span></p>
+              <p className="admin-room-type">{room.type} <span>· {room.floorLabel}</span></p>
               <p className="admin-room-guest">{room.guest ? `${labels.guestPrefix} ${room.guest}` : labels.noGuest}</p>
               {!room.isDeleted && (
-                <label className="admin-action-button admin-action-button--outline admin-room-delete">
-                  {updatingImagesRoomId === room.id ? "Subiendo..." : "Subir imágenes"}
-                  <input
-                    className="room-image-upload-input"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    multiple
-                    disabled={updatingImagesRoomId !== null || deletingRoomId !== null}
-                    onChange={(event) => {
-                      onUpdateRoomImages(room, event.target.files);
-                      event.target.value = "";
-                    }}
-                  />
-                </label>
+                <>
+                  <button
+                    className="admin-action-button admin-action-button--outline admin-room-delete"
+                    type="button"
+                    onClick={() => onManageRoom(room)}
+                    disabled={deletingRoomId !== null || updatingImagesRoomId !== null}
+                  >
+                    Gestionar habitación
+                  </button>
+                  <label className="admin-action-button admin-action-button--outline admin-room-delete">
+                    {updatingImagesRoomId === room.id ? "Subiendo..." : "Reemplazar galería"}
+                    <input
+                      className="room-image-upload-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple
+                      disabled={updatingImagesRoomId !== null || deletingRoomId !== null}
+                      onChange={(event) => {
+                        onUpdateRoomImages(room, event.target.files);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                </>
               )}
               <button
                 className="admin-action-button admin-action-button--danger admin-room-delete"

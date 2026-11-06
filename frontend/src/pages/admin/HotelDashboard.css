@@ -172,6 +172,25 @@
 .restaurant-payment-total { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: .9rem; border-radius: .65rem; color: var(--text-primary); background: var(--bg-subtle); }
 .restaurant-payment-total strong { font-size: 1.1rem; }
 .restaurant-payment-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-top: 1.25rem; }
+.restaurant-menu-modal { width: min(100%, 42rem); }
+.restaurant-menu-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem 1rem; padding-top: 1rem; }
+.restaurant-menu-form > label { display: grid; align-content: start; gap: .4rem; color: var(--text-secondary); font-size: .8125rem; font-weight: 600; }
+.restaurant-menu-form .admin-form-control { width: 100%; }
+.restaurant-menu-form h3 { margin: 0; color: var(--text-primary); font-size: 1rem; font-weight: 650; }
+.restaurant-menu-full-width { grid-column: 1 / -1; }
+.restaurant-menu-checkbox { display: flex !important; align-items: center; gap: .5rem !important; min-height: 2.5rem; }
+.restaurant-menu-checkbox input { accent-color: var(--rose-500); }
+.restaurant-menu-hint { margin: 0; color: var(--text-muted); font-size: .8125rem; }
+.restaurant-menu-form button:disabled,
+.restaurant-order-modal-close:disabled { opacity: .6; cursor: wait; }
+.restaurant-categories-admin-list { display: grid; gap: .5rem; max-height: 14rem; overflow: auto; margin-top: 1rem; }
+.restaurant-category-admin-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem; border: 1px solid var(--border-subtle); border-radius: .6rem; }
+.restaurant-category-admin-row > span { display: grid; gap: .2rem; color: var(--text-primary); }
+.restaurant-category-admin-row small { color: var(--text-muted); font-size: .75rem; }
+.restaurant-category-admin-row > div { display: flex; flex-wrap: wrap; gap: .35rem; }
+.restaurant-category-admin-row .admin-action-button { min-height: 2rem; padding: .35rem .55rem; font-size: .75rem; }
+.plan-admin-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.plan-admin-actions .admin-action-button { min-height: 2rem; padding: .35rem .6rem; font-size: .75rem; }
 .admin-status-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .3rem .55rem; font-size: .7rem; font-weight: 600; white-space: nowrap; }
 .admin-status-badge.badge-pill-emerald { color: #047857; background: #d1fae5; }
 .admin-status-badge.badge-pill-rose { color: #be123c; background: #ffe4e6; }
@@ -277,3 +296,65 @@ body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-orange { co
 [data-theme="dark"] .admin-dashboard .admin-status-badge.badge-pill-blue,
 .dark .admin-dashboard .admin-status-badge.badge-pill-blue,
 body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-blue { color: #93c5fd; background: rgba(59, 130, 246, .16); }
+
+@media (max-width: 576px) {
+    .restaurant-menu-form { grid-template-columns: 1fr; }
+    .restaurant-menu-full-width { grid-column: auto; }
+    .restaurant-category-admin-row { align-items: flex-start; flex-direction: column; }
+}
+
+.room-management-backdrop {
+    position: fixed;
+    z-index: 6000;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow-y: auto;
+    padding: 1rem;
+    background: rgb(15 23 42 / 58%);
+    backdrop-filter: blur(3px);
+}
+.room-management-modal {
+    width: min(100%, 48rem);
+    max-height: min(92vh, 60rem);
+    overflow-y: auto;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    box-shadow: 0 1rem 2.5rem rgb(15 23 42 / 24%);
+}
+.room-management-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.room-management-header h2 { margin: 0; color: var(--text-primary); font-size: 1.25rem; font-weight: 700; }
+.room-management-header p { margin: .35rem 0 0; color: var(--text-secondary); font-size: .875rem; }
+.room-management-close { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border: 1px solid var(--border-color); border-radius: .6rem; color: var(--text-secondary); background: var(--bg-surface); font-size: 1.5rem; line-height: 1; }
+.room-management-close:hover { color: var(--text-primary); background: var(--bg-hover); }
+.room-management-tabs { display: flex; gap: .35rem; margin: 1.25rem 0; border-bottom: 1px solid var(--border-color); }
+.room-management-tab { padding: .65rem .85rem; border: 0; border-bottom: 2px solid transparent; color: var(--text-secondary); background: transparent; font: inherit; font-size: .875rem; font-weight: 600; }
+.room-management-tab:hover { color: var(--text-primary); }
+.room-management-tab.is-active { border-bottom-color: var(--rose-500); color: var(--text-primary); }
+.room-management-feedback { margin: 0 0 1rem; }
+.room-management-form { display: grid; gap: 1.25rem; }
+.room-management-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.room-management-fields > label { display: grid; align-content: start; gap: .4rem; color: var(--text-secondary); font-size: .8125rem; font-weight: 600; }
+.room-management-fields .admin-form-control { width: 100%; }
+.room-management-full-width { grid-column: 1 / -1; }
+.room-management-amenities { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem 1rem; margin: 0; padding: 1rem; border: 1px solid var(--border-color); border-radius: .75rem; }
+.room-management-amenities legend { float: none; width: auto; margin: 0; padding: 0 .35rem; color: var(--text-primary); font-size: .875rem; font-weight: 650; }
+.room-management-amenities label { display: flex; align-items: center; gap: .5rem; color: var(--text-secondary); font-size: .85rem; }
+.room-management-amenities input { accent-color: var(--rose-500); }
+.room-management-actions { display: flex; justify-content: flex-end; gap: .65rem; }
+.room-management-hint { margin: 0; color: var(--text-muted); font-size: .8125rem; }
+.room-management-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .75rem; }
+.room-management-photo { display: grid; gap: .5rem; margin: 0; }
+.room-management-photo img { width: 100%; height: 9rem; border: 1px solid var(--border-color); border-radius: .65rem; object-fit: cover; background: var(--bg-subtle); }
+.room-management-photo .admin-action-button { min-height: 2.2rem; padding: .4rem .55rem; font-size: .8rem; }
+.room-management-upload { display: grid; gap: .5rem; color: var(--text-primary); font-size: .875rem; font-weight: 650; }
+.room-management-upload input { width: 100%; font-weight: 400; }
+.room-management-modal button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 576px) {
+    .room-management-modal { padding: 1rem; }
+    .room-management-fields, .room-management-amenities { grid-template-columns: 1fr; }
+    .room-management-full-width { grid-column: auto; }
+}

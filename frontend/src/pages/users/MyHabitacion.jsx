@@ -8,9 +8,10 @@ import OrderStatistics from "../../components/order_statistics/OrderStatistics.j
 import AccountSummary from "../../components/account_summary/AccountSummary.jsx";
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 import ReservationForm from "../../components/booking/ReservationForm.jsx";
+import PaymentHistory from "../../components/payment_history/PaymentHistory.jsx";
 import { useAuth } from "../../context/authContext.js";
 import { room, roomFromApi, rooms as defaultRooms } from "../../roomData.js";
-import { apiRequest } from "../../api.js";
+import { apiRequest, downloadProtectedFile } from "../../api.js";
 import { useEffect, useState } from "react";
 
 import "./Alimentos.css";
@@ -71,9 +72,26 @@ export default function MyRoom() {
     const { reservation, saveReservation } = useAuth();
     const [availableRooms, setAvailableRooms] = useState(defaultRooms);
     const [showReservationDetails, setShowReservationDetails] = useState(false);
+    const [downloadingStatement, setDownloadingStatement] = useState(false);
+    const [statementError, setStatementError] = useState("");
     const totalHabitacion = Number(reservation?.total || 0);
     const totalPagado = Number(reservation?.advance || 0);
     const totalPendiente = Number(reservation?.balance ?? Math.max(0, totalHabitacion - totalPagado));
+
+    const downloadStatement = async () => {
+        setDownloadingStatement(true);
+        setStatementError("");
+        try {
+            await downloadProtectedFile(
+                `/api/me/reservations/${reservation.id}/receipt.pdf`,
+                `estado-cuenta-${reservation.reservationCode || reservation.id}.pdf`,
+            );
+        } catch (error) {
+            setStatementError(error.message);
+        } finally {
+            setDownloadingStatement(false);
+        }
+    };
 
     useEffect(() => {
         apiRequest("/api/rooms")
@@ -126,6 +144,7 @@ export default function MyRoom() {
                         </div>
                     </div>
                 </div>
+                <PaymentHistory />
             </div>
         );
     }
@@ -264,17 +283,29 @@ export default function MyRoom() {
                                     )}
                                 </dl>
 
-                                <button
-                                    type="button"
-                                    className="btn account-button w-100"
-                                    onClick={() => setShowReservationDetails(false)}
-                                >
-                                    Cerrar
-                                </button>
+                                {statementError && <p className="alert alert-danger mt-3" role="alert">{statementError}</p>}
+                                <div className="d-flex flex-wrap gap-2 mt-3">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-secondary flex-fill"
+                                        onClick={downloadStatement}
+                                        disabled={downloadingStatement}
+                                    >
+                                        {downloadingStatement ? "Generando PDF..." : "Descargar estado de cuenta PDF"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn account-button flex-fill"
+                                        onClick={() => setShowReservationDetails(false)}
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
                             </section>
                         </div>
                     )}
 
+                    <PaymentHistory />
         </div>
     );
 }

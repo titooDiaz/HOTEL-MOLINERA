@@ -28,6 +28,15 @@ export const NAV_ITEMS = [
     ),
   },
   {
+    label: "Pagos",
+    icon: (
+      <>
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M2 10h20M6 15h4" />
+      </>
+    ),
+  },
+  {
     label: "Clientes",
     icon: (
       <>

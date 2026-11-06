@@ -4,15 +4,16 @@ import "./OrdersList.css";
 
 function OrderStatus({ status, labels }) {
   const paid = status === "pagado";
+  const cancelled = status === "cancelado";
 
   return (
-    <span className={`badge rounded-pill px-3 py-2 ${paid ? "order-paid" : "order-pending"}`}>
-      {paid ? labels.paidStatus : labels.pendingStatus}
+    <span className={`badge rounded-pill px-3 py-2 ${paid ? "order-paid" : cancelled ? "order-cancelled" : "order-pending"}`}>
+      {paid ? labels.paidStatus : cancelled ? labels.cancelledStatus : labels.pendingStatus}
     </span>
   );
 }
 
-export default function OrdersList({ orders, filter, onFilterChange, formatCurrency, labels }) {
+export default function OrdersList({ orders, filter, onFilterChange, formatCurrency, labels, onCancelOrder, cancellingOrderId }) {
   return (
     <section className="orders-card bg-white rounded-4">
       <div className="p-4 d-flex align-items-center justify-content-between">
@@ -26,6 +27,7 @@ export default function OrdersList({ orders, filter, onFilterChange, formatCurre
           <option value="todos">{labels.allOrders}</option>
           <option value="pagado">{labels.paidOrders}</option>
           <option value="pendiente">{labels.pendingOrders}</option>
+          <option value="cancelado">{labels.cancelledOrders}</option>
         </select>
       </div>
 
@@ -43,12 +45,22 @@ export default function OrdersList({ orders, filter, onFilterChange, formatCurre
                 <CalendarDays size={14} />
                 {order.fecha}
               </div>
+              {order.orderStatus === "pendiente" && (
+                <button
+                  type="button"
+                  className="order-cancel-button"
+                  disabled={cancellingOrderId === order.orderId}
+                  onClick={() => onCancelOrder(order)}
+                >
+                  {cancellingOrderId === order.orderId ? "Cancelando..." : "Cancelar pedido"}
+                </button>
+              )}
             </div>
             <div className="order-price text-end">
               <div className="fw-semibold mb-1">{formatCurrency(order.monto)}</div>
               <OrderStatus status={order.estado} labels={labels} />
             </div>
-            <ChevronRight size={18} className="order-chevron text-secondary" />
+            {order.orderStatus !== "cancelado" && <ChevronRight size={18} className="order-chevron text-secondary" />}
           </li>
         ))}
       </ul>

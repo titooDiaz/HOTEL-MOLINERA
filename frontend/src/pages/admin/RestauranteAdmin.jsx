@@ -12,7 +12,7 @@ const LABELS = {
   panel: {
     tabs: { orders: "Pedidos", menu: "Menú" },
     orderColumns: { room: "Habitación", client: "Cliente", item: "Pedido", details: "Detalle", amount: "Monto", time: "Hora", status: "Estado", actions: "Acciones" },
-    menuColumns: { name: "Plato", category: "Categoría", price: "Precio", availability: "Disponibilidad", actions: "Acciones" },
+    menuColumns: { name: "Plato", category: "Categoría", price: "Precio", availability: "Disponibilidad", stock: "Stock", actions: "Acciones" },
     available: "Disponible",
     soldOut: "Agotado",
   },
@@ -30,6 +30,7 @@ const orderStatus = {
 export default function RestauranteAdmin() {
   const navigate = useNavigate();
   const [data, setData] = useState({ orders: [], menu: [] });
+  const [categories, setCategories] = useState([]);
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,7 +38,11 @@ export default function RestauranteAdmin() {
   const loadData = async () => {
     setError("");
     try {
-      const [orders, foods] = await Promise.all([apiRequest("/api/orders"), apiRequest("/api/foods")]);
+      const [orders, foods, foodCategories] = await Promise.all([
+        apiRequest("/api/orders"),
+        apiRequest("/api/foods"),
+        apiRequest("/api/food-categories"),
+      ]);
       const today = new Date().toDateString();
       const todaysOrders = orders.filter((order) => new Date(order.requestedAt).toDateString() === today);
       const activeOrdersToday = todaysOrders.filter((order) => order.status !== "cancelado");
@@ -70,12 +75,16 @@ export default function RestauranteAdmin() {
         };
       });
       const menu = foods.map((food) => ({
+        ...food,
+        id: food.id,
         name: food.name,
         category: food.categoria?.name || "Sin categoría",
         price: formatCOP(Number(food.price)),
         available: food.isAvailable && !food.isSoldOut,
+        stockQuantity: food.stockQuantity,
       }));
       setData({ orders: rows, menu });
+      setCategories(foodCategories);
       setStats([
         { label: "Pedidos hoy", value: String(todaysOrders.length), sub: "incluye pedidos cancelados" },
         { label: "Pendientes", value: String(activeOrdersToday.filter((order) => order.status === "pendiente").length), sub: "por preparar o entregar" },
@@ -125,6 +134,21 @@ export default function RestauranteAdmin() {
     }
   };
 
+  const handleFoodDelete = async (food) => {
+    if (!window.confirm(`¿Eliminar "${food.name}" del menú?`)) return;
+    try {
+      await apiRequest(`/api/foods/${food.id}`, { method: "DELETE" });
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.message);
+      window.alert(`No se pudo eliminar el producto: ${requestError.message}`);
+    }
+  };
+
+  const handleFoodUpdated = async () => {
+    await loadData();
+  };
+
   return (
     <>
       <PageHeader title="Restaurante" subtitle="Gestiona pedidos y productos del menú." actionLabel="+ Nuevo pedido" onAction={() => navigate("/admin/restaurante/nuevo")}>
@@ -134,7 +158,16 @@ export default function RestauranteAdmin() {
       {error && <p className="alert alert-danger" role="alert">{error}</p>}
       {!loading && !error && <>
         <SummaryCards cards={stats} columnClass="col-12 col-sm-4" />
-        <RestaurantPanel orders={data.orders} menu={data.menu} labels={LABELS.panel} onOrderAction={handleOrderAction} />
+        <RestaurantPanel
+          orders={data.orders}
+          menu={data.menu}
+          categories={categories}
+          labels={LABELS.panel}
+          onOrderAction={handleOrderAction}
+          onFoodDelete={handleFoodDelete}
+          onFoodUpdated={handleFoodUpdated}
+          onCategoriesChanged={loadData}
+        />
       </>}
     </>
   );

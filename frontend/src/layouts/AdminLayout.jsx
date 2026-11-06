@@ -21,6 +21,11 @@ const TOPBAR_COPY = [
     searchLabel: "Buscar reservas",
   },
   {
+    paths: ["/admin/pagos"],
+    searchPlaceholder: "Buscar pagos por huésped o referencia...",
+    searchLabel: "Buscar pagos",
+  },
+  {
     paths: ["/admin/clientes", "/admin/clientes/nuevo"],
     searchPlaceholder: "Buscar cliente por nombre o email...",
     searchLabel: "Buscar clientes",

@@ -21,14 +21,14 @@ import "./AdminForm.css";
  *  - summary?: (payload) => ReactNode. Se muestra como tarjeta antes de los botones.
  */
 
-function buildInitialState(sections) {
+function buildInitialState(sections, initialValues = {}) {
   const values = {};
   const checks = {};
   const quantities = {};
 
   sections.forEach((section) => {
     section.fields?.forEach((field) => {
-      values[field.id] = field.defaultValue ?? "";
+      values[field.id] = initialValues[field.id] ?? field.defaultValue ?? "";
     });
     section.amenities?.forEach((amenity) => {
       checks[amenity.id] = Boolean(amenity.defaultChecked);
@@ -194,8 +194,8 @@ function QuantityRow({ item, quantity, onChange, labels }) {
   );
 }
 
-export default function AdminForm({ sections, labels, onSubmit, onCancel, validate, summary }) {
-  const [state, setState] = useState(() => buildInitialState(sections));
+export default function AdminForm({ sections, labels, onSubmit, onCancel, validate, summary, initialValues }) {
+  const [state, setState] = useState(() => buildInitialState(sections, initialValues));
   const [status, setStatus] = useState("idle"); // idle | sending | success | error | invalid
   const [problem, setProblem] = useState("");
 
@@ -246,7 +246,7 @@ export default function AdminForm({ sections, labels, onSubmit, onCancel, valida
     try {
       await onSubmit(payload);
       form.reset();
-      setState(buildInitialState(sections));
+      setState(buildInitialState(sections, initialValues));
       setStatus("success");
       window.alert(labels.successMessage);
     } catch (error) {

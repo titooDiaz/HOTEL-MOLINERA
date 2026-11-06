@@ -62,9 +62,24 @@ Vite envía las llamadas `/api` al backend en `http://localhost:3000`. Para prod
 - Gestión/listado de habitaciones, huéspedes, reservas y pedidos; formularios para publicar productos y planes.
 - En el listado de clientes, administración puede consultar el perfil e historial de reservas, crear una reserva con el cliente preseleccionado y eliminar su acceso. La eliminación conserva el historial y se bloquea si tiene reservas vigentes o futuras.
 - Menú y planes públicos, pedidos de huéspedes y formulario de contacto persistido.
+- Administración de habitaciones desde el panel: edición de sus datos, programación de mantenimiento y bloqueos temporales, y eliminación individual de fotos con limpieza de imágenes que ya no se usan.
+- Gestión del restaurante desde el panel: edición y disponibilidad de platos, control de existencias y CRUD de categorías. Los huéspedes pueden cancelar pedidos pendientes; al registrar como pagado un pedido se guarda también su pago.
+- Edición y retiro lógico de planes desde administración. Los huéspedes autenticados pueden solicitar una experiencia sin reservar habitación; la solicitud queda pendiente de confirmación y el pago se coordina con recepción.
+- Caja y pagos: administración consulta `/api/payments`, cada huésped consulta solo sus transacciones en `/api/me/payments`; los abonos a reservas se registran individualmente, admiten referencia para transferencia/Pago Móvil y actualizan el saldo pendiente.
+- Estados de cuenta descargables en PDF desde **Mi habitación** y la administración. Incluyen alojamiento, pedidos asociados a la habitación durante las fechas de estadía, abonos y saldo; son comprobantes informativos, no facturas fiscales.
 - Notificaciones por usuario para nuevas reservas, pedidos y mensajes; los huéspedes reciben cambios de reserva y avisos cuando su pedido está preparado o en camino. Se consultan y marcan como leídas desde las barras superiores; los cambios en tiempo real se entregan por SSE autenticado, sin sondeo periódico.
 - Las reservas comprueban disponibilidad, fechas y capacidad; los pedidos validan productos y cantidades en el servidor.
 - Los datos del hotel y las preferencias de apariencia/región del panel se guardan en el navegador; el cambio de contraseña y el perfil del huésped usan la API.
+
+## Solicitudes directas de planes
+
+Las experiencias con precio configurado se pueden solicitar desde **Planes**, sin una reserva de habitación. La solicitud registra fechas, participantes y el precio calculado por el servidor, y comienza en estado `pendiente`; el hotel la confirma desde **Planes y actividades**. Esta función no procesa pagos en línea. Las tablas que falten, incluida `reservas_planes`, se crean al iniciar el backend; no se alteran columnas de tablas existentes.
+
+## Pagos y estados de cuenta
+
+- `GET /api/payments` requiere administrador; `GET /api/me/payments` requiere sesión y devuelve únicamente las transacciones del usuario.
+- `PATCH /api/reservations/:id/payment` registra un abono de una reserva. Acepta `amount` (opcional; si falta, cobra el saldo completo), `paymentMethod` (`efectivo`, `tarjeta`, `transferencia` o `pago_movil`), `transactionReference` y `notes`. Los pagos por transferencia y Pago Móvil requieren referencia; cada abono queda como transacción independiente y actualiza el saldo.
+- Los estados de cuenta PDF se obtienen mediante `GET /api/reservations/:id/receipt.pdf` (administración) o `GET /api/me/reservations/:id/receipt.pdf` (huésped propietario). Incluyen habitación, consumos de restaurante durante el horario de estadía, pagos y saldo. Son comprobantes informativos, no facturas fiscales.
 
 ## Verificación en dos pasos por correo
 

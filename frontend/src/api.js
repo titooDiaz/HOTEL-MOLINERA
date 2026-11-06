@@ -36,5 +36,31 @@ export async function apiRequest(url, options = {}) {
   return body;
 }
 
+export async function downloadProtectedFile(url, filename) {
+  const headers = new Headers();
+  const token = getAuthToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const response = await fetch(url, { headers });
+  if (!response.ok) {
+    const body = await response.text();
+    let message = body || `Error ${response.status} al descargar el archivo.`;
+    try {
+      message = JSON.parse(body)?.error || message;
+    } catch {
+      // The server may return a plain-text error body.
+    }
+    throw new Error(message);
+  }
+  const objectUrl = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
 export const postJson = (url, data) =>
   apiRequest(url, { method: "POST", body: JSON.stringify(data) });

@@ -16,12 +16,14 @@ import {
   ClienteDetalle,
   Configuracion,
   Contacto,
+  EditarPlan,
   Habitaciones,
   HotelDashboard,
   MyRoom,
   NotFound,
   NuevaHabitacion,
   NuevaReserva,
+  Pagos,
   NuevoCliente,
   NuevoPedido,
   NuevoProducto,
@@ -68,6 +70,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/admin/habitaciones" element={<RoutePage component={Habitaciones} />} />
               <Route path="/admin/habitaciones/nueva" element={<RoutePage component={NuevaHabitacion} />} />
               <Route path="/admin/reservas" element={<RoutePage component={Reservas} />} />
+              <Route path="/admin/pagos" element={<RoutePage component={Pagos} />} />
               <Route path="/admin/reservas/nueva" element={<RoutePage component={NuevaReserva} />} />
               <Route path="/admin/clientes" element={<RoutePage component={Clientes} />} />
               <Route path="/admin/clientes/:id" element={<RoutePage component={ClienteDetalle} />} />
@@ -77,6 +80,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/admin/restaurante/menu/nuevo" element={<RoutePage component={NuevoProducto} />} />
               <Route path="/admin/planes" element={<RoutePage component={PlanesAdmin} />} />
               <Route path="/admin/planes/nuevo" element={<RoutePage component={NuevoPlan} />} />
+              <Route path="/admin/planes/:id/editar" element={<RoutePage component={EditarPlan} />} />
               <Route path="/admin/reportes" element={<RoutePage component={Reportes} />} />
               <Route path="/admin/configuracion" element={<RoutePage component={Configuracion} />} />
             </Route>

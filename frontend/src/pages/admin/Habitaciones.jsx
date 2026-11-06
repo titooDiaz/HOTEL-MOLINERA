@@ -5,6 +5,7 @@ import "./HotelDashboard.css";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import SummaryCards from "../../components/summary_cards/SummaryCards.jsx";
 import RoomsGrid from "../../components/rooms_grid/RoomsGrid.jsx";
+import RoomManagementModal from "../../components/rooms_grid/RoomManagementModal.jsx";
 import { apiRequest } from "../../api.js";
 
 const COPY = {
@@ -34,6 +35,16 @@ const STATUS_COPY = {
   mantenimiento: ["Mantenimiento", "badge-pill-slate"],
 };
 
+function summarizeRooms(roomCards) {
+  const activeRooms = roomCards.filter((room) => !room.isDeleted);
+  return [
+    { label: "Total habitaciones", value: String(activeRooms.length), sub: "registradas en el hotel" },
+    { label: "Disponibles", value: String(activeRooms.filter((room) => room.statusKey === "disponible").length), sub: "listas para reservar", dotClass: "summary-dot--emerald" },
+    { label: "Ocupadas", value: String(activeRooms.filter((room) => room.statusKey === "ocupada").length), sub: "con huésped alojado", dotClass: "summary-dot--rose" },
+    { label: "En mantenimiento", value: String(activeRooms.filter((room) => room.statusKey === "mantenimiento").length), sub: "fuera de servicio", dotClass: "summary-dot--slate" },
+  ];
+}
+
 export default function Habitaciones() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
@@ -44,6 +55,7 @@ export default function Habitaciones() {
   const [actionNotice, setActionNotice] = useState("");
   const [deletingRoomId, setDeletingRoomId] = useState(null);
   const [updatingImagesRoomId, setUpdatingImagesRoomId] = useState(null);
+  const [managingRoom, setManagingRoom] = useState(null);
 
   useEffect(() => {
     Promise.all([apiRequest("/api/rooms"), apiRequest("/api/reservations")])
@@ -63,11 +75,12 @@ export default function Habitaciones() {
             : STATUS_COPY[statusKey] || STATUS_COPY.mantenimiento;
           const guest = current?.usuario?.huesped;
           return {
+            ...record,
             id: record.id,
             isDeleted,
             number: record.number,
             type: record.type,
-            floor: `${record.floor}° piso`,
+            floorLabel: `${record.floor}° piso`,
             status,
             statusKey,
             statusClass,
@@ -75,17 +88,14 @@ export default function Habitaciones() {
           };
         });
         setRooms(roomCards);
-        const activeRooms = roomCards.filter((room) => !room.isDeleted);
-        setStats([
-          { label: "Total habitaciones", value: String(activeRooms.length), sub: "registradas en el hotel" },
-          { label: "Disponibles", value: String(activeRooms.filter((room) => room.statusKey === "disponible").length), sub: "listas para reservar", dotClass: "summary-dot--emerald" },
-          { label: "Ocupadas", value: String(activeRooms.filter((room) => room.statusKey === "ocupada").length), sub: "con huésped alojado", dotClass: "summary-dot--rose" },
-          { label: "En mantenimiento", value: String(activeRooms.filter((room) => room.statusKey === "mantenimiento").length), sub: "fuera de servicio", dotClass: "summary-dot--slate" },
-        ]);
       })
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!loading) setStats(summarizeRooms(rooms));
+  }, [loading, rooms]);
 
   const handleDeleteRoom = async (room) => {
     const action = room.isDeleted ? "eliminar definitivamente" : "eliminar";
@@ -98,13 +108,6 @@ export default function Habitaciones() {
       await apiRequest(`/api/rooms/${room.id}`, { method: "DELETE" });
       const remainingRooms = rooms.filter((currentRoom) => currentRoom.id !== room.id);
       setRooms(remainingRooms);
-      const activeRooms = remainingRooms.filter((currentRoom) => !currentRoom.isDeleted);
-      setStats([
-        { label: "Total habitaciones", value: String(activeRooms.length), sub: "registradas en el hotel" },
-        { label: "Disponibles", value: String(activeRooms.filter((currentRoom) => currentRoom.statusKey === "disponible").length), sub: "listas para reservar", dotClass: "summary-dot--emerald" },
-        { label: "Ocupadas", value: String(activeRooms.filter((currentRoom) => currentRoom.statusKey === "ocupada").length), sub: "con huésped alojado", dotClass: "summary-dot--rose" },
-        { label: "En mantenimiento", value: String(activeRooms.filter((currentRoom) => currentRoom.statusKey === "mantenimiento").length), sub: "fuera de servicio", dotClass: "summary-dot--slate" },
-      ]);
     } catch (requestError) {
       setActionError(requestError.message);
     } finally {
@@ -126,13 +129,33 @@ export default function Habitaciones() {
     setActionError("");
     setActionNotice("");
     try {
-      await apiRequest(`/api/rooms/${room.id}/images`, { method: "PUT", body });
+      const updatedRoom = await apiRequest(`/api/rooms/${room.id}/images`, { method: "PUT", body });
+      updateRoomCard(updatedRoom);
       setActionNotice(`Imágenes de la habitación ${room.number} actualizadas.`);
     } catch (requestError) {
       setActionError(requestError.message);
     } finally {
       setUpdatingImagesRoomId(null);
     }
+  };
+
+  const updateRoomCard = (updatedRoom) => {
+    setRooms((currentRooms) => {
+      const nextRooms = currentRooms.map((currentRoom) => {
+        if (String(currentRoom.id) !== String(updatedRoom.id)) return currentRoom;
+        const statusKey = currentRoom.guest ? "ocupada" : updatedRoom.status;
+        const [status, statusClass] = STATUS_COPY[statusKey] || STATUS_COPY.mantenimiento;
+        return {
+          ...currentRoom,
+          ...updatedRoom,
+          floorLabel: `${updatedRoom.floor}° piso`,
+          statusKey,
+          status,
+          statusClass,
+        };
+      });
+      return nextRooms;
+    });
   };
 
   return (
@@ -149,10 +172,19 @@ export default function Habitaciones() {
           labels={COPY.grid}
           deletingRoomId={deletingRoomId}
           updatingImagesRoomId={updatingImagesRoomId}
+          onManageRoom={setManagingRoom}
           onDeleteRoom={handleDeleteRoom}
           onUpdateRoomImages={handleUpdateRoomImages}
         />
       </>}
+      {managingRoom && (
+        <RoomManagementModal
+          key={managingRoom.id}
+          room={managingRoom}
+          onClose={() => setManagingRoom(null)}
+          onUpdated={updateRoomCard}
+        />
+      )}
     </>
   );
 }

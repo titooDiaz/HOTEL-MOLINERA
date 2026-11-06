@@ -38,6 +38,26 @@
   font-weight: 500;
 }
 
+.order-cancelled {
+  background-color: #ffe4e6;
+  color: #be123c;
+  font-weight: 500;
+}
+
+.order-cancel-button {
+  margin-top: .35rem;
+  padding: .15rem 0;
+  border: 0;
+  color: #be123c;
+  background: transparent;
+  font-size: .75rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.order-cancel-button:hover { text-decoration: underline; }
+.order-cancel-button:disabled { opacity: .6; cursor: wait; }
+
 @media (max-width: 767px) {
   .order-item {
     align-items: flex-start !important;

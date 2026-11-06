@@ -3,13 +3,26 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { formatCOP } from "../admin_form/formUtils.js";
+import FoodManagementModal from "./FoodManagementModal.jsx";
+import FoodCategoriesModal from "./FoodCategoriesModal.jsx";
 
-export default function RestaurantPanel({ orders, menu, labels, onOrderAction }) {
+export default function RestaurantPanel({
+  orders,
+  menu,
+  categories,
+  labels,
+  onOrderAction,
+  onFoodDelete,
+  onFoodUpdated,
+  onCategoriesChanged,
+}) {
   const [activeTab, setActiveTab] = useState("orders");
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [paymentOrder, setPaymentOrder] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
+  const [foodManagement, setFoodManagement] = useState(null);
+  const [showCategories, setShowCategories] = useState(false);
   const isOrders = activeTab === "orders";
   const rows = isOrders ? orders : menu;
   const columns = isOrders ? labels.orderColumns : labels.menuColumns;
@@ -52,12 +65,13 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
           <button className={`admin-tab${isOrders ? " is-active" : ""}`} type="button" role="tab" aria-selected={isOrders} onClick={() => setActiveTab("orders")}>{labels.tabs.orders}</button>
           <button className={`admin-tab${!isOrders ? " is-active" : ""}`} type="button" role="tab" aria-selected={!isOrders} onClick={() => setActiveTab("menu")}>{labels.tabs.menu}</button>
         </div>
+        {!isOrders && <button className="admin-action-button admin-action-button--outline" type="button" onClick={() => setShowCategories(true)}>Gestionar categorías</button>}
       </div>
       <div className="admin-table-wrap">
         <table className="table admin-table align-middle mb-0">
           <thead><tr>{Object.values(columns).map((column) => <th key={column}>{column}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => (
-            <tr className={activeMenuId?.key === (isOrders ? row.id : row.name) ? "restaurant-actions-open" : ""} key={isOrders ? row.id : row.name}>
+            <tr className={activeMenuId?.key === row.id ? "restaurant-actions-open" : ""} key={row.id}>
               {isOrders ? <>
                 <td className="fw-semibold">{row.room}</td><td>{row.client}</td><td>{row.item}</td>
                 <td><button className="restaurant-order-details-trigger" type="button" onClick={() => setSelectedOrder(row)}>Ver detalle</button></td>
@@ -69,6 +83,7 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
               </> : <>
                 <td className="fw-semibold">{row.name}</td><td>{row.category}</td><td>{row.price}</td>
                 <td><span className={`admin-status-badge ${row.available ? "badge-pill-emerald" : "badge-pill-slate"}`}>{row.available ? labels.available : labels.soldOut}</span></td>
+                <td>{row.stockQuantity == null ? "Sin límite" : row.stockQuantity}</td>
               </>}
               <td>
                 {!(isOrders && row.rawStatus === "cancelado") && <div className="client-actions restaurant-actions">
@@ -76,16 +91,16 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
                     className="admin-table-action"
                     type="button"
                     aria-label={`Acciones de fila ${index + 1}`}
-                    aria-expanded={activeMenuId?.key === (isOrders ? row.id : row.name)}
+                    aria-expanded={activeMenuId?.key === row.id}
                     onClick={(event) => {
-                      const key = isOrders ? row.id : row.name;
+                      const key = row.id;
                       if (activeMenuId?.key === key) {
                         setActiveMenuId(null);
                         return;
                       }
                       const rect = event.currentTarget.getBoundingClientRect();
                       const menuWidth = Math.min(288, window.innerWidth - 24);
-                      const menuHeight = isOrders ? 300 : 112;
+                      const menuHeight = isOrders ? 300 : 160;
                       const top = rect.bottom + menuHeight + 8 > window.innerHeight
                         ? Math.max(12, rect.top - menuHeight - 8)
                         : rect.bottom + 8;
@@ -112,13 +127,18 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
               {row.rawStatus === "preparando" && <button type="button" onClick={() => runOrderAction(row, "status", "preparado")}>Marcar preparado</button>}
               {row.rawStatus === "preparado" && <button type="button" onClick={() => runOrderAction(row, "status", "en_camino")}>Marcar en camino</button>}
               {row.rawStatus === "en_camino" && <button type="button" onClick={() => runOrderAction(row, "status", "entregado")}>Marcar entregado</button>}
-              <button type="button" onClick={() => runOrderAction(row, "cancel")}>Cancelar pedido</button>
+              {row.rawStatus === "pendiente" && <button type="button" onClick={() => runOrderAction(row, "cancel")}>Cancelar pedido</button>}
               <button type="button" onClick={() => runOrderAction(row, "add")}>Agregar más productos</button>
             </> : null;
-          })() : <>
-            <Link to="/admin/restaurante/menu/nuevo" onClick={() => setActiveMenuId(null)}>Nuevo producto</Link>
-            <button type="button" onClick={() => { setActiveMenuId(null); setActiveTab("orders"); }}>Ver pedidos</button>
-          </>}
+          })() : (() => {
+            const food = menu.find((item) => item.id === activeMenuId.key);
+            return food ? <>
+              <button type="button" onClick={() => { setActiveMenuId(null); setFoodManagement({ food, mode: "edit" }); }}>Editar producto</button>
+              <button type="button" onClick={() => { setActiveMenuId(null); setFoodManagement({ food, mode: "availability" }); }}>Gestionar stock y disponibilidad</button>
+              <button type="button" className="client-actions-delete" onClick={() => { setActiveMenuId(null); onFoodDelete?.(food); }}>Eliminar producto</button>
+              <Link to="/admin/restaurante/menu/nuevo" onClick={() => setActiveMenuId(null)}>Nuevo producto</Link>
+            </> : null;
+          })()}
         </div>,
         document.body,
       )}
@@ -174,6 +194,22 @@ export default function RestaurantPanel({ orders, menu, labels, onOrderAction })
           </section>
         </div>,
         document.body,
+      )}
+      {foodManagement && (
+        <FoodManagementModal
+          food={foodManagement.food}
+          mode={foodManagement.mode}
+          categories={categories}
+          onClose={() => setFoodManagement(null)}
+          onSaved={(food) => onFoodUpdated?.(food)}
+        />
+      )}
+      {showCategories && (
+        <FoodCategoriesModal
+          categories={categories}
+          onClose={() => setShowCategories(false)}
+          onChanged={onCategoriesChanged}
+        />
       )}
     </section>
   );

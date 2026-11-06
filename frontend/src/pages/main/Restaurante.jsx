@@ -20,27 +20,27 @@ export default function Restaurante() {
   const { hotelData } = useOutletContext() || {};
   const [activeCategory, setActiveCategory] = useState(null);
   const [foods, setFoods] = useState([]);
+  const [foodCategories, setFoodCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    apiRequest("/api/foods")
-      .then(setFoods)
+    Promise.all([apiRequest("/api/foods"), apiRequest("/api/food-categories")])
+      .then(([foodRecords, categoryRecords]) => {
+        setFoods(foodRecords);
+        setFoodCategories(categoryRecords);
+      })
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
   }, []);
 
   const categories = useMemo(() => {
-    const unique = new Map();
-    foods.forEach((food) => {
-      if (food.categoria) unique.set(String(food.categoria.id), food.categoria);
-    });
-    return [{ id: "todos", name: "Todos", icon: GENERIC_ICON }, ...[...unique.values()].map((category) => ({
+    return [{ id: "todos", name: "Todos", icon: GENERIC_ICON }, ...foodCategories.map((category) => ({
       id: String(category.id),
       name: category.name,
-      icon: GENERIC_ICON,
+      icon: category.icon || GENERIC_ICON,
     }))];
-  }, [foods]);
+  }, [foodCategories]);
   const displayedFoods = activeCategory && activeCategory !== "todos"
     ? foods.filter((food) => String(food.categoryId) === activeCategory)
     : foods;

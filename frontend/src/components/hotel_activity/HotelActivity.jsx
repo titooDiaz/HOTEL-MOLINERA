@@ -7,6 +7,8 @@ export default function HotelActivity({
   title,
   description,
   schedule,
+  onBook,
+  bookLabel = "Agendar experiencia",
 }) {
   return (
     <section className="px-3 px-md-5 py-4">
@@ -48,6 +50,11 @@ export default function HotelActivity({
               </p>
             </div>
           </div>
+          {onBook && (
+            <button type="button" className="activity-book-button" onClick={onBook}>
+              {bookLabel}
+            </button>
+          )}
         </div>
       </div>
     </section>

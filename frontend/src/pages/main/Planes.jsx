@@ -4,6 +4,8 @@ import { useOutletContext } from "react-router-dom";
 import Hero from "../../components/hero/Hero.jsx";
 import HotelActivity from "../../components/hotel_activity/HotelActivity.jsx";
 import { apiRequest } from "../../api.js";
+import { useAuth } from "../../context/authContext.js";
+import PlanBookingModal from "../../components/plan_booking/PlanBookingModal.jsx";
 
 const TEXTOS_PLANES = {
   hero: {
@@ -17,15 +19,49 @@ const TEXTOS_PLANES = {
 };
 
 function Planes() {
-  const { hotelData } = useOutletContext() || {};
+  const { hotelData, openReserveModal } = useOutletContext() || {};
+  const { user } = useAuth();
   const [plans, setPlans] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [cancellingBookingId, setCancellingBookingId] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    apiRequest("/api/plans")
-      .then(setPlans)
-      .catch((requestError) => setError(requestError.message));
+    apiRequest("/api/plans").then(setPlans).catch((requestError) => setError(requestError.message));
   }, []);
+
+  useEffect(() => {
+    if (user?.role !== "guest") {
+      setBookings([]);
+      return;
+    }
+    apiRequest("/api/me/plan-bookings")
+      .then(setBookings)
+      .catch((requestError) => setError(requestError.message));
+  }, [user]);
+
+  const handleBooked = (booking) => {
+    setBookings((current) => [booking, ...current]);
+    setSelectedPlan(null);
+  };
+
+  const cancelBooking = async (booking) => {
+    if (!window.confirm(`¿Cancelar la solicitud del plan ${booking.plan?.name || ""}?`)) return;
+    setCancellingBookingId(booking.id);
+    setError("");
+    try {
+      const updatedBooking = await apiRequest(`/api/me/plan-bookings/${booking.id}/cancel`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      setBookings((current) => current.map((item) => item.id === updatedBooking.id ? { ...item, ...updatedBooking } : item));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setCancellingBookingId(null);
+    }
+  };
 
   return (
     <>
@@ -43,7 +79,15 @@ function Planes() {
           image={plan.imageUrl || "/images/places/piscina-dia.jpeg"}
           title={plan.name}
           description={plan.description || plan.summary || ""}
-          schedule={plan.price == null ? "Consulta disponibilidad en recepción." : `Desde ${Number(plan.price).toLocaleString("es-VE")} ${plan.currency} por persona.`}
+          schedule={plan.price == null ? "Consulta disponibilidad y precio en recepción." : `Desde ${Number(plan.price).toLocaleString("es-VE")} ${plan.currency} por persona.`}
+          onBook={plan.price == null
+            ? undefined
+            : user?.role === "guest"
+              ? () => setSelectedPlan(plan)
+              : user?.role === "admin"
+                ? undefined
+                : openReserveModal}
+          bookLabel={user?.role === "guest" ? "Agendar sin habitación" : "Inicia sesión para agendar"}
         />
       )) : (
         <>
@@ -51,6 +95,36 @@ function Planes() {
           <HotelActivity image="/images/places/tejado-montana.jpeg" title="Senderismo" description="Recorre los senderos del hotel y disfruta de los paisajes naturales que rodean nuestras instalaciones." schedule="Todos los días de 7:00 a.m. a 5:00 p.m." />
           <HotelActivity image="/images/restaurant/interior-restaurante.jpeg" title="Restaurante" description="Disfruta de nuestra oferta gastronómica con platos preparados para complementar tu estadía." schedule="Desayuno: 7:00 a.m. - 10:00 a.m. | Almuerzo: 12:00 p.m. - 3:00 p.m. | Cena: 6:00 p.m. - 9:00 p.m." />
         </>
+      )}
+      {user?.role === "guest" && bookings.length > 0 && (
+        <section className="container py-4">
+          <h2 className="h4 mb-3">Mis experiencias reservadas</h2>
+          <div className="d-grid gap-2">
+            {bookings.map((booking) => (
+              <article className="card border-0 shadow-sm rounded-3 p-3" key={booking.id}>
+                <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                  <div>
+                    <strong>{booking.plan?.name || "Experiencia"}</strong>
+                    <div className="small text-secondary">
+                      {booking.scheduledFor} · {booking.guests} {booking.guests === 1 ? "participante" : "participantes"} ·
+                      {" "}{Number(booking.total).toLocaleString("es-VE")} {booking.currency}
+                    </div>
+                    <span className="badge text-bg-light mt-1">{booking.status}</span>
+                  </div>
+                  {booking.status === "pendiente" && (
+                    <button className="btn btn-outline-danger btn-sm" type="button" disabled={cancellingBookingId === booking.id} onClick={() => cancelBooking(booking)}>
+                      {cancellingBookingId === booking.id ? "Cancelando..." : "Cancelar solicitud"}
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+          <p className="small text-secondary mt-2">Las solicitudes quedan pendientes de confirmación; coordina el pago con recepción.</p>
+        </section>
+      )}
+      {selectedPlan && (
+        <PlanBookingModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} onBooked={handleBooked} />
       )}
     </>
   );

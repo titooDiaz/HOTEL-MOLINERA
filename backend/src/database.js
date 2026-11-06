@@ -179,6 +179,23 @@ const Plan = sequelize.define('Plan', {
     sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }
 }, { tableName: 'planes', paranoid: true });
 
+// Solicitudes y reservas de experiencias que no requieren una habitación.
+const ReservaPlan = sequelize.define('ReservaPlan', {
+    ...commonAttributes,
+    userId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+    planId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+    scheduledFor: { type: DataTypes.DATEONLY, allowNull: false },
+    guests: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 1 },
+    unitPrice: { type: DataTypes.DECIMAL(14, 2), allowNull: false },
+    total: { type: DataTypes.DECIMAL(14, 2), allowNull: false },
+    currency: { type: DataTypes.STRING(3), allowNull: false, defaultValue: 'VES' },
+    status: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'pendiente' },
+    notes: DataTypes.TEXT,
+    confirmedAt: DataTypes.DATE,
+    cancelledAt: DataTypes.DATE,
+    cancellationReason: DataTypes.TEXT
+}, { tableName: 'reservas_planes', paranoid: true });
+
 // Reserva que relaciona a un usuario con una habitación.
 const Reserva = sequelize.define('Reserva', {
     ...commonAttributes,
@@ -324,6 +341,10 @@ Habitacion.hasMany(Reserva, { foreignKey: 'roomId', as: 'reservas' });
 Reserva.belongsTo(Habitacion, { foreignKey: 'roomId', as: 'habitacion' });
 Plan.hasMany(Reserva, { foreignKey: 'planId', as: 'reservas' });
 Reserva.belongsTo(Plan, { foreignKey: 'planId', as: 'plan' });
+Usuario.hasMany(ReservaPlan, { foreignKey: 'userId', as: 'reservasPlanes' });
+ReservaPlan.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
+Plan.hasMany(ReservaPlan, { foreignKey: 'planId', as: 'reservasDirectas' });
+ReservaPlan.belongsTo(Plan, { foreignKey: 'planId', as: 'plan' });
 CategoriaComida.hasMany(Comida, { foreignKey: 'categoryId', as: 'comidas' });
 Comida.belongsTo(CategoriaComida, { foreignKey: 'categoryId', as: 'categoria' });
 Usuario.hasMany(Pedido, { foreignKey: 'userId', as: 'pedidos' });
@@ -336,7 +357,9 @@ Comida.hasMany(DetallePedido, { foreignKey: 'foodId', as: 'detallesPedido' });
 Usuario.hasMany(Pago, { foreignKey: 'userId', as: 'pagos' });
 Pago.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 Reserva.hasMany(Pago, { foreignKey: 'reservationId', as: 'pagos' });
+Pago.belongsTo(Reserva, { foreignKey: 'reservationId', as: 'reserva' });
 Pedido.hasMany(Pago, { foreignKey: 'orderId', as: 'pagos' });
+Pago.belongsTo(Pedido, { foreignKey: 'orderId', as: 'pedido' });
 Usuario.hasMany(Notificacion, { foreignKey: 'userId', as: 'notificaciones' });
 Notificacion.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 Usuario.hasMany(Auditoria, { foreignKey: 'userId', as: 'auditoria' });
@@ -346,7 +369,7 @@ CodigoVerificacion.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 
 // Reunimos todos los modelos para exportarlos y sincronizarlos.
 const models = {
-    Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan,
+    Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, ReservaPlan,
     Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria, MensajeContacto,
     CodigoVerificacion
 };

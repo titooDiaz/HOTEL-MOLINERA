@@ -17,6 +17,7 @@ export const HotelDashboard = lazy(() => import("../pages/admin/HotelDashboard.j
 export const Habitaciones = lazy(() => import("../pages/admin/Habitaciones.jsx"));
 export const NuevaHabitacion = lazy(() => import("../pages/admin/NuevaHabitacion.jsx"));
 export const Reservas = lazy(() => import("../pages/admin/Reservas.jsx"));
+export const Pagos = lazy(() => import("../pages/admin/Pagos.jsx"));
 export const NuevaReserva = lazy(() => import("../pages/admin/NuevaReserva.jsx"));
 export const Clientes = lazy(() => import("../pages/admin/Clientes.jsx"));
 export const ClienteDetalle = lazy(() => import("../pages/admin/ClienteDetalle.jsx"));
@@ -26,6 +27,7 @@ export const NuevoPedido = lazy(() => import("../pages/admin/NuevoPedido.jsx"));
 export const NuevoProducto = lazy(() => import("../pages/admin/NuevoProducto.jsx"));
 export const PlanesAdmin = lazy(() => import("../pages/admin/PlanesAdmin.jsx"));
 export const NuevoPlan = lazy(() => import("../pages/admin/NuevoPlan.jsx"));
+export const EditarPlan = lazy(() => import("../pages/admin/EditarPlan.jsx"));
 export const Reportes = lazy(() => import("../pages/admin/Reportes.jsx"));
 export const Configuracion = lazy(() => import("../pages/admin/Configuracion.jsx"));
 
