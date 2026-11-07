@@ -78,14 +78,20 @@ const managedRoomImageFilename = (imageUrl) => {
     const filename = imageUrl.slice('/uploads/'.length);
     return /^[a-f0-9]{32}\.(jpg|png|webp|gif)$/.test(filename) ? filename : null;
 };
-const deleteUnreferencedRoomImages = async (imageUrls) => {
+const deleteUnreferencedUploads = async (imageUrls) => {
     const filenames = new Set(imageUrls.map(managedRoomImageFilename).filter(Boolean));
     if (!filenames.size) return;
-    const rooms = await Habitacion.findAll({
-        paranoid: false,
-        attributes: ['imageUrl', 'gallery']
-    });
-    const referencedFilenames = new Set(rooms.flatMap(getRoomImageUrls).map(managedRoomImageFilename).filter(Boolean));
+    const [rooms, foods, plans] = await Promise.all([
+        Habitacion.findAll({ paranoid: false, attributes: ['imageUrl', 'gallery'] }),
+        Comida.findAll({ attributes: ['imageUrl'] }),
+        Plan.findAll({ attributes: ['imageUrl'] })
+    ]);
+    const referencedUrls = [
+        ...rooms.flatMap(getRoomImageUrls),
+        ...foods.map((food) => food.imageUrl),
+        ...plans.map((plan) => plan.imageUrl)
+    ];
+    const referencedFilenames = new Set(referencedUrls.map(managedRoomImageFilename).filter(Boolean));
     for (const filename of filenames) {
         if (referencedFilenames.has(filename)) continue;
         try {
@@ -98,29 +104,8 @@ const deleteUnreferencedRoomImages = async (imageUrls) => {
         }
     }
 };
-const deleteUnreferencedUpload = async (imageUrl) => {
-    const filename = managedRoomImageFilename(imageUrl);
-    if (!filename) return;
-    const [rooms, foods, plans] = await Promise.all([
-        Habitacion.findAll({ paranoid: false, attributes: ['imageUrl', 'gallery'] }),
-        Comida.findAll({ paranoid: false, attributes: ['imageUrl'] }),
-        Plan.findAll({ paranoid: false, attributes: ['imageUrl'] })
-    ]);
-    const referencedUrls = [
-        ...rooms.flatMap(getRoomImageUrls),
-        ...foods.map((food) => food.imageUrl),
-        ...plans.map((plan) => plan.imageUrl)
-    ];
-    if (referencedUrls.some((url) => managedRoomImageFilename(url) === filename)) return;
-    try {
-        await fs.promises.unlink(path.join(uploadDirectory, filename));
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            console.error(`No se pudo eliminar la imagen ${filename}:`, error);
-            throw error;
-        }
-    }
-};
+const deleteUnreferencedRoomImages = deleteUnreferencedUploads;
+const deleteUnreferencedUpload = async (imageUrl) => deleteUnreferencedUploads([imageUrl]);
 const dateOnlyFromRoom = (value) => {
     if (!value) return null;
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);

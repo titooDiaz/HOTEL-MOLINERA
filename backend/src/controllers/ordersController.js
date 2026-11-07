@@ -235,34 +235,42 @@ app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
         if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) throw new HttpError(400, 'Cantidad de producto no válida.');
         return { food, quantity, totalPrice: Number(food.price) * quantity };
     });
-    const subtotal = lines.reduce((total, line) => total + line.totalPrice, 0);
     const transaction = await sequelize.transaction();
     let order;
+    const orders = [];
     let adminNotifications = [];
     try {
-        order = await Pedido.create({
-            userId, roomId, orderCode: makeCode('ORD'), subtotal, taxes: 0, total: subtotal,
-            paymentMethod: req.body.paymentMethod || 'cargo', notes: req.body.notes || null,
-            createdByUserId: req.user.id
-        }, { transaction });
-        await DetallePedido.bulkCreate(lines.map(({ food, quantity, totalPrice }) => ({
-            orderId: order.id,
-            foodId: food.id,
-            foodName: food.name,
-            quantity,
-            unitPrice: food.price,
-            totalPrice,
-            createdByUserId: req.user.id
-        })), { transaction });
-        adminNotifications = await createAdminNotifications({
-            type: 'new_order',
-            title: 'Nuevo pedido recibido',
-            message: `Se recibió el pedido ${order.orderCode}.`,
-            data: { route: '/admin/restaurante', orderId: order.id }
-        }, transaction);
+        const orderLines = req.user.role === 'admin' ? [lines] : lines.map((line) => [line]);
+        for (const orderItems of orderLines) {
+            const orderSubtotal = orderItems.reduce((total, line) => total + line.totalPrice, 0);
+            order = await Pedido.create({
+                userId, roomId, orderCode: makeCode('ORD'), subtotal: orderSubtotal, taxes: 0, total: orderSubtotal,
+                paymentMethod: req.body.paymentMethod || 'cargo', notes: req.body.notes || null,
+                createdByUserId: req.user.id
+            }, { transaction });
+            await DetallePedido.bulkCreate(orderItems.map(({ food, quantity, totalPrice }) => ({
+                orderId: order.id,
+                foodId: food.id,
+                foodName: food.name,
+                quantity,
+                unitPrice: food.price,
+                totalPrice,
+                createdByUserId: req.user.id
+            })), { transaction });
+            orders.push(order);
+            adminNotifications.push(...await createAdminNotifications({
+                type: 'new_order',
+                title: 'Nuevo pedido recibido',
+                message: `Se recibió el pedido ${order.orderCode}.`,
+                data: { route: '/admin/restaurante', orderId: order.id }
+            }, transaction));
+        }
         await transaction.commit();
         adminNotifications.forEach(publishNotification);
-        res.status(201).json(await Pedido.findByPk(order.id, { include: [{ model: DetallePedido, as: 'detalles' }] }));
+        const createdOrders = await Promise.all(orders.map((createdOrder) => Pedido.findByPk(createdOrder.id, {
+            include: [{ model: DetallePedido, as: 'detalles' }]
+        })));
+        res.status(201).json(req.user.role === 'admin' ? createdOrders[0] : createdOrders);
     } catch (error) {
         if (!transaction.finished) await transaction.rollback();
         throw error;

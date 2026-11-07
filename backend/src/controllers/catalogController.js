@@ -133,11 +133,12 @@ app.delete('/api/food-categories/:id', ...adminOnly, asyncHandler(async (req, re
 }));
 
 app.post('/api/foods', ...adminOnly, uploadFoodImage, asyncHandler(async (req, res) => {
-    const { name, categoryName, price } = req.body;
-    requireFields(req.body, ['name', 'categoryName', 'price']);
-    if (!Number.isFinite(Number(price)) || Number(price) < 0) throw new HttpError(400, 'El precio debe ser un valor válido.');
-    const transaction = await sequelize.transaction();
+    let transaction;
     try {
+        const { name, categoryName, price } = req.body;
+        requireFields(req.body, ['name', 'categoryName', 'price']);
+        if (!Number.isFinite(Number(price)) || Number(price) < 0) throw new HttpError(400, 'El precio debe ser un valor válido.');
+        transaction = await sequelize.transaction();
         const categorySlug = makeSlug(categoryName);
         if (!categorySlug) throw new HttpError(400, 'El nombre de la categoría no es válido.');
         let category = await CategoriaComida.findOne({
@@ -171,75 +172,95 @@ app.post('/api/foods', ...adminOnly, uploadFoodImage, asyncHandler(async (req, r
         await transaction.commit();
         res.status(201).json(food);
     } catch (error) {
-        if (!transaction.finished) await transaction.rollback();
+        if (transaction && !transaction.finished) await transaction.rollback();
+        if (req.file) await cleanupUploadedFiles([req.file]);
         throw error;
     }
 }));
 
-app.put('/api/foods/:id', ...adminOnly, asyncHandler(async (req, res) => {
-    const food = await Comida.findByPk(req.params.id);
-    if (!food) throw new HttpError(404, 'No se encontró el producto.');
-    const allowedFields = ['name', 'categoryId', 'description', 'price', 'currency', 'ingredients', 'allergens', 'preparationMinutes', 'sortOrder'];
-    const unknownFields = Object.keys(req.body).filter((field) => !allowedFields.includes(field));
-    if (unknownFields.length) throw new HttpError(400, `Campos no válidos: ${unknownFields.join(', ')}`);
+app.put('/api/foods/:id', ...adminOnly, uploadFoodImage, asyncHandler(async (req, res) => {
+    let updated = false;
+    try {
+        const food = await Comida.findByPk(req.params.id);
+        if (!food) throw new HttpError(404, 'No se encontró el producto.');
+        const allowedFields = ['name', 'categoryId', 'description', 'price', 'currency', 'ingredients', 'allergens', 'preparationMinutes', 'sortOrder'];
+        const unknownFields = Object.keys(req.body).filter((field) => !allowedFields.includes(field));
+        if (unknownFields.length) throw new HttpError(400, `Campos no válidos: ${unknownFields.join(', ')}`);
 
-    const updates = {};
-    if (req.body.name !== undefined) {
-        if (typeof req.body.name !== 'string' || !req.body.name.trim()) throw new HttpError(400, 'El nombre del producto no es válido.');
-        updates.name = req.body.name.trim();
-        updates.slug = `${makeSlug(req.body.name)}-${randomBytes(3).toString('hex')}`;
-    }
-    if (req.body.categoryId !== undefined) {
-        if (req.body.categoryId === null || req.body.categoryId === '') {
-            updates.categoryId = null;
-        } else {
-            const categoryId = Number(req.body.categoryId);
-            if (!Number.isSafeInteger(categoryId) || categoryId < 1) throw new HttpError(400, 'La categoría seleccionada no es válida.');
-            const category = await CategoriaComida.findByPk(categoryId);
-            if (!category) throw new HttpError(400, 'La categoría seleccionada no está disponible.');
-            updates.categoryId = category.id;
+        const updates = {};
+        if (req.body.name !== undefined) {
+            if (typeof req.body.name !== 'string' || !req.body.name.trim()) throw new HttpError(400, 'El nombre del producto no es válido.');
+            updates.name = req.body.name.trim();
+            updates.slug = `${makeSlug(req.body.name)}-${randomBytes(3).toString('hex')}`;
         }
-    }
-    if (req.body.price !== undefined) {
-        const price = Number(req.body.price);
-        if (!Number.isFinite(price) || price < 0) throw new HttpError(400, 'El precio debe ser un valor válido.');
-        updates.price = price;
-    }
-    if (req.body.preparationMinutes !== undefined) {
-        if (req.body.preparationMinutes === null || req.body.preparationMinutes === '') {
-            updates.preparationMinutes = null;
-        } else {
-            const preparationMinutes = Number(req.body.preparationMinutes);
-            if (!Number.isInteger(preparationMinutes) || preparationMinutes < 0) {
-                throw new HttpError(400, 'El tiempo de preparación debe ser un entero no negativo.');
+        if (req.body.categoryId !== undefined) {
+            if (req.body.categoryId === null || req.body.categoryId === '') {
+                updates.categoryId = null;
+            } else {
+                const categoryId = Number(req.body.categoryId);
+                if (!Number.isSafeInteger(categoryId) || categoryId < 1) throw new HttpError(400, 'La categoría seleccionada no es válida.');
+                const category = await CategoriaComida.findByPk(categoryId);
+                if (!category) throw new HttpError(400, 'La categoría seleccionada no está disponible.');
+                updates.categoryId = category.id;
             }
-            updates.preparationMinutes = preparationMinutes;
         }
-    }
-    if (req.body.sortOrder !== undefined) {
-        const sortOrder = Number(req.body.sortOrder);
-        if (!Number.isInteger(sortOrder)) throw new HttpError(400, 'El orden del producto no es válido.');
-        updates.sortOrder = sortOrder;
-    }
-    for (const field of ['description', 'currency', 'ingredients', 'allergens']) {
-        if (req.body[field] === undefined) continue;
-        if (req.body[field] !== null && typeof req.body[field] !== 'string') {
-            throw new HttpError(400, `El campo ${field} no es válido.`);
+        if (req.body.price !== undefined) {
+            const price = Number(req.body.price);
+            if (!Number.isFinite(price) || price < 0) throw new HttpError(400, 'El precio debe ser un valor válido.');
+            updates.price = price;
         }
-        updates[field] = req.body[field]?.trim() || null;
+        if (req.body.preparationMinutes !== undefined) {
+            if (req.body.preparationMinutes === null || req.body.preparationMinutes === '') {
+                updates.preparationMinutes = null;
+            } else {
+                const preparationMinutes = Number(req.body.preparationMinutes);
+                if (!Number.isInteger(preparationMinutes) || preparationMinutes < 0) {
+                    throw new HttpError(400, 'El tiempo de preparación debe ser un entero no negativo.');
+                }
+                updates.preparationMinutes = preparationMinutes;
+            }
+        }
+        if (req.body.sortOrder !== undefined) {
+            const sortOrder = Number(req.body.sortOrder);
+            if (!Number.isInteger(sortOrder)) throw new HttpError(400, 'El orden del producto no es válido.');
+            updates.sortOrder = sortOrder;
+        }
+        for (const field of ['description', 'currency', 'ingredients', 'allergens']) {
+            if (req.body[field] === undefined) continue;
+            if (req.body[field] !== null && typeof req.body[field] !== 'string') {
+                throw new HttpError(400, `El campo ${field} no es válido.`);
+            }
+            updates[field] = req.body[field]?.trim() || null;
+        }
+        if (req.file) updates.imageUrl = `/uploads/${req.file.filename}`;
+        if (!Object.keys(updates).length) throw new HttpError(400, 'Indica al menos un dato para actualizar.');
+        const oldImage = food.imageUrl;
+        await food.update({ ...updates, updatedByUserId: req.user.id });
+        updated = true;
+        if (req.file && oldImage) await deleteUnreferencedUpload(oldImage);
+        res.json(await Comida.findByPk(food.id, {
+            include: [{ model: CategoriaComida, as: 'categoria', attributes: ['id', 'name', 'slug'] }]
+        }));
+    } catch (error) {
+        if (req.file && !updated) await cleanupUploadedFiles([req.file]);
+        throw error;
     }
-    if (!Object.keys(updates).length) throw new HttpError(400, 'Indica al menos un dato para actualizar.');
-    await food.update({ ...updates, updatedByUserId: req.user.id });
-    res.json(await Comida.findByPk(food.id, {
-        include: [{ model: CategoriaComida, as: 'categoria', attributes: ['id', 'name', 'slug'] }]
-    }));
 }));
 
 app.delete('/api/foods/:id', ...adminOnly, asyncHandler(async (req, res) => {
     const food = await Comida.findByPk(req.params.id);
     if (!food) throw new HttpError(404, 'No se encontró el producto.');
-    await food.update({ updatedByUserId: req.user.id });
-    await food.destroy();
+    const imageUrl = food.imageUrl;
+    const transaction = await sequelize.transaction();
+    try {
+        await food.update({ imageUrl: null, updatedByUserId: req.user.id }, { transaction });
+        await food.destroy({ transaction });
+        await transaction.commit();
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+    if (imageUrl) await deleteUnreferencedUpload(imageUrl);
     res.status(204).end();
 }));
 

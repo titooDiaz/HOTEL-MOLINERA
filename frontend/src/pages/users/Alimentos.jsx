@@ -53,18 +53,21 @@ export default function RoomRequests() {
 
   const updateOrders = (records) => {
     setOrderDetails(records);
-    setOrders(records.flatMap((order) => (order.detalles || []).map((line) => ({
-      id: `${order.id}-${line.id}`,
-      nombre: line.foodName,
-      detalle: `${line.quantity} × ${line.foodName}`,
-      fecha: formatDate(order.requestedAt),
-      monto: Number(line.totalPrice),
-      estado: order.status === "cancelado" ? "cancelado" : order.paymentStatus === "pagado" ? "pagado" : "pendiente",
-      orderId: order.id,
-      orderCode: order.orderCode,
-      orderStatus: order.status,
-      imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
-    }))));
+    setOrders(records.flatMap((order) => (order.detalles || []).map((line) => {
+      const orderCode = order.orderCode || `#${order.id}`;
+      return {
+        id: `${order.id}-${line.id}`,
+        nombre: line.foodName,
+        detalle: `${line.quantity} × ${line.foodName} · Pedido ${orderCode}`,
+        fecha: formatDate(order.requestedAt),
+        monto: Number(line.totalPrice),
+        estado: order.status === "cancelado" ? "cancelado" : order.paymentStatus === "pagado" ? "pagado" : "pendiente",
+        orderId: order.id,
+        orderCode,
+        orderStatus: order.status,
+        imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
+      };
+    })));
   };
 
   const refreshOrders = () => apiRequest("/api/me/orders").then(updateOrders);

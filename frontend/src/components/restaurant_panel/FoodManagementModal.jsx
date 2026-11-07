@@ -4,6 +4,7 @@ import { apiRequest } from "../../api.js";
 export default function FoodManagementModal({ food, categories, mode, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [values, setValues] = useState(() => mode === "edit" ? {
     name: food.name || "",
     categoryId: food.categoryId == null ? "" : String(food.categoryId),
@@ -44,9 +45,15 @@ export default function FoodManagementModal({ food, categories, mode, onClose, o
           ...values,
           stockQuantity: values.stockQuantity === "" ? null : Number(values.stockQuantity),
         };
+      let body = JSON.stringify(payload);
+      if (mode === "edit" && imageFile) {
+        body = new FormData();
+        Object.entries(payload).forEach(([key, value]) => body.append(key, value == null ? "" : String(value)));
+        body.append("image", imageFile);
+      }
       const updatedFood = await apiRequest(
         mode === "edit" ? `/api/foods/${food.id}` : `/api/foods/${food.id}/availability`,
-        { method: mode === "edit" ? "PUT" : "PATCH", body: JSON.stringify(payload) },
+        { method: mode === "edit" ? "PUT" : "PATCH", body },
       );
       onSaved(updatedFood);
       onClose();
@@ -86,6 +93,18 @@ export default function FoodManagementModal({ food, categories, mode, onClose, o
               </label>
               <label>Precio (VES)
                 <input className="admin-form-control" type="number" min="0" step="0.01" name="price" value={values.price} onChange={updateField} required />
+              </label>
+              <label className="restaurant-menu-full-width">Nueva imagen (opcional)
+                <input
+                  className="admin-form-control"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(event) => setImageFile(event.target.files?.[0] || null)}
+                />
+                <span className="restaurant-menu-hint">
+                  {food.imageUrl ? "La imagen actual se conserva si no seleccionas otra. " : ""}
+                  Formatos JPG, PNG, WEBP o GIF; máximo 5 MB.
+                </span>
               </label>
               <label>Preparación (minutos)
                 <input className="admin-form-control" type="number" min="0" step="1" name="preparationMinutes" value={values.preparationMinutes} onChange={updateField} />
