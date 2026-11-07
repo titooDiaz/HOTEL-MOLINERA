@@ -441,6 +441,50 @@ async function connectDatabase() {
             }
         }
     }
+
+    const clientEmail = process.env.DEFAULT_CLIENT_EMAIL?.trim().toLowerCase();
+    const clientPassword = process.env.DEFAULT_CLIENT_PASSWORD;
+    const clientName = process.env.DEFAULT_CLIENT_NAME?.trim();
+    const clientDocumentNumber = process.env.DEFAULT_CLIENT_DOCUMENT_NUMBER?.trim();
+    const clientPhone = process.env.DEFAULT_CLIENT_PHONE?.trim();
+    const clientSettings = [clientEmail, clientPassword, clientName, clientDocumentNumber, clientPhone];
+    if (clientSettings.some(Boolean) && clientSettings.some((value) => !value)) {
+        throw new Error('Configura DEFAULT_CLIENT_EMAIL, DEFAULT_CLIENT_PASSWORD, DEFAULT_CLIENT_NAME, DEFAULT_CLIENT_DOCUMENT_NUMBER y DEFAULT_CLIENT_PHONE juntos');
+    }
+    if (clientEmail && clientPassword && clientName && clientDocumentNumber && clientPhone) {
+        if (clientPassword.length < 8) {
+            throw new Error('DEFAULT_CLIENT_PASSWORD debe tener al menos 8 caracteres');
+        }
+        const [firstName, ...lastNameParts] = clientName.split(/\s+/);
+        if (!firstName || !lastNameParts.length) {
+            throw new Error('DEFAULT_CLIENT_NAME debe incluir nombre y apellido');
+        }
+        const existingClient = await Usuario.findOne({ where: { email: clientEmail } });
+        if (!existingClient) {
+            const { hashPassword } = require('../services/auth');
+            const transaction = await sequelize.transaction();
+            try {
+                const user = await Usuario.create({
+                    email: clientEmail,
+                    passwordHash: await hashPassword(clientPassword),
+                    role: 'guest'
+                }, { transaction });
+                await Huesped.create({
+                    userId: user.id,
+                    firstName,
+                    lastName: lastNameParts.join(' '),
+                    documentType: process.env.DEFAULT_CLIENT_DOCUMENT_TYPE?.trim() || 'CC',
+                    documentNumber: clientDocumentNumber,
+                    phone: clientPhone
+                }, { transaction });
+                await transaction.commit();
+                console.log(`Cliente inicial creado para ${clientEmail}.`);
+            } catch (error) {
+                await transaction.rollback();
+                throw error;
+            }
+        }
+    }
 }
 
 // Exportamos la conexión, la función de inicio y los modelos.

@@ -25,6 +25,14 @@ ADMIN_PASSWORD=una_clave_segura_de_al_menos_8_caracteres
 ADMIN_NAME=Administrador Hotel
 HOTEL_NAME=Hotel Molinera
 
+# Cliente inicial (opcional): configura los cinco valores para crearlo al arrancar.
+DEFAULT_CLIENT_EMAIL=cliente@tuhotel.com
+DEFAULT_CLIENT_PASSWORD=una_clave_segura_de_al_menos_8_caracteres
+DEFAULT_CLIENT_NAME=Cliente De Prueba
+DEFAULT_CLIENT_DOCUMENT_TYPE=CC
+DEFAULT_CLIENT_DOCUMENT_NUMBER=DOC-CLIENTE-001
+DEFAULT_CLIENT_PHONE=0000000000
+
 # Correo para la verificación en dos pasos (ver sección más abajo).
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -33,7 +41,9 @@ SMTP_PASSWORD=xeliofjflticonou
 MAIL_FROM="Hotel Molinera <hotelmolinera@gmail.com>"
 ```
 
-La cuenta configurada con `ADMIN_EMAIL` y `ADMIN_PASSWORD` se crea al iniciar el backend, junto a su perfil de administrador. Si la cuenta ya existe, el backend no reemplaza su contraseña. Para entrar, abre **Reservar** y selecciona **Iniciar sesión**; desde ese mismo flujo los huéspedes pueden registrarse. Un administrador también puede crear otras cuentas desde Configuración.
+La cuenta configurada con `ADMIN_EMAIL` y `ADMIN_PASSWORD` se crea al iniciar el backend, junto a su perfil de administrador. Si la cuenta ya existe, el backend no reemplaza su contraseña. Si completas las variables `DEFAULT_CLIENT_*`, también se crea un cliente con rol de huésped y su perfil; ese usuario no tiene permisos de administrador. Usa una contraseña segura y diferente en cada entorno. Si el correo ya existe, no se modifica la cuenta.
+
+Para iniciar sesión como cliente, abre **Reservar** y selecciona **Iniciar sesión**. Sin configurar `DEFAULT_CLIENT_*`, los huéspedes también pueden registrarse desde ese flujo. Un administrador puede crear otras cuentas desde Configuración.
 
 Las tablas que faltan se crean al arrancar. La aplicación no altera las columnas de tablas existentes.
 
