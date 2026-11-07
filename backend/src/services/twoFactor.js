@@ -1,7 +1,7 @@
 // Lógica de la verificación en dos pasos por correo: crear, reenviar y comprobar códigos.
 const { randomInt, timingSafeEqual } = require('crypto');
 const { Op } = require('sequelize');
-const { models } = require('./database');
+const { models } = require('../models');
 const { hashToken, createToken } = require('./auth');
 const { sendVerificationCode } = require('./mailer');
 

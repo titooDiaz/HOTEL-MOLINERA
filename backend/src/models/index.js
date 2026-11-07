@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 
 // Buscamos la configuración en la raíz y también dentro de backend.
 dotenv.config({ override: true });
-dotenv.config({ path: path.join(__dirname, '../.env'), override: false });
+dotenv.config({ path: path.join(__dirname, '../../.env'), override: false });
 
 // Importamos Sequelize y los tipos de datos de las tablas.
 const { DataTypes, Sequelize } = require('sequelize');
@@ -419,7 +419,7 @@ async function connectDatabase() {
         }
         const existingAdmin = await Usuario.findOne({ where: { email: adminEmail } });
         if (!existingAdmin) {
-            const { hashPassword } = require('./auth');
+            const { hashPassword } = require('../services/auth');
             const [firstName, ...lastNameParts] = (process.env.ADMIN_NAME || 'Administrador Hotel').trim().split(/\s+/);
             const transaction = await sequelize.transaction();
             try {

@@ -1,3 +1,3 @@
-const { connectDatabase } = require('./database');
+const { connectDatabase } = require('./models');
 
 module.exports = connectDatabase;
