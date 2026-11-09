@@ -83,7 +83,7 @@ export function roomFromApi(record) {
     }
   }
   const roomGallery = Array.isArray(galleryData) && galleryData.length
-    ? galleryData.map((item) => typeof item === "string" ? { src: item, alt: record.type } : item)
+    ? galleryData.map((item) => typeof item === "string" ? { src: item, type: "image", alt: record.type } : { type: "image", ...item })
     : image ? [{ src: image, alt: `Habitación ${record.number}` }] : [];
   const amenities = [
     ["airConditioning", "Aire acondicionado", "person"],
@@ -110,6 +110,20 @@ export function roomFromApi(record) {
     checkIn: record.checkInTime || "3:00 p.m.",
     checkOut: record.checkOutTime || "12:00 m.",
     maxGuests: record.capacity,
+    type: record.type,
+    floor: record.floor,
+    area: Number(record.area || 0),
+    beds: record.beds,
+    pricePerNight: Number(record.pricePerNight),
+    airConditioning: Boolean(record.airConditioning),
+    cableTv: Boolean(record.cableTv),
+    safe: Boolean(record.safe),
+    workstation: Boolean(record.workstation),
+    wifi: Boolean(record.wifi),
+    minibar: Boolean(record.minibar),
+    privateBathroom: Boolean(record.privateBathroom),
+    balcony: Boolean(record.balcony),
+    smokeFree: Boolean(record.smokeFree),
     isAvailable: record.isAvailable ?? record.status === "disponible",
     isReserved: Boolean(record.isReserved),
     blockedRanges: Array.isArray(record.blockedRanges) ? record.blockedRanges : [],

@@ -94,11 +94,14 @@ app.post('/api/rooms', ...adminOnly, uploadRoomImagesSafely, asyncHandler(async 
         }
         const gallery = (req.files || []).map((file) => ({
             src: `/uploads/${file.filename}`,
+            type: file.mimetype.startsWith('video/') ? 'video' : 'image',
             alt: `Habitación ${fields.number}`
         }));
+        const firstImage = gallery.find((item) => item.type === 'image');
+        if (!firstImage) throw new HttpError(400, 'La galería debe incluir al menos una imagen.');
         const room = await Habitacion.create({
             ...fields,
-            imageUrl: gallery[0]?.src || null,
+            imageUrl: firstImage?.src || null,
             gallery,
             ...Object.fromEntries(roomAmenityFields.map((key) => [key, Boolean(amenities[key])])),
             createdByUserId: req.user.id
@@ -231,9 +234,12 @@ app.put('/api/rooms/:id/images', ...adminOnly, uploadRoomImagesSafely, asyncHand
         const previousImageUrls = getRoomImageUrls(room);
         const gallery = req.files.map((file) => ({
             src: `/uploads/${file.filename}`,
+            type: file.mimetype.startsWith('video/') ? 'video' : 'image',
             alt: `Habitación ${room.number}`
         }));
-        await room.update({ imageUrl: gallery[0].src, gallery });
+        const firstImage = gallery.find((item) => item.type === 'image');
+        if (!firstImage) throw new HttpError(400, 'La galería debe incluir al menos una imagen.');
+        await room.update({ imageUrl: firstImage?.src || null, gallery });
         gallerySaved = true;
         await deleteUnreferencedRoomImages(previousImageUrls);
         res.json(room);
@@ -247,8 +253,8 @@ app.delete('/api/rooms/:id/images/:imageName', ...adminOnly, asyncHandler(async 
     const room = await Habitacion.findByPk(req.params.id);
     if (!room) throw new HttpError(404, 'No se encontró la habitación.');
     const filename = req.params.imageName;
-    if (!/^[a-f0-9]{32}\.(jpg|png|webp|gif)$/.test(filename)) {
-        throw new HttpError(400, 'La imagen indicada no es válida.');
+    if (!/^[a-f0-9]{32}\.(jpg|png|webp|gif|mp4|webm|ogv|mov)$/.test(filename)) {
+        throw new HttpError(400, 'El archivo indicado no es válido.');
     }
 
     const gallery = getRoomGallery(room);
@@ -259,10 +265,14 @@ app.delete('/api/rooms/:id/images/:imageName', ...adminOnly, asyncHandler(async 
         const src = typeof image === 'string' ? image : image?.src;
         return managedRoomImageFilename(src) === filename;
     });
-    if (imageIndex < 0) throw new HttpError(404, 'La imagen no pertenece a esta habitación.');
+    if (imageIndex < 0) throw new HttpError(404, 'El archivo no pertenece a esta habitación.');
     const previousImageUrls = getRoomImageUrls(room);
     gallery.splice(imageIndex, 1);
-    const imageUrl = (typeof gallery[0] === 'string' ? gallery[0] : gallery[0]?.src) || null;
+    const firstImage = gallery.find((item) => {
+        const src = typeof item === 'string' ? item : item?.src;
+        return /\.(jpg|png|webp|gif)$/i.test(src || '');
+    });
+    const imageUrl = (typeof firstImage === 'string' ? firstImage : firstImage?.src) || null;
     await room.update({ gallery, imageUrl, updatedByUserId: req.user.id });
     await deleteUnreferencedRoomImages(previousImageUrls);
     res.json(room);

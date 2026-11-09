@@ -5,12 +5,26 @@ import "./OrdersList.css";
 function OrderStatus({ status, labels }) {
   const paid = status === "pagado";
   const cancelled = status === "cancelado";
+  const preparing = status === "preparando";
+  const prepared = status === "preparado";
+  const onTheWay = status === "en_camino";
+  const delivered = status === "entregado";
 
-  return (
-    <span className={`badge rounded-pill px-3 py-2 ${paid ? "order-paid" : cancelled ? "order-cancelled" : "order-pending"}`}>
-      {paid ? labels.paidStatus : cancelled ? labels.cancelledStatus : labels.pendingStatus}
-    </span>
-  );
+  const className = paid ? "order-paid"
+    : cancelled ? "order-cancelled"
+      : preparing || onTheWay ? "order-preparing"
+        : prepared ? "order-prepared"
+          : delivered ? "order-delivered"
+            : "order-pending";
+  const label = paid ? labels.paidStatus
+    : cancelled ? labels.cancelledStatus
+      : preparing ? labels.preparingStatus
+        : prepared ? labels.preparedStatus
+          : onTheWay ? labels.onTheWayStatus
+            : delivered ? labels.deliveredStatus
+              : labels.pendingStatus;
+
+  return <span className={`badge rounded-pill px-3 py-2 ${className}`}>{label}</span>;
 }
 
 export default function OrdersList({ orders, filter, onFilterChange, formatCurrency, labels, onCancelOrder, cancellingOrderId }) {
@@ -58,7 +72,7 @@ export default function OrdersList({ orders, filter, onFilterChange, formatCurre
             </div>
             <div className="order-price text-end">
               <div className="fw-semibold mb-1">{formatCurrency(order.monto)}</div>
-              <OrderStatus status={order.estado} labels={labels} />
+              <OrderStatus status={order.orderStatus === "pendiente" ? order.estado : order.orderStatus} labels={labels} />
             </div>
             {order.orderStatus !== "cancelado" && <ChevronRight size={18} className="order-chevron text-secondary" />}
           </li>

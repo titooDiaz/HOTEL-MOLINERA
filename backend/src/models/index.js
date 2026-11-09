@@ -501,7 +501,11 @@ async function connectDatabase() {
                 throw error;
             }
         }
+
     }
+
+    const { seedInitialData } = require('../services/initialData');
+    await seedInitialData({ models, sequelize });
 }
 
 // Exportamos la conexión, la función de inicio y los modelos.

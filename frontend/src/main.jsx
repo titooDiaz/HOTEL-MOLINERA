@@ -30,6 +30,7 @@ import {
   NuevoPlan,
   PlanesAdmin,
   Planes,
+  PlanImagePreview,
   Reportes,
   Restaurante,
   RestauranteAdmin,
@@ -50,6 +51,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/" element={<RoutePage component={App} />} />
             <Route path="/contacto" element={<RoutePage component={Contacto} />} />
             <Route path="/planes" element={<RoutePage component={Planes} />} />
+            <Route path="/planes/imagen" element={<RoutePage component={PlanImagePreview} />} />
             <Route path="/restaurante" element={<RoutePage component={Restaurante} />} />
           </Route>
           <Route path="*" element={<RoutePage component={NotFound} />} />

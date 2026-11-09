@@ -249,6 +249,54 @@
     .admin-room-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+.admin-room-payment {
+  margin: .75rem 0;
+  padding: .65rem;
+  border: 1px solid var(--border-color);
+  border-radius: .65rem;
+}
+
+.admin-room-payment-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  color: var(--text-secondary);
+  font-size: .78rem;
+}
+
+.admin-room-payment-summary strong {
+  color: var(--text-primary);
+}
+
+.admin-room-payment-form {
+  display: grid;
+  gap: .4rem;
+  margin-top: .55rem;
+}
+
+.admin-room-payment-form input,
+.admin-room-payment-form select {
+  width: 100%;
+  min-width: 0;
+  padding: .4rem .5rem;
+  border: 1px solid var(--border-color);
+  border-radius: .4rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  font-size: .78rem;
+}
+
+.reservation-payment-controls {
+  min-width: 290px;
+}
+
+.reservation-payment-controls .form-control,
+.reservation-payment-controls .form-select {
+  width: auto;
+  min-width: 120px;
+  flex: 1 1 120px;
+}
+
 @media (max-width: 420px) {
     .admin-room-grid { grid-template-columns: 1fr; }
     .admin-page-header-actions > * { max-width: 100%; }
@@ -348,7 +396,8 @@ body.guest-dark-mode .admin-dashboard .admin-status-badge.badge-pill-blue { colo
 .room-management-hint { margin: 0; color: var(--text-muted); font-size: .8125rem; }
 .room-management-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .75rem; }
 .room-management-photo { display: grid; gap: .5rem; margin: 0; }
-.room-management-photo img { width: 100%; height: 9rem; border: 1px solid var(--border-color); border-radius: .65rem; object-fit: cover; background: var(--bg-subtle); }
+.room-management-photo img,
+.room-management-photo video { width: 100%; height: 9rem; border: 1px solid var(--border-color); border-radius: .65rem; object-fit: cover; background: var(--bg-subtle); }
 .room-management-photo .admin-action-button { min-height: 2.2rem; padding: .4rem .55rem; font-size: .8rem; }
 .room-management-upload { display: grid; gap: .5rem; color: var(--text-primary); font-size: .875rem; font-weight: 650; }
 .room-management-upload input { width: 100%; font-weight: 400; }

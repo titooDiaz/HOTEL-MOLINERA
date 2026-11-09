@@ -77,6 +77,7 @@ function Planes() {
         <HotelActivity
           key={plan.id}
           image={plan.imageUrl || "/images/places/piscina-dia.jpeg"}
+          imagePreviewHref={`/planes/imagen?src=${encodeURIComponent(plan.imageUrl || "/images/places/piscina-dia.jpeg")}&title=${encodeURIComponent(plan.name)}`}
           title={plan.name}
           description={plan.description || plan.summary || ""}
           schedule={plan.price == null ? "Consulta disponibilidad y precio en recepción." : `Desde ${Number(plan.price).toLocaleString("es-VE")} ${plan.currency} por persona.`}

@@ -8,6 +8,7 @@ import AccountSummary from "../../components/account_summary/AccountSummary.jsx"
 import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 import { apiRequest, postJson } from "../../api.js";
 import "./Alimentos.css";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 const COPY = {
   orders: {
@@ -20,6 +21,10 @@ const COPY = {
     paidStatus: "Pagado",
     pendingStatus: "Pendiente",
     cancelledStatus: "Cancelado",
+    preparingStatus: "En preparación",
+    preparedStatus: "Preparado",
+    onTheWayStatus: "En camino",
+    deliveredStatus: "Entregado",
   },
   account: {
     title: "Resumen de tu cuenta",
@@ -37,13 +42,15 @@ const COPY = {
 };
 
 const formatCurrency = (value) => `Bs. ${Number(value).toLocaleString("es-VE")}`;
-const formatDate = (date) => new Intl.DateTimeFormat("es-VE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(date));
+const formatDate = (date) => formatConfiguredDate(date, { dateStyle: "medium", timeStyle: "short" });
 
 export default function RoomRequests() {
   const [filter, setFilter] = useState("todos");
   const [orders, setOrders] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
   const [foods, setFoods] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("all");
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -61,7 +68,7 @@ export default function RoomRequests() {
         detalle: `${line.quantity} × ${line.foodName} · Pedido ${orderCode}`,
         fecha: formatDate(order.requestedAt),
         monto: Number(line.totalPrice),
-        estado: order.status === "cancelado" ? "cancelado" : order.paymentStatus === "pagado" ? "pagado" : "pendiente",
+        estado: order.paymentStatus === "pagado" ? "pagado" : "pendiente",
         orderId: order.id,
         orderCode,
         orderStatus: order.status,
@@ -73,13 +80,21 @@ export default function RoomRequests() {
   const refreshOrders = () => apiRequest("/api/me/orders").then(updateOrders);
 
   useEffect(() => {
-    Promise.all([apiRequest("/api/me/orders"), apiRequest("/api/foods")])
-      .then(([orderRecords, foodRecords]) => {
+    Promise.all([apiRequest("/api/me/orders"), apiRequest("/api/foods"), apiRequest("/api/food-categories")])
+      .then(([orderRecords, foodRecords, categoryRecords]) => {
         updateOrders(orderRecords);
         setFoods(foodRecords);
+        setCategories(categoryRecords);
       })
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      refreshOrders().catch((requestError) => setError(requestError.message));
+    }, 10000);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const paidOrders = orders.filter((order) => order.estado === "pagado");
@@ -91,6 +106,17 @@ export default function RoomRequests() {
     () => Object.entries(quantities).filter(([, quantity]) => Number(quantity) > 0).map(([id, quantity]) => ({ id: Number(id), quantity: Number(quantity) })),
     [quantities],
   );
+  const visibleFoods = activeCategory === "all"
+    ? foods
+    : foods.filter((food) => String(food.categoryId || food.categoria?.id) === activeCategory);
+  const selectedFoods = foods.filter((food) => Number(quantities[food.id]) > 0);
+  const selectedTotal = selectedFoods.reduce((total, food) => total + Number(food.price) * Number(quantities[food.id]), 0);
+  const updateQuantity = (foodId, amount) => {
+    setQuantities((current) => {
+      const next = Math.max(0, Math.min(99, Number(current[foodId] || 0) + amount));
+      return { ...current, [foodId]: next || "" };
+    });
+  };
 
   const submitOrder = async (event) => {
     event.preventDefault();
@@ -150,24 +176,40 @@ export default function RoomRequests() {
               onCancelOrder={cancelOrder}
               cancellingOrderId={cancellingOrderId}
             />
-            <form className="card border-0 shadow-sm rounded-4 p-4 mt-4" onSubmit={submitOrder}>
-              <h2 className="h5 mb-3">Pedir del menú</h2>
+            <form className="card border-0 shadow-sm rounded-4 p-4 mt-4 food-menu-card" onSubmit={submitOrder}>
+              <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                <div>
+                  <h2 className="h5 mb-1">Pedir del menú</h2>
+                  <p className="small text-secondary mb-0">Elige una categoría y agrega tus productos.</p>
+                </div>
+                {selectedFoods.length > 0 && <span className="badge rounded-pill text-bg-danger">{selectedItems.reduce((sum, item) => sum + item.quantity, 0)} productos</span>}
+              </div>
+              <div className="food-category-tabs" role="tablist" aria-label="Categorías del menú">
+                <button type="button" className={activeCategory === "all" ? "active" : ""} onClick={() => setActiveCategory("all")}>Todo</button>
+                {categories.map((category) => (
+                  <button type="button" className={activeCategory === String(category.id) ? "active" : ""} key={category.id} onClick={() => setActiveCategory(String(category.id))}>
+                    {category.name}
+                  </button>
+                ))}
+              </div>
               {foods.length ? (
-                <div className="d-grid gap-2">
-                  {foods.map((food) => (
-                    <label className="d-flex align-items-center justify-content-between gap-3 border rounded-3 p-3" key={food.id}>
-                      <span><strong>{food.name}</strong><small className="d-block text-secondary">{food.categoria?.name || "Menú"} · {formatCurrency(food.price)}</small></span>
-                      <input
-                        className="form-control"
-                        style={{ width: "90px" }}
-                        type="number"
-                        min="0"
-                        max="99"
-                        value={quantities[food.id] || 0}
-                        onChange={(event) => setQuantities((current) => ({ ...current, [food.id]: event.target.value }))}
-                        aria-label={`Cantidad de ${food.name}`}
-                      />
-                    </label>
+                <div className="food-menu-grid">
+                  {visibleFoods.map((food) => (
+                    <article className="food-menu-item" key={food.id}>
+                      <img src={food.imageUrl || "/images/restaurant/ravioli-pan-ajo.jpeg"} alt={food.name} />
+                      <div className="food-menu-item-content">
+                        <div className="d-flex justify-content-between gap-2">
+                          <h3>{food.name}</h3>
+                          <strong>{formatCurrency(food.price)}</strong>
+                        </div>
+                        <p>{food.description || food.categoria?.name || "Preparación del restaurante"}</p>
+                        <div className="food-menu-item-actions">
+                          {Number(quantities[food.id]) > 0 && <button type="button" onClick={() => updateQuantity(food.id, -1)} aria-label={`Quitar ${food.name}`}>−</button>}
+                          {Number(quantities[food.id]) > 0 && <span>{quantities[food.id]}</span>}
+                          <button type="button" className="food-add-button" onClick={() => updateQuantity(food.id, 1)} aria-label={`Agregar ${food.name}`}>+</button>
+                        </div>
+                      </div>
+                    </article>
                   ))}
                 </div>
               ) : <p className="text-secondary">No hay productos disponibles en este momento.</p>}
@@ -177,6 +219,26 @@ export default function RoomRequests() {
             </form>
           </div>
           <div className="col-12 col-lg-4">
+            <section className="selected-order-card card border-0 shadow-sm rounded-4 p-4 mb-4" aria-live="polite">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2 className="h5 mb-0">Tu pedido</h2>
+                {selectedFoods.length > 0 && <button type="button" className="btn btn-link btn-sm p-0 text-danger" onClick={() => setQuantities({})}>Vaciar</button>}
+              </div>
+              {selectedFoods.length ? (
+                <>
+                  <div className="selected-order-list">
+                    {selectedFoods.map((food) => (
+                      <div className="selected-order-line" key={food.id}>
+                        <img src={food.imageUrl || "/images/restaurant/ravioli-pan-ajo.jpeg"} alt="" />
+                        <div><strong>{food.name}</strong><small>{quantities[food.id]} × {formatCurrency(food.price)}</small></div>
+                        <b>{formatCurrency(Number(food.price) * Number(quantities[food.id]))}</b>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="selected-order-total"><span>Total</span><strong>{formatCurrency(selectedTotal)}</strong></div>
+                </>
+              ) : <p className="small text-secondary mb-0">Agrega productos con el botón + y aparecerán aquí.</p>}
+            </section>
             <AccountSummary
               totalConsumos={totalPaid + totalPending}
               totalPagado={totalPaid}

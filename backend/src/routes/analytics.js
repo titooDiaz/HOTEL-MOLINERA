@@ -33,14 +33,12 @@ module.exports = (app, context) => {
             );
         }
 
-        if (!existingCookie) {
-            await Vista.create({
-                visitorHash: hashVisitor(visitorId),
-                path: normalizePath(req.body?.path),
-                ipAddress: req.ip,
-                userAgent: req.get('user-agent')?.slice(0, 500) || null
-            });
-        }
+        await Vista.create({
+            visitorHash: hashVisitor(visitorId),
+            path: normalizePath(req.body?.path),
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent')?.slice(0, 500) || null
+        });
 
         res.status(204).end();
     }));

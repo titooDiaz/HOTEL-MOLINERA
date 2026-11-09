@@ -8,6 +8,7 @@ import ReservationsTable from "../../components/reservations_table/ReservationsT
 import { apiRequest } from "../../api.js";
 import { useAuth } from "../../context/authContext.js";
 import { todayISO } from "../../components/admin_form/formUtils.js";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 const LABELS = {
   table: {
@@ -43,7 +44,7 @@ const STATUS = {
   finalizada: ["Finalizada", "badge-pill-slate"],
 };
 
-const formatDate = (date) => date ? new Intl.DateTimeFormat("es-VE").format(new Date(`${date}T00:00:00`)) : "—";
+const formatDate = (date) => formatConfiguredDate(date);
 const dateOnly = (date) => typeof date === "string" ? date.slice(0, 10) : "";
 
 export default function Reservas() {
@@ -54,6 +55,7 @@ export default function Reservas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingReservationId, setUpdatingReservationId] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState({});
 
   const refreshReservations = useCallback(async ({ quiet = false } = {}) => {
     if (!quiet) setError("");
@@ -74,6 +76,11 @@ export default function Reservas() {
           status,
           statusKey,
           statusClass,
+          total: Number(reservation.total || 0),
+          advance: Number(reservation.advance || 0),
+          balance: Number(reservation.balance || 0),
+          paymentStatus: reservation.paymentStatus || "pendiente",
+          paymentMethod: reservation.paymentMethod || "efectivo",
         };
       });
       const inMonth = records.filter((record) => record.createdAt?.slice(0, 7) === today.slice(0, 7)).length;
@@ -94,6 +101,39 @@ export default function Reservas() {
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
   }, [refreshReservations, notificationRevision]);
+
+  const updatePaymentDetail = (reservationId, field, value) => {
+    setPaymentDetails((current) => ({
+      ...current,
+      [reservationId]: { ...current[reservationId], [field]: value },
+    }));
+  };
+
+  const handlePayment = async (reservation, complete = false) => {
+    const details = paymentDetails[reservation.reservationId] || {};
+    const totalPaid = complete ? reservation.total : Number(details.amount ?? reservation.advance);
+    if (!Number.isFinite(totalPaid) || totalPaid < 0 || totalPaid > reservation.total) {
+      setError("Indica un monto pagado válido.");
+      return;
+    }
+    setUpdatingReservationId(reservation.reservationId);
+    setError("");
+    try {
+      await apiRequest(`/api/reservations/${reservation.reservationId}/payment-summary`, {
+        method: "PUT",
+        body: JSON.stringify({
+          totalPaid,
+          paymentMethod: details.method || reservation.paymentMethod || "efectivo",
+        }),
+      });
+      await refreshReservations();
+      window.alert(complete ? "Pago completo registrado." : "Pago de la habitación actualizado.");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  };
 
   const handleStatusChange = async (reservation, status) => {
     const isCheckingIn = status === "checkin";
@@ -145,6 +185,9 @@ export default function Reservas() {
           labels={LABELS.table}
           onStatusChange={handleStatusChange}
           updatingReservationId={updatingReservationId}
+          paymentDetails={paymentDetails}
+          onPaymentDetailChange={updatePaymentDetail}
+          onPayment={handlePayment}
         />
       </>}
     </>

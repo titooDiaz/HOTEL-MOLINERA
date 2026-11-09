@@ -5,10 +5,9 @@ import { apiRequest, downloadProtectedFile } from "../../api.js";
 import PageHeader from "../../components/page_header/PageHeader.jsx";
 import { formatCOP } from "../../components/admin_form/formUtils.js";
 import "./HotelDashboard.css";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
-const formatDate = (date) => date
-  ? new Intl.DateTimeFormat("es-VE").format(new Date(`${date}T00:00:00`))
-  : "—";
+const formatDate = (date) => formatConfiguredDate(date);
 
 const formatPaymentAmount = (value) => `Bs. ${new Intl.NumberFormat("es-VE", {
   minimumFractionDigits: 2,

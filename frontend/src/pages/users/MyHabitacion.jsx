@@ -69,14 +69,23 @@ const formatoFecha = (valor) => {
 
 
 export default function MyRoom() {
-    const { reservation, saveReservation } = useAuth();
+    const { reservation: authReservation, saveReservation } = useAuth();
+    const [currentReservation, setCurrentReservation] = useState(authReservation);
+    const reservation = currentReservation || authReservation;
     const [availableRooms, setAvailableRooms] = useState([]);
     const [showReservationDetails, setShowReservationDetails] = useState(false);
+    const [foodOrders, setFoodOrders] = useState([]);
     const [downloadingStatement, setDownloadingStatement] = useState(false);
     const [statementError, setStatementError] = useState("");
     const totalHabitacion = Number(reservation?.total || 0);
     const totalPagado = Number(reservation?.advance || 0);
     const totalPendiente = Number(reservation?.balance ?? Math.max(0, totalHabitacion - totalPagado));
+    const roomFoodOrders = foodOrders.filter((order) => order.paymentMethod === "cargo" && order.status !== "cancelado");
+    const foodTotal = roomFoodOrders.reduce((total, order) => total + Number(order.total || 0), 0);
+    const foodPending = roomFoodOrders
+        .filter((order) => order.paymentStatus !== "pagado")
+        .reduce((total, order) => total + Number(order.total || 0), 0);
+    const foodPaid = foodTotal - foodPending;
 
     const downloadStatement = async () => {
         setDownloadingStatement(true);
@@ -98,6 +107,33 @@ export default function MyRoom() {
             .then((records) => setAvailableRooms(records.map(roomFromApi)))
             .catch((error) => console.error("No se pudieron cargar las habitaciones:", error));
     }, []);
+
+    useEffect(() => {
+        setCurrentReservation(authReservation);
+    }, [authReservation]);
+
+    useEffect(() => {
+        if (!reservation) return undefined;
+        const loadFoodOrders = () => apiRequest("/api/me/orders")
+            .then((orders) => setFoodOrders(orders))
+            .catch((error) => console.error("No se pudieron cargar los consumos:", error));
+        loadFoodOrders();
+        const loadReservation = () => apiRequest("/api/me/reservations", { cache: "no-store" })
+            .then((reservations) => {
+                const next = reservations[0];
+                if (next) setCurrentReservation({
+                    ...next,
+                    roomName: next.habitacion?.number ? `Habitación ${next.habitacion.number}` : "Habitación por asignar",
+                });
+            })
+            .catch((error) => console.error("No se pudo actualizar el pago de la habitación:", error));
+        loadReservation();
+        const intervalId = window.setInterval(() => {
+            loadFoodOrders();
+            loadReservation();
+        }, 10000);
+        return () => window.clearInterval(intervalId);
+    }, [reservation]);
 
 
     if (!reservation) {
@@ -231,9 +267,9 @@ export default function MyRoom() {
 
                             {/* Resumen de pagos de la habitación. */}
                             <AccountSummary
-                                totalConsumos={totalHabitacion}
-                                totalPagado={totalPagado}
-                                totalPendiente={totalPendiente}
+                                totalConsumos={totalHabitacion + foodTotal}
+                                totalPagado={totalPagado + foodPaid}
+                                totalPendiente={totalPendiente + foodPending}
                                 formatCurrency={formatoCOP}
                                 labels={TEXTO_PAGINA.account}
                                 onDetailsClick={() => setShowReservationDetails(true)}
@@ -281,9 +317,11 @@ export default function MyRoom() {
                                     <div><dt>Subtotal</dt><dd>{formatoCOP(reservation.subtotal ?? totalHabitacion)}</dd></div>
                                     <div><dt>Impuestos</dt><dd>{formatoCOP(reservation.taxes || 0)}</dd></div>
                                     <div><dt>Total de la habitación</dt><dd>{formatoCOP(totalHabitacion)}</dd></div>
-                                    <div><dt>Pagado</dt><dd>{formatoCOP(totalPagado)}</dd></div>
+                                    <div><dt>Consumos de alimentos</dt><dd>{formatoCOP(foodTotal)}</dd></div>
+                                    <div><dt>Total habitación y consumos</dt><dd>{formatoCOP(totalHabitacion + foodTotal)}</dd></div>
+                                    <div><dt>Pagado</dt><dd>{formatoCOP(totalPagado + foodPaid)}</dd></div>
                                     <div className="reservation-details-balance">
-                                        <dt>Saldo pendiente</dt><dd>{formatoCOP(totalPendiente)}</dd>
+                                        <dt>Saldo pendiente</dt><dd>{formatoCOP(totalPendiente + foodPending)}</dd>
                                     </div>
                                     {reservation.paymentMethod && (
                                         <div><dt>Método de pago</dt><dd>{reservation.paymentMethod}</dd></div>
@@ -294,6 +332,29 @@ export default function MyRoom() {
                                         </div>
                                     )}
                                 </dl>
+
+                                <section className="reservation-food-orders mt-4" aria-labelledby="reservation-food-orders-title">
+                                    <h3 className="h5 mb-3" id="reservation-food-orders-title">Detalle de alimentos cargados a la habitación</h3>
+                                    {roomFoodOrders.length ? roomFoodOrders.map((order) => (
+                                        <article className="border rounded-3 p-3 mb-3" key={order.id}>
+                                            <div className="d-flex justify-content-between gap-2 mb-2">
+                                                <strong>Pedido {order.orderCode || `#${order.id}`}</strong>
+                                                <span>{formatoCOP(order.total)}</span>
+                                            </div>
+                                            <ul className="list-unstyled mb-0 small">
+                                                {(order.detalles || []).map((line) => (
+                                                    <li className="d-flex justify-content-between gap-3 py-1" key={line.id}>
+                                                        <span>{line.quantity} × {line.foodName}</span>
+                                                        <span>{formatoCOP(line.totalPrice)}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <div className="small text-secondary mt-2">
+                                                Estado: {order.status === "preparando" ? "En preparación" : order.status === "preparado" ? "Preparado" : order.status === "en_camino" ? "En camino" : order.status === "entregado" ? "Entregado" : "Pendiente"}
+                                            </div>
+                                        </article>
+                                    )) : <p className="text-secondary small mb-0">Todavía no hay consumos de alimentos cargados a esta habitación.</p>}
+                                </section>
 
                                 {statementError && <p className="alert alert-danger mt-3" role="alert">{statementError}</p>}
                                 <div className="d-flex flex-wrap gap-2 mt-3">

@@ -7,7 +7,17 @@ const formatPeakHour = (peak) => peak
   ? new Intl.DateTimeFormat("es-VE", { weekday: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(peak.hour))
   : "—";
 
-export default function DashboardAnalytics({ roomTypes, recentActivity, labels, views, viewsPeriod, onViewsPeriodChange }) {
+export default function DashboardAnalytics({
+  roomTypes,
+  occupancySeries = [],
+  occupancyPeriod,
+  onOccupancyPeriodChange,
+  recentActivity,
+  labels,
+  views,
+  viewsPeriod,
+  onViewsPeriodChange,
+}) {
   const gradientId = `area-fill-${useId().replaceAll(":", "")}`;
   const totalRoomCount = roomTypes.reduce((total, room) => total + room.count, 0);
   const series = views?.series || [];
@@ -22,6 +32,17 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels, 
   const chartLabels = chartPoints.length
     ? [chartPoints[0], chartPoints[Math.floor(chartPoints.length / 2)], chartPoints[chartPoints.length - 1]]
     : [];
+  const occupancyPoints = occupancySeries.map((point, index) => ({
+    ...point,
+    x: 50 + (index * 480) / Math.max(occupancySeries.length - 1, 1),
+    y: 200 - (point.value / 100) * 190,
+  }));
+  const occupancyLine = occupancyPoints
+    .map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(2)},${point.y.toFixed(2)}`)
+    .join(" ");
+  const occupancyArea = occupancyPoints.length
+    ? `${occupancyLine} L530,200 L50,200 Z`
+    : "";
 
   return (
     <div className="row g-3 mb-4">
@@ -89,13 +110,18 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels, 
                   <h2 className="fw-semibold text-slate-700 mb-0 dashboard-section-title">
                     {labels.occupancyTitle}
             </h2>
-                  <select className="filter-select" defaultValue={labels.defaultPeriod} aria-label={labels.periodLabel}>
+                  <select
+                    className="filter-select"
+                    value={occupancyPeriod}
+                    onChange={(event) => onOccupancyPeriodChange(event.target.value)}
+                    aria-label={labels.periodLabel}
+                  >
                     {labels.periodOptions.map((option) => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
             </select>
           </div>
-          <svg viewBox="0 0 560 220" className="w-100 h-auto" preserveAspectRatio="none">
+          <svg viewBox="0 0 560 220" className="w-100 h-auto" preserveAspectRatio="none" role="img" aria-label={labels.occupancyTitle}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.35" />
@@ -116,31 +142,17 @@ export default function DashboardAnalytics({ roomTypes, recentActivity, labels, 
                     <text x="8" y="164">{labels.occupancyAxisLabels[3]}</text>
                     <text x="18" y="204">{labels.occupancyAxisLabels[4]}</text>
             </g>
-            <path
-              d="M50,120 L130,135 L210,145 L290,110 L370,105 L450,90 L530,75 L530,200 L50,200 Z"
-              fill={`url(#${gradientId})`}
-            />
-            <polyline
-              points="50,120 130,135 210,145 290,110 370,105 450,90 530,75"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d={occupancyArea} fill={`url(#${gradientId})`} />
+            <path d={occupancyLine} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             <g fill="#3b82f6">
-              <circle cx="50" cy="120" r="3.5" />
-              <circle cx="130" cy="135" r="3.5" />
-              <circle cx="210" cy="145" r="3.5" />
-              <circle cx="290" cy="110" r="3.5" />
-              <circle cx="370" cy="105" r="3.5" />
-              <circle cx="450" cy="90" r="3.5" />
-              <circle cx="530" cy="75" r="3.5" />
+              {occupancyPoints.map((point) => <circle key={point.date} cx={point.x} cy={point.y} r="3.5" />)}
             </g>
             <g fontSize="11" fill="#94a3b8">
-                    {labels.timelineLabels.map((label, index) => (
-                      <text key={label} x={[38, 115, 195, 275, 355, 435, 515][index]} y="216">
-                        {label}
+                    {occupancyPoints.filter((_, index) =>
+                      index === 0 || index === Math.floor(occupancyPoints.length / 2) || index === occupancyPoints.length - 1
+                    ).map((point) => (
+                      <text key={point.date} x={point.x} y="216" textAnchor="middle">
+                        {point.label}
                       </text>
                     ))}
             </g>

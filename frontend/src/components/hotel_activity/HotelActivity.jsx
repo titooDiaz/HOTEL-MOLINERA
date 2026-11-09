@@ -9,17 +9,20 @@ export default function HotelActivity({
   schedule,
   onBook,
   bookHref,
+  imagePreviewHref,
   bookLabel = "Agendar experiencia",
 }) {
   return (
     <section className="px-3 px-md-5 py-4">
       <div className="activity-card">
         <div className="activity-image-wrap">
-          <img
-            src={image}
-            alt={title}
-            className="activity-image"
-          />
+          {imagePreviewHref ? (
+            <a href={imagePreviewHref} className="activity-image-link" aria-label={`Ver imagen de ${title}`}>
+              <img src={image} alt={title} className="activity-image" />
+            </a>
+          ) : (
+            <img src={image} alt={title} className="activity-image" />
+          )}
         </div>
 
         <div className="activity-content">

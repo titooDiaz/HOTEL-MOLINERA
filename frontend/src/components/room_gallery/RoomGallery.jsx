@@ -26,11 +26,22 @@ export default function RoomGallery({ images, labels }) {
   return (
     <div>
       <div className="position-relative rounded-4 bg-light main-image-wrap">
-        <img
-          src={images[currentImage].src}
-          alt={images[currentImage].alt}
-          className="w-100 h-100 object-fit-cover rounded-4"
-        />
+        {images[currentImage].type === "video" || /\.(mp4|webm|ogv|mov)$/i.test(images[currentImage].src || "") ? (
+          <video
+            src={images[currentImage].src}
+            controls
+            preload="metadata"
+            playsInline
+            className="w-100 h-100 object-fit-cover rounded-4"
+            aria-label={images[currentImage].alt}
+          />
+        ) : (
+          <img
+            src={images[currentImage].src}
+            alt={images[currentImage].alt}
+            className="w-100 h-100 object-fit-cover rounded-4"
+          />
+        )}
         <span className="image-counter">
           {currentImage + 1} / {images.length}
         </span>
@@ -66,7 +77,11 @@ export default function RoomGallery({ images, labels }) {
             aria-label={`${labels.viewImage}: ${image.alt}`}
             aria-pressed={currentImage === index}
           >
-            <img src={image.src} alt="" className="thumb-img w-100 rounded-3" />
+            {image.type === "video" || /\.(mp4|webm|ogv|mov)$/i.test(image.src || "") ? (
+              <video src={image.src} muted preload="metadata" className="thumb-img w-100 rounded-3" aria-label={image.alt} />
+            ) : (
+              <img src={image.src} alt="" className="thumb-img w-100 rounded-3" />
+            )}
           </button>
         ))}
       </div>

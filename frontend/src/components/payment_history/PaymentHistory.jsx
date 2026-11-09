@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest, downloadProtectedFile } from "../../api.js";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 const METHOD_LABELS = {
   efectivo: "Efectivo",
@@ -14,9 +15,7 @@ const formatAmount = (value) => `Bs. ${new Intl.NumberFormat("es-VE", {
   maximumFractionDigits: 2,
 }).format(Number(value) || 0)}`;
 
-const formatDate = (value) => value
-  ? new Intl.DateTimeFormat("es-VE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
-  : "—";
+const formatDate = (value) => formatConfiguredDate(value, { dateStyle: "medium", timeStyle: "short" });
 
 export default function PaymentHistory() {
   const [payments, setPayments] = useState([]);

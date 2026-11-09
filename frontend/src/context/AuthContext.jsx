@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiRequest, clearAuthToken, getAuthToken, saveAuthToken } from "../api.js";
 import { AuthContext } from "./authContext.js";
+import { areNotificationsEnabled } from "../utils/userSettings.js";
 
 export function AuthProvider({ children }) {
   // Preparamos el usuario actual y la reserva activa.
@@ -10,6 +11,17 @@ export function AuthProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [notificationRevision, setNotificationRevision] = useState(0);
   const [isLoading, setIsLoading] = useState(() => Boolean(getAuthToken()));
+  const [notificationsEnabled, setNotificationsEnabled] = useState(areNotificationsEnabled);
+
+  useEffect(() => {
+    const refreshSettings = () => setNotificationsEnabled(areNotificationsEnabled());
+    window.addEventListener("hotel-molinera-settings-change", refreshSettings);
+    window.addEventListener("storage", refreshSettings);
+    return () => {
+      window.removeEventListener("hotel-molinera-settings-change", refreshSettings);
+      window.removeEventListener("storage", refreshSettings);
+    };
+  }, []);
 
   const loadGuestReservation = useCallback(async (sessionUser) => {
     if (sessionUser.role !== "guest") {
@@ -46,7 +58,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!user?.id) return undefined;
+    if (!user?.id || !notificationsEnabled) {
+      setNotifications([]);
+      return undefined;
+    }
 
     const controller = new AbortController();
     const { signal } = controller;
@@ -123,7 +138,7 @@ export function AuthProvider({ children }) {
 
     connect();
     return () => controller.abort();
-  }, [user, loadGuestReservation, refreshNotifications]);
+  }, [user, loadGuestReservation, refreshNotifications, notificationsEnabled]);
 
   const markNotificationRead = useCallback(async (notificationId) => {
     const updated = await apiRequest(`/api/notifications/${notificationId}/read`, { method: "PATCH" });
@@ -259,6 +274,7 @@ export function AuthProvider({ children }) {
         notificationRevision,
         markNotificationRead,
         markAllNotificationsRead,
+        notificationsEnabled,
       }}
     >
       {children}

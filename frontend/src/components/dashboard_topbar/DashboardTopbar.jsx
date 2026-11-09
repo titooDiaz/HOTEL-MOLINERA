@@ -6,10 +6,11 @@ import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import SidebarToggle from "../sidebar_toggle/SidebarToggle.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";
 import "./DashboardTopbar.css";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 export default function DashboardTopbar({ onOpenSidebar, labels }) {
   const navigate = useNavigate();
-  const { logout, notifications, markNotificationRead, markAllNotificationsRead } = useAuth();
+  const { logout, notifications, markNotificationRead, markAllNotificationsRead, notificationsEnabled } = useAuth();
   const topbarActionsRef = useRef(null);
   const [openMenu, setOpenMenu] = useState(null);
   const [notificationError, setNotificationError] = useState("");
@@ -90,7 +91,7 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
         <div className="flex-grow-1 d-sm-none" />
 
         <div className="d-flex align-items-center gap-3 ms-auto topbar-actions" ref={topbarActionsRef}>
-          <div className="topbar-menu">
+          {notificationsEnabled && <div className="topbar-menu">
             <Tooltip label={labels.notificationsLabel}>
               <button
                 type="button"
@@ -128,13 +129,13 @@ export default function DashboardTopbar({ onOpenSidebar, labels }) {
                     <span>
                       <strong>{notification.title}</strong>
                       <small>{notification.message}</small>
-                      <small>{new Intl.DateTimeFormat("es-VE", { dateStyle: "short", timeStyle: "short" }).format(new Date(notification.createdAt))}</small>
+                      <small>{formatConfiguredDate(notification.createdAt, { dateStyle: "short", timeStyle: "short" })}</small>
                     </span>
                   </button>
                 )) : <p className="notification-empty">No tienes notificaciones.</p>}
               </div>
             )}
-          </div>
+          </div>}
 
           <div className="topbar-menu">
             <button

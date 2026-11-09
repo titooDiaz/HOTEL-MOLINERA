@@ -10,6 +10,7 @@ import { apiRequest } from "../../api.js";
 import { useAuth } from "../../context/authContext.js";
 import { useTheme } from "../../context/themeContext.js";
 import "./Alimentos.css";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 const COPY = {
   hero: { eyebrow: "CONFIGURACIÓN", title: "Configuración", description: "Gestiona tus datos personales, seguridad y preferencias." },
@@ -56,7 +57,7 @@ export default function Settings() {
         const fields = createFields(profileResponse.user.profile, profileResponse.user.email);
         setData(fields);
         setDraft(fields);
-        setActivity(activityRecords.map((item) => `${item.action} · ${new Intl.DateTimeFormat("es-VE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.createdAt))}`));
+        setActivity(activityRecords.map((item) => `${item.action} · ${formatConfiguredDate(item.createdAt, { dateStyle: "medium", timeStyle: "short" })}`));
       })
       .catch((requestError) => setError(requestError.message));
   }, []);

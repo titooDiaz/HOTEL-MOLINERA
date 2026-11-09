@@ -14,6 +14,7 @@ export default function NotificationSettings({ options, labels }) {
     const next = { ...enabled, [id]: value };
     setEnabled(next);
     localStorage.setItem("hotel-molinera-notifications", JSON.stringify(next));
+    window.dispatchEvent(new Event("hotel-molinera-settings-change"));
   };
 
   return (

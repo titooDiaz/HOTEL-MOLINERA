@@ -14,6 +14,7 @@ export default function RegionalSettings({ fields, labels }) {
     const next = { ...values, [id]: value };
     setValues(next);
     localStorage.setItem("hotel-molinera-regional", JSON.stringify(next));
+    window.dispatchEvent(new Event("hotel-molinera-settings-change"));
   };
 
   return (

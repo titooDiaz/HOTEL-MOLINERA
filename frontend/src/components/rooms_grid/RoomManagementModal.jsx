@@ -39,7 +39,7 @@ function parseGallery(room) {
 
 function photoFilename(src) {
   const filename = src?.split("/").pop();
-  return src?.startsWith("/uploads/") && /^[a-f0-9]{32}\.(jpg|png|webp|gif)$/.test(filename)
+  return src?.startsWith("/uploads/") && /^[a-f0-9]{32}\.(jpg|png|webp|gif|mp4|webm|ogv|mov)$/.test(filename)
     ? filename
     : null;
 }
@@ -156,8 +156,8 @@ export default function RoomManagementModal({ room: initialRoom, onClose, onUpda
     const files = Array.from(event.target.files || []);
     event.target.value = "";
     if (!files.length) return;
-    if (files.length > 4) {
-      setError("Selecciona como máximo 4 imágenes.");
+    if (files.length > 8 || !files.some((file) => file.type.startsWith("image/"))) {
+      setError("Selecciona como máximo 8 archivos e incluye al menos una imagen.");
       return;
     }
     const body = new FormData();
@@ -352,10 +352,14 @@ export default function RoomManagementModal({ room: initialRoom, onClose, onUpda
                   const filename = photoFilename(image.src);
                   return (
                     <figure className="room-management-photo" key={`${image.src}-${index}`}>
-                      <img src={image.src} alt={image.alt || `Foto ${index + 1} de la habitación ${room.number}`} />
+                      {image.type === "video" || /\.(mp4|webm|ogv|mov)$/i.test(image.src || "") ? (
+                        <video src={image.src} controls preload="metadata" playsInline aria-label={image.alt || `Video ${index + 1} de la habitación ${room.number}`} />
+                      ) : (
+                        <img src={image.src} alt={image.alt || `Foto ${index + 1} de la habitación ${room.number}`} />
+                      )}
                       {filename
-                        ? <button className="admin-action-button admin-action-button--danger" type="button" onClick={() => deletePhoto(image)} disabled={saving}>Eliminar foto</button>
-                        : <span className="room-management-hint">Foto externa</span>}
+                        ? <button className="admin-action-button admin-action-button--danger" type="button" onClick={() => deletePhoto(image)} disabled={saving}>Eliminar archivo</button>
+                        : <span className="room-management-hint">Archivo externo</span>}
                     </figure>
                   );
                 })}
@@ -366,12 +370,12 @@ export default function RoomManagementModal({ room: initialRoom, onClose, onUpda
               <input
                 className="admin-form-control"
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime"
                 multiple
                 disabled={saving}
                 onChange={replacePhotos}
               />
-              <span className="room-management-hint">Selecciona de 1 a 4 imágenes; se eliminarán las fotos anteriores que ya no se usen.</span>
+              <span className="room-management-hint">Selecciona hasta 8 archivos e incluye al menos una imagen; se reemplazará la galería anterior.</span>
             </label>
             <footer className="room-management-actions">
               <button className="admin-action-button admin-action-button--outline" type="button" onClick={onClose} disabled={saving}>Cerrar</button>

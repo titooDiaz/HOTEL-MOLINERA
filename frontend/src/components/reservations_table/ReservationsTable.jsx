@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
-export default function ReservationsTable({ reservations, labels, onStatusChange, updatingReservationId }) {
+export default function ReservationsTable({ reservations, labels, onStatusChange, updatingReservationId, paymentDetails, onPaymentDetailChange, onPayment }) {
   const [status, setStatus] = useState(labels.allValue);
   const [activeMenu, setActiveMenu] = useState(null);
   const filteredReservations = useMemo(
@@ -56,6 +56,45 @@ export default function ReservationsTable({ reservations, labels, onStatusChange
                 <td>{reservation.checkin}</td><td>{reservation.checkout}</td>
                 <td><span className={`admin-status-badge ${reservation.statusClass}`}>{reservation.status}</span></td>
                 <td>
+                  {!["cancelada", "cancelado", "finalizada"].includes(reservation.statusKey) && (
+                    <div className="reservation-payment-controls">
+                      <span className="small text-secondary">
+                        Pagado: Bs. {reservation.advance.toLocaleString("es-VE")} · Saldo: Bs. {reservation.balance.toLocaleString("es-VE")}
+                      </span>
+                      <div className="d-flex flex-wrap gap-1 mt-1">
+                        <input
+                          className="form-control form-control-sm"
+                          type="number"
+                          min="0"
+                          max={reservation.total}
+                          step="0.01"
+                          placeholder="Total pagado"
+                          aria-label={`Total pagado de ${reservation.id}`}
+                          value={paymentDetails[reservation.reservationId]?.amount ?? reservation.advance}
+                          onChange={(event) => onPaymentDetailChange(reservation.reservationId, "amount", event.target.value)}
+                          disabled={updatingReservationId === reservation.reservationId}
+                        />
+                        <select
+                          className="form-select form-select-sm"
+                          aria-label={`Método de pago de ${reservation.id}`}
+                          value={paymentDetails[reservation.reservationId]?.method || reservation.paymentMethod || "efectivo"}
+                          onChange={(event) => onPaymentDetailChange(reservation.reservationId, "method", event.target.value)}
+                          disabled={updatingReservationId === reservation.reservationId}
+                        >
+                          <option value="efectivo">Efectivo</option>
+                          <option value="tarjeta">Tarjeta</option>
+                          <option value="transferencia">Transferencia</option>
+                          <option value="pago_movil">Pago Móvil</option>
+                        </select>
+                        <button type="button" className="admin-action-button admin-action-button--outline" onClick={() => onPayment(reservation)} disabled={updatingReservationId === reservation.reservationId}>
+                          {updatingReservationId === reservation.reservationId ? "Guardando..." : "Actualizar pago"}
+                        </button>
+                        <button type="button" className="admin-action-button admin-action-button--primary" onClick={() => onPayment(reservation, true)} disabled={updatingReservationId === reservation.reservationId || reservation.paymentStatus === "pagado"}>
+                          Pago completo
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {["proceso", "confirmada"].includes(reservation.statusKey) && <div className="client-actions reservation-actions">
                     <button
                       className="admin-table-action"

@@ -90,13 +90,13 @@ const FORM_SECTIONS = [
         required: true,
       },
       {
-        id: "imageFiles",
-        label: "Imágenes de la habitación",
+        id: "mediaFiles",
+        label: "Imágenes y videos de la habitación",
         type: "file",
-        accept: "image/jpeg,image/png,image/webp,image/gif",
+        accept: "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime",
         multiple: true,
         required: true,
-        hint: "Selecciona entre 1 y 4 imágenes. Formatos JPG, PNG, WEBP o GIF; máximo 5 MB cada una.",
+        hint: "Selecciona hasta 8 archivos, incluyendo al menos una imagen. Imágenes: máximo 5 MB; videos MP4, WEBM, OGG o MOV: máximo 50 MB.",
       },
       {
         id: "description",
@@ -129,15 +129,15 @@ const NEW_ROOM_COPY = {
 
 const crearHabitacion = (datos) => {
   const body = new FormData();
-  const imageFiles = datos.imageFiles || [];
-  if (!imageFiles.length || imageFiles.length > 4) {
-    throw new Error("Selecciona entre 1 y 4 imágenes para la habitación.");
+  const mediaFiles = datos.mediaFiles || [];
+  if (!mediaFiles.length || mediaFiles.length > 8 || !mediaFiles.some((file) => file.type.startsWith("image/"))) {
+    throw new Error("Selecciona hasta 8 archivos e incluye al menos una imagen.");
   }
 
   Object.entries(datos).forEach(([key, value]) => {
     if (key === "amenities") {
       body.append(key, JSON.stringify(value));
-    } else if (key === "imageFiles") {
+    } else if (key === "mediaFiles") {
       value.forEach((file) => body.append("images", file));
     } else {
       body.append(key, value == null ? "" : String(value));

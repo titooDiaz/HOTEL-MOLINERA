@@ -23,6 +23,10 @@ const CHAT_SYSTEM_PROMPT = [
     'Eres el asistente virtual de Hotel Molinera.',
     'Responde siempre en español, de forma amable, breve y útil.',
     'Ayuda con habitaciones, reservas, planes, restaurante y contacto.',
+    'Cuando pregunten por habitaciones, filtra los datos por capacidad, precio y comodidades solicitadas; menciona por qué cada resultado coincide.',
+    'Cuando falte un criterio, pregunta solo lo necesario y no confundas capacidad con número de camas.',
+    'Para fechas o disponibilidad concreta, usa la fecha actual y aclara que la confirmación final depende de la reserva.',
+    'Para planes, respeta validFrom y validUntil y no recomiendes planes vencidos.',
     'No inventes precios, disponibilidad ni políticas. Si no tienes el dato, indica que deben contactar al hotel por WhatsApp.',
     'No solicites contraseñas, datos bancarios ni claves de acceso.'
 ].join(' ');
@@ -78,7 +82,7 @@ const getRoomImageUrls = (room) => [
 const managedRoomImageFilename = (imageUrl) => {
     if (typeof imageUrl !== 'string' || !imageUrl.startsWith('/uploads/')) return null;
     const filename = imageUrl.slice('/uploads/'.length);
-    return /^[a-f0-9]{32}\.(jpg|png|webp|gif)$/.test(filename) ? filename : null;
+    return /^[a-f0-9]{32}\.(jpg|png|webp|gif|mp4|webm|ogv|mov)$/.test(filename) ? filename : null;
 };
 const deleteUnreferencedUploads = async (imageUrls) => {
     const filenames = new Set(imageUrls.map(managedRoomImageFilename).filter(Boolean));
@@ -244,7 +248,9 @@ app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta API no encont
 
 const frontendPublicPath = path.join(__dirname, '../../frontend/public');
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+const tourismPublicPath = path.join(__dirname, '../public/tourism');
 app.use('/uploads', express.static(uploadDirectory));
+app.use('/tourism', express.static(tourismPublicPath));
 app.use(express.static(frontendPublicPath));
 app.use(express.static(frontendDistPath));
 app.get(/.*/, (_req, res) => {

@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react";
 export const App = lazy(() => import("../App.jsx"));
 export const Contacto = lazy(() => import("../pages/main/Contacto.jsx"));
 export const Planes = lazy(() => import("../pages/main/Planes.jsx"));
+export const PlanImagePreview = lazy(() => import("../pages/main/PlanImagePreview.jsx"));
 export const Restaurante = lazy(() => import("../pages/main/Restaurante.jsx"));
 export const NotFound = lazy(() => import("../pages/NotFound.jsx"));
 

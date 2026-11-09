@@ -29,7 +29,6 @@ const HOTEL_FIELDS = [
 
 const NOTIFICATION_OPTIONS = [
   { id: "email", label: "Correo electrónico", description: "Recibe un resumen diario por email", defaultChecked: true },
-  { id: "sms", label: "SMS", description: "Alertas urgentes por mensaje de texto", defaultChecked: false },
   { id: "push", label: "Notificaciones push", description: "Avisos en tiempo real dentro del panel", defaultChecked: true },
 ];
 

@@ -37,6 +37,176 @@
   background-color: var(--bg-hover);
 }
 
+.food-menu-card,
+.selected-order-card {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary);
+}
+
+.food-category-tabs {
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  padding-bottom: .65rem;
+  margin-bottom: 1rem;
+  scrollbar-width: thin;
+}
+
+.food-category-tabs button {
+  flex: 0 0 auto;
+  padding: .45rem .8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  font-size: .8rem;
+  cursor: pointer;
+}
+
+.food-category-tabs button.active,
+.food-category-tabs button:hover {
+  border-color: var(--hotel-red);
+  color: #fff;
+  background: var(--hotel-red);
+}
+
+.food-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.food-menu-item {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: .9rem;
+  background: var(--bg-surface);
+}
+
+.food-menu-item > img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.food-menu-item-content {
+  padding: .8rem;
+}
+
+.food-menu-item h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: .95rem;
+  font-weight: 650;
+}
+
+.food-menu-item-content > div > strong {
+  flex: 0 0 auto;
+  color: var(--hotel-red);
+  font-size: .8rem;
+}
+
+.food-menu-item p {
+  min-height: 2.4rem;
+  margin: .45rem 0 .75rem;
+  color: var(--text-secondary);
+  font-size: .78rem;
+}
+
+.food-menu-item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .45rem;
+}
+
+.food-menu-item-actions button {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.food-menu-item-actions .food-add-button {
+  border-color: var(--hotel-red);
+  color: #fff;
+  background: var(--hotel-red);
+}
+
+.food-menu-item-actions span {
+  min-width: 1.2rem;
+  color: var(--text-primary);
+  font-size: .85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.selected-order-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.selected-order-line {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .6rem;
+  padding-bottom: .65rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.selected-order-line img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: .5rem;
+  object-fit: cover;
+}
+
+.selected-order-line strong,
+.selected-order-line small {
+  display: block;
+}
+
+.selected-order-line strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: .78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-order-line small {
+  color: var(--text-secondary);
+  font-size: .7rem;
+}
+
+.selected-order-line b {
+  color: var(--hotel-red);
+  font-size: .75rem;
+}
+
+.selected-order-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--text-primary);
+}
+
+.selected-order-total strong {
+  color: var(--hotel-red);
+}
+
 .orders-filter {
   color: var(--text-primary);
   background-color: var(--bg-surface);
@@ -119,5 +289,9 @@
 @media (max-width: 767px) {
   .container-fluid {
     padding: 16px !important;
+  }
+
+  .food-menu-grid {
+    grid-template-columns: 1fr;
   }
 }

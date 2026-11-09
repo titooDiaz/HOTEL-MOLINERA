@@ -61,3 +61,28 @@
     font: inherit;
     text-align: left;
 }
+
+[data-theme="dark"] #sidebar .nav-link-item,
+.dark #sidebar .nav-link-item,
+body.guest-dark-mode #sidebar .nav-link-item {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] #sidebar .nav-link-item:hover,
+.dark #sidebar .nav-link-item:hover,
+body.guest-dark-mode #sidebar .nav-link-item:hover {
+    background-color: #283548;
+    color: #ffffff;
+}
+
+[data-theme="dark"] #sidebar .brand-subtitle,
+.dark #sidebar .brand-subtitle,
+body.guest-dark-mode #sidebar .brand-subtitle {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] #sidebar .logout-link,
+.dark #sidebar .logout-link,
+body.guest-dark-mode #sidebar .logout-link {
+    color: #cbd5e1;
+}

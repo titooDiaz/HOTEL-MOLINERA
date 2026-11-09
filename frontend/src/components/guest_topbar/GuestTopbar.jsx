@@ -6,6 +6,7 @@ import { useAuth } from "../../context/authContext.js";
 import SidebarToggle from "../sidebar_toggle/SidebarToggle.jsx";
 import Tooltip from "../tooltip/Tooltip.jsx";
 import "./GuestTopbar.css";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, menuLabel = "Abrir menú" }) {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, m
     notifications,
     markNotificationRead,
     markAllNotificationsRead,
+    notificationsEnabled,
   } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
   const [notificationError, setNotificationError] = useState("");
@@ -55,7 +57,7 @@ export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, m
         <SidebarToggle onClick={onOpenSidebar} label={menuLabel} />
       </div>
       <div className="guest-topbar-actions d-flex align-items-center gap-3 ms-auto">
-        <div className="guest-topbar-menu">
+        {notificationsEnabled && <div className="guest-topbar-menu">
           <Tooltip label={notificationLabel}>
             <button
               type="button"
@@ -89,12 +91,12 @@ export default function GuestTopbar({ guest, notificationLabel, onOpenSidebar, m
                   <span className="guest-notification-mark" />
                   <span>{notification.title}</span>
                   <small>{notification.message}</small>
-                  <small>{new Intl.DateTimeFormat("es-VE", { dateStyle: "short", timeStyle: "short" }).format(new Date(notification.createdAt))}</small>
+                  <small>{formatConfiguredDate(notification.createdAt, { dateStyle: "short", timeStyle: "short" })}</small>
                 </button>
               )) : <p className="guest-notification-empty">No tienes notificaciones.</p>}
             </div>
           )}
-        </div>
+        </div>}
 
         <div className="guest-topbar-menu">
           <button

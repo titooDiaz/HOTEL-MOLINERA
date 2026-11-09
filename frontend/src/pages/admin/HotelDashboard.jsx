@@ -8,6 +8,7 @@ import ReservationsOverview from "../../components/reservations_overview/Reserva
 import { apiRequest } from "../../api.js";
 import { useAuth } from "../../context/authContext.js";
 import { todayISO } from "../../components/admin_form/formUtils.js";
+import { formatConfiguredDate } from "../../utils/userSettings.js";
 
 const QUICK_ACTIONS = [
   { label: "Nueva reserva", to: "/admin/reservas/nueva", variant: "quick-action-btn--rose", icon: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></> },
@@ -24,12 +25,13 @@ const STATUS = {
   cancelada: ["Cancelada", "badge-pill-rose"],
   cancelado: ["Cancelada", "badge-pill-rose"],
 };
-const formatDate = (date) => date ? new Intl.DateTimeFormat("es-VE").format(new Date(`${date}T00:00:00`)) : "—";
+const formatDate = (date) => formatConfiguredDate(date);
 
 export default function HotelDashboard() {
   const { user } = useAuth();
   const [data, setData] = useState({ rooms: [], reservations: [], orders: [] });
   const [viewsPeriod, setViewsPeriod] = useState("7");
+  const [occupancyPeriod, setOccupancyPeriod] = useState("7");
   const [views, setViews] = useState({ periodDays: 7, totalViews: 0, uniqueVisitors: 0, peak: null, series: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,15 +44,20 @@ export default function HotelDashboard() {
   }, []);
 
   useEffect(() => {
-    apiRequest(`/api/admin/analytics/views?period=${viewsPeriod}`, { cache: "no-store" })
+    const loadViews = () => apiRequest(`/api/admin/analytics/views?period=${viewsPeriod}`, { cache: "no-store" })
       .then(setViews)
       .catch((requestError) => setError(requestError.message));
+    loadViews();
+    const intervalId = window.setInterval(loadViews, 30000);
+    return () => window.clearInterval(intervalId);
   }, [viewsPeriod]);
 
   const today = todayISO();
   const metrics = useMemo(() => {
     const activeReservations = data.reservations.filter((reservation) =>
-      reservation.checkIn <= today && reservation.checkOut > today && !["cancelada", "cancelado"].includes(reservation.status),
+      reservation.checkIn <= today
+      && reservation.checkOut > today
+      && !["cancelada", "cancelado", "finalizada"].includes(reservation.status),
     );
     const occupiedRoomIds = new Set(activeReservations.map((reservation) => String(reservation.roomId)));
     const todayReservations = data.reservations.filter((reservation) =>
@@ -60,6 +67,29 @@ export default function HotelDashboard() {
     const paidOrdersToday = todaysOrders.filter((order) => order.paymentStatus === "pagado" && order.status !== "cancelado");
     const clientCount = new Set(activeReservations.map((reservation) => String(reservation.userId))).size;
     const occupancy = data.rooms.length ? Math.round(occupiedRoomIds.size / data.rooms.length * 100) : 0;
+    const occupancyDays = Number(occupancyPeriod);
+    const occupancySeries = Array.from({ length: occupancyDays }, (_, index) => {
+      const date = new Date(`${today}T00:00:00`);
+      date.setDate(date.getDate() - (occupancyDays - index - 1));
+      const day = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Caracas",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(date);
+      const occupiedRoomIdsForDay = new Set(data.reservations
+        .filter((reservation) =>
+          reservation.checkIn <= day
+          && reservation.checkOut > day
+          && !["cancelada", "cancelado", "finalizada"].includes(reservation.status),
+        )
+        .map((reservation) => String(reservation.roomId)));
+      return {
+        date: day,
+        label: formatConfiguredDate(date, { day: "2-digit", month: "short" }),
+        value: data.rooms.length ? Math.round(occupiedRoomIdsForDay.size / data.rooms.length * 100) : 0,
+      };
+    });
     const roomTypeCounts = new Map();
     data.rooms.forEach((room) => roomTypeCounts.set(room.type, (roomTypeCounts.get(room.type) || 0) + 1));
     const roomTypes = [...roomTypeCounts.entries()].map(([label, count], index) => ({
@@ -137,14 +167,13 @@ export default function HotelDashboard() {
         trendText: "con estadía activa",
       },
     ];
-    return { statCards, roomTypes, reservations, occupancy, recentActivity };
-  }, [data, today]);
-
+    return { statCards, roomTypes, reservations, occupancy, occupancySeries, recentActivity };
+  }, [data, today, occupancyPeriod]);
   const labels = {
     quickActionsTitle: "Acciones rápidas",
     analytics: {
       occupancyTitle: "Ocupación de habitaciones",
-      defaultPeriod: "7",
+      defaultPeriod: occupancyPeriod,
       periodLabel: "Período del gráfico",
       periodOptions: [{ value: "7", label: "Últimos 7 días" }, { value: "30", label: "Últimos 30 días" }],
       viewsTitle: "Vistas del sitio",
@@ -195,6 +224,9 @@ export default function HotelDashboard() {
         <StatsAndActions statCards={metrics.statCards} quickActions={QUICK_ACTIONS} quickActionsTitle={labels.quickActionsTitle} />
         <DashboardAnalytics
           roomTypes={metrics.roomTypes}
+          occupancySeries={metrics.occupancySeries}
+          occupancyPeriod={occupancyPeriod}
+          onOccupancyPeriodChange={setOccupancyPeriod}
           recentActivity={metrics.recentActivity}
           labels={labels.analytics}
           views={views}

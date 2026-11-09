@@ -44,6 +44,27 @@
   font-weight: 500;
 }
 
+.order-preparing,
+.order-prepared,
+.order-delivered {
+  font-weight: 500;
+}
+
+.order-preparing {
+  background-color: #fff0d9;
+  color: #b45309;
+}
+
+.order-prepared {
+  background-color: #e0efff;
+  color: #1d4ed8;
+}
+
+.order-delivered {
+  background-color: #e7f7ee;
+  color: #1d9a5d;
+}
+
 .order-cancel-button {
   margin-top: .35rem;
   padding: .15rem 0;

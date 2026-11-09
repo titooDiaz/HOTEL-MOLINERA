@@ -11,17 +11,24 @@ module.exports = ({ HttpError }) => {
         'image/webp': '.webp',
         'image/gif': '.gif'
     };
+    const mediaExtensions = {
+        ...imageExtensions,
+        'video/mp4': '.mp4',
+        'video/webm': '.webm',
+        'video/ogg': '.ogv',
+        'video/quicktime': '.mov'
+    };
 
     fs.mkdirSync(uploadDirectory, { recursive: true });
 
-    const imageUploadStorage = multer.diskStorage({
+    const mediaUploadStorage = multer.diskStorage({
         destination: uploadDirectory,
-        filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${imageExtensions[file.mimetype]}`)
+        filename: (_req, file, callback) => callback(null, `${randomBytes(16).toString('hex')}${mediaExtensions[file.mimetype]}`)
     });
 
-    const imageFileFilter = (_req, file, callback) => {
-        if (!imageExtensions[file.mimetype]) {
-            return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
+    const mediaFileFilter = (_req, file, callback) => {
+        if (!mediaExtensions[file.mimetype]) {
+            return callback(new HttpError(400, 'El archivo debe ser una imagen JPG, PNG, WEBP o GIF, o un video MP4, WEBM, OGG o MOV.'));
         }
         callback(null, true);
     };
@@ -36,24 +43,29 @@ module.exports = ({ HttpError }) => {
         }));
     };
 
-    const uploadRoomImages = multer({
-        storage: imageUploadStorage,
-        limits: { fileSize: 5 * 1024 * 1024, files: 4 },
-        fileFilter: imageFileFilter
-    }).array('images', 4);
+    const uploadRoomMedia = multer({
+        storage: mediaUploadStorage,
+        limits: { fileSize: 50 * 1024 * 1024, files: 8 },
+        fileFilter: mediaFileFilter
+    }).array('images', 8);
+
+    const uploadFoodImage = multer({
+        storage: mediaUploadStorage,
+        limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+        fileFilter: (_req, file, callback) => {
+            if (!imageExtensions[file.mimetype]) {
+                return callback(new HttpError(400, 'La imagen debe ser JPG, PNG, WEBP o GIF.'));
+            }
+            callback(null, true);
+        }
+    }).single('image');
 
     const uploadRoomImagesSafely = (req, res, next) => {
-        uploadRoomImages(req, res, (error) => {
+        uploadRoomMedia(req, res, (error) => {
             if (!error) return next();
             cleanupUploadedFiles(req.files).finally(() => next(error));
         });
     };
-
-    const uploadFoodImage = multer({
-        storage: imageUploadStorage,
-        limits: { fileSize: 5 * 1024 * 1024, files: 1 },
-        fileFilter: imageFileFilter
-    }).single('image');
 
     return { uploadDirectory, cleanupUploadedFiles, uploadRoomImagesSafely, uploadFoodImage };
 };

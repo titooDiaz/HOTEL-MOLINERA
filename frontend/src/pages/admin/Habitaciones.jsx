@@ -56,6 +56,8 @@ export default function Habitaciones() {
   const [deletingRoomId, setDeletingRoomId] = useState(null);
   const [updatingImagesRoomId, setUpdatingImagesRoomId] = useState(null);
   const [managingRoom, setManagingRoom] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState({});
+  const [updatingPaymentId, setUpdatingPaymentId] = useState(null);
 
   useEffect(() => {
     Promise.all([apiRequest("/api/rooms"), apiRequest("/api/reservations")])
@@ -85,6 +87,7 @@ export default function Habitaciones() {
             statusKey,
             statusClass,
             guest: guest ? `${guest.firstName} ${guest.lastName}` : null,
+            currentReservation: current || null,
           };
         });
         setRooms(roomCards);
@@ -158,6 +161,48 @@ export default function Habitaciones() {
     });
   };
 
+  const updatePaymentDetail = (reservationId, field, value) => {
+    setPaymentDetails((current) => ({
+      ...current,
+      [reservationId]: { ...current[reservationId], [field]: value },
+    }));
+  };
+
+  const handleRegisterPayment = async (reservation) => {
+    const details = paymentDetails[reservation.id] || {};
+    const amount = Number(details.amount || reservation.balance || reservation.total);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setActionError("Indica un monto de abono válido.");
+      return;
+    }
+    if (["transferencia", "pago_movil"].includes(details.method) && !details.transactionReference?.trim()) {
+      setActionError("Indica la referencia de la transferencia o Pago Móvil.");
+      return;
+    }
+    setUpdatingPaymentId(reservation.id);
+    setActionError("");
+    setActionNotice("");
+    try {
+      const updatedReservation = await apiRequest(`/api/reservations/${reservation.id}/payment`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          amount,
+          paymentMethod: details.method || "efectivo",
+          transactionReference: details.transactionReference || "",
+          notes: details.notes || "",
+        }),
+      });
+      setRooms((currentRooms) => currentRooms.map((room) => room.currentReservation?.id === updatedReservation.id
+        ? { ...room, currentReservation: updatedReservation }
+        : room));
+      setActionNotice(amount >= Number(reservation.balance || reservation.total) ? "Pago total registrado." : "Abono registrado correctamente.");
+    } catch (requestError) {
+      setActionError(requestError.message);
+    } finally {
+      setUpdatingPaymentId(null);
+    }
+  };
+
   return (
     <>
       <PageHeader title="Habitaciones" subtitle="Gestiona el estado y la disponibilidad de todas las habitaciones." actionLabel="+ Nueva habitación" onAction={() => navigate("/admin/habitaciones/nueva")} />
@@ -175,6 +220,10 @@ export default function Habitaciones() {
           onManageRoom={setManagingRoom}
           onDeleteRoom={handleDeleteRoom}
           onUpdateRoomImages={handleUpdateRoomImages}
+          paymentDetails={paymentDetails}
+          updatingPaymentId={updatingPaymentId}
+          onPaymentDetailChange={updatePaymentDetail}
+          onRegisterPayment={handleRegisterPayment}
         />
       </>}
       {managingRoom && (

@@ -881,4 +881,57 @@ app.patch('/api/reservations/:id/payment', ...adminOnly, asyncHandler(async (req
     }
 }));
 
+app.put('/api/reservations/:id/payment-summary', ...adminOnly, asyncHandler(async (req, res) => {
+    const totalPaid = Number(req.body.totalPaid);
+    const paymentMethod = req.body.paymentMethod || 'efectivo';
+    if (!paymentMethods.includes(paymentMethod)) {
+        throw new HttpError(400, 'Selecciona un método de pago válido.');
+    }
+    if (!Number.isFinite(totalPaid) || totalPaid < 0 || !Number.isSafeInteger(toCents(totalPaid))) {
+        throw new HttpError(400, 'El total pagado no es válido.');
+    }
+
+    const transaction = await sequelize.transaction();
+    try {
+        const reservation = await Reserva.findByPk(req.params.id, { transaction, lock: transaction.LOCK.UPDATE });
+        if (!reservation) throw new HttpError(404, 'No se encontró la reserva.');
+        if (['cancelada', 'cancelado'].includes(reservation.status)) {
+            throw new HttpError(400, 'No se puede actualizar el pago de una reserva cancelada.');
+        }
+
+        const totalCents = toCents(reservation.total);
+        const paidCents = toCents(totalPaid);
+        if (paidCents > totalCents) throw new HttpError(400, 'El pago no puede superar el total de la reserva.');
+        const balanceCents = totalCents - paidCents;
+        await reservation.update({
+            paymentStatus: balanceCents === 0 ? 'pagado' : paidCents > 0 ? 'parcial' : 'pendiente',
+            paymentMethod: paidCents > 0 ? paymentMethod : null,
+            advance: (paidCents / 100).toFixed(2),
+            balance: (balanceCents / 100).toFixed(2),
+            updatedByUserId: req.user.id
+        }, { transaction });
+
+        await Pago.destroy({ where: { reservationId: reservation.id }, transaction, force: true });
+        if (paidCents > 0) {
+            await Pago.create({
+                userId: reservation.userId,
+                reservationId: reservation.id,
+                amount: (paidCents / 100).toFixed(2),
+                currency: 'VES',
+                method: paymentMethod,
+                status: 'pagado',
+                paidAt: new Date(),
+                createdByUserId: req.user.id
+            }, { transaction });
+        }
+        await transaction.commit();
+        res.json(await Reserva.findByPk(reservation.id, {
+            include: [{ model: Habitacion, as: 'habitacion' }]
+        }));
+    } catch (error) {
+        if (!transaction.finished) await transaction.rollback();
+        throw error;
+    }
+}));
+
 };

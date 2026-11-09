@@ -9,6 +9,10 @@ export default function RoomsGrid({
   onManageRoom,
   onDeleteRoom,
   onUpdateRoomImages,
+  paymentDetails,
+  updatingPaymentId,
+  onPaymentDetailChange,
+  onRegisterPayment,
 }) {
   const [status, setStatus] = useState(labels.allValue);
   const filteredRooms = useMemo(
@@ -37,6 +41,54 @@ export default function RoomsGrid({
               </div>
               <p className="admin-room-type">{room.type} <span>· {room.floorLabel}</span></p>
               <p className="admin-room-guest">{room.guest ? `${labels.guestPrefix} ${room.guest}` : labels.noGuest}</p>
+              {room.currentReservation && !room.isDeleted && (
+                <div className="admin-room-payment">
+                  <div className="admin-room-payment-summary">
+                    <span>Pago habitación</span>
+                    <strong>{room.currentReservation.paymentStatus === "pagado" ? "Pagado" : `Saldo: Bs. ${Number(room.currentReservation.balance || 0).toLocaleString("es-VE")}`}</strong>
+                  </div>
+                  {room.currentReservation.paymentStatus !== "pagado" && (
+                    <div className="admin-room-payment-form">
+                      <input
+                        type="number"
+                        min="0.01"
+                        max={room.currentReservation.balance || room.currentReservation.total}
+                        step="0.01"
+                        placeholder="Monto"
+                        aria-label={`Monto de pago de habitación ${room.number}`}
+                        value={paymentDetails[room.currentReservation.id]?.amount || ""}
+                        onChange={(event) => onPaymentDetailChange(room.currentReservation.id, "amount", event.target.value)}
+                        disabled={updatingPaymentId !== null}
+                      />
+                      <select
+                        aria-label={`Método de pago de habitación ${room.number}`}
+                        value={paymentDetails[room.currentReservation.id]?.method || "efectivo"}
+                        onChange={(event) => onPaymentDetailChange(room.currentReservation.id, "method", event.target.value)}
+                        disabled={updatingPaymentId !== null}
+                      >
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="pago_movil">Pago móvil</option>
+                      </select>
+                      {["transferencia", "pago_movil"].includes(paymentDetails[room.currentReservation.id]?.method) && (
+                        <input
+                          type="text"
+                          maxLength="150"
+                          placeholder="Referencia"
+                          aria-label={`Referencia del pago de habitación ${room.number}`}
+                          value={paymentDetails[room.currentReservation.id]?.transactionReference || ""}
+                          onChange={(event) => onPaymentDetailChange(room.currentReservation.id, "transactionReference", event.target.value)}
+                          disabled={updatingPaymentId !== null}
+                        />
+                      )}
+                      <button type="button" className="admin-action-button admin-action-button--primary" onClick={() => onRegisterPayment(room.currentReservation)} disabled={updatingPaymentId !== null}>
+                        {updatingPaymentId === room.currentReservation.id ? "Guardando..." : "Registrar pago"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
               {!room.isDeleted && (
                 <>
                   <button
