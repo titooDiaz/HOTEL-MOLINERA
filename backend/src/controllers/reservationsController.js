@@ -438,7 +438,14 @@ app.post('/api/reservations/:id/check-in', ...adminOnly, asyncHandler(async (req
         if (!guestDocument || String(req.body.documentNumber).trim().toUpperCase() !== String(guestDocument).trim().toUpperCase()) {
             throw new HttpError(403, 'El documento presentado no coincide con el huésped de la reserva.');
         }
-        const today = new Date().toISOString().slice(0, 10);
+        const todayParts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/Caracas',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).formatToParts(new Date());
+        const todayValues = Object.fromEntries(todayParts.map(({ type, value }) => [type, value]));
+        const today = `${todayValues.year}-${todayValues.month}-${todayValues.day}`;
         if (reservation.checkIn > today || reservation.checkOut <= today) {
             throw new HttpError(409, 'El check-in solo se puede registrar durante las fechas de la reserva.');
         }

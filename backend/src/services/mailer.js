@@ -69,4 +69,40 @@ async function sendVerificationCode({ to, code, minutes, purpose }) {
     });
 }
 
-module.exports = { sendVerificationCode };
+async function sendContactMessage({ to, name, email, subject, message }) {
+    const mailTransport = getTransporter();
+    if (!mailTransport) {
+        throw new Error('SMTP_HOST no está configurado: no se puede enviar el mensaje de contacto.');
+    }
+
+    const hotelName = process.env.HOTEL_NAME || 'Hotel Molinera';
+    const text = [
+        `Nuevo mensaje de contacto para ${hotelName}`,
+        '',
+        `Nombre: ${name}`,
+        `Correo: ${email}`,
+        `Asunto: ${subject}`,
+        '',
+        message
+    ].join('\n');
+    const html = `
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:auto;padding:24px;color:#222">
+            <h2 style="margin:0 0 16px">${escapeHtml(hotelName)}: nuevo mensaje de contacto</h2>
+            <p><strong>Nombre:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Correo:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Asunto:</strong> ${escapeHtml(subject)}</p>
+            <p><strong>Mensaje:</strong></p>
+            <p style="white-space:pre-wrap">${escapeHtml(message)}</p>
+        </div>`;
+
+    await mailTransport.sendMail({
+        from: process.env.MAIL_FROM || process.env.SMTP_USER,
+        to,
+        replyTo: email,
+        subject: `Nuevo mensaje de contacto - ${subject}`,
+        text,
+        html
+    });
+}
+
+module.exports = { sendVerificationCode, sendContactMessage };

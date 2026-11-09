@@ -1,8 +1,15 @@
 module.exports = (app, context) => {
-    const { sequelize, hashPassword, verifyCaptcha, Usuario, Huesped, Admin, MensajeContacto, HttpError, asyncHandler, requireFields, safeUser, userIncludes, adminOnly, createAdminNotifications } = context;
+    const { sequelize, hashPassword, verifyCaptcha, Usuario, Huesped, Admin, MensajeContacto, HttpError, asyncHandler, requireFields, safeUser, userIncludes, adminOnly, createAdminNotifications, sendContactMessage } = context;
 
 app.post('/api/contact', verifyCaptcha('contact'), asyncHandler(async (req, res) => {
     requireFields(req.body, ['name', 'email', 'subject', 'message']);
+    const configuredRecipient = process.env.ADMIN_EMAIL?.trim();
+    const administrator = configuredRecipient
+        ? null
+        : await Usuario.findOne({ where: { role: 'admin' }, attributes: ['email'], order: [['createdAt', 'ASC']] });
+    const recipient = configuredRecipient || administrator?.email;
+    if (!recipient) throw new HttpError(503, 'No hay un correo de administrador configurado para recibir mensajes.');
+    if (!process.env.SMTP_HOST) throw new HttpError(503, 'El envío de correo no está configurado. Contacta al administrador del sitio.');
     const message = await MensajeContacto.create({
         name: String(req.body.name).trim(),
         email: String(req.body.email).trim().toLowerCase(),
@@ -15,6 +22,13 @@ app.post('/api/contact', verifyCaptcha('contact'), asyncHandler(async (req, res)
         title: 'Nuevo mensaje de contacto',
         message: `Nuevo mensaje de ${message.name}: ${message.subject}`,
         data: { messageId: message.id }
+    });
+    await sendContactMessage({
+        to: recipient,
+        name: message.name,
+        email: message.email,
+        subject: message.subject,
+        message: message.message
     });
     res.status(201).json({ id: message.id, message: 'Mensaje recibido.' });
 }));

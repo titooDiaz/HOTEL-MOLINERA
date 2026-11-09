@@ -43,6 +43,8 @@ MAIL_FROM="Hotel Molinera <hotelmolinera@gmail.com>"
 
 La cuenta configurada con `ADMIN_EMAIL` y `ADMIN_PASSWORD` se crea al iniciar el backend, junto a su perfil de administrador. Si la cuenta ya existe, el backend no reemplaza su contraseña. Si completas las variables `DEFAULT_CLIENT_*`, también se crea un cliente con rol de huésped y su perfil; ese usuario no tiene permisos de administrador. Usa una contraseña segura y diferente en cada entorno. Si el correo ya existe, no se modifica la cuenta.
 
+Los mensajes enviados desde el formulario público de contacto se entregan a `ADMIN_EMAIL`. Para habilitar el envío, configura `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` y `MAIL_FROM`.
+
 Para iniciar sesión como cliente, abre **Reservar** y selecciona **Iniciar sesión**. Sin configurar `DEFAULT_CLIENT_*`, los huéspedes también pueden registrarse desde ese flujo. Un administrador puede crear otras cuentas desde Configuración.
 
 Las tablas que faltan se crean al arrancar. La aplicación no altera las columnas de tablas existentes.

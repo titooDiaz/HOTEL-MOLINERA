@@ -12,13 +12,15 @@ export default function ReceptionHelp({ labels }) {
       <p className="text-secondary small">
         {labels.description}
       </p>
-      <button
-        type="button"
+      <a
+        href={`https://wa.me/584147015219?text=${encodeURIComponent("Hola, tengo una duda sobre un consumo de mi habitación.")}`}
         className="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         <Phone size={16} />
         {labels.buttonLabel}
-      </button>
+      </a>
     </section>
   );
 }

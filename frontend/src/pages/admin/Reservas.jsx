@@ -7,6 +7,7 @@ import SummaryCards from "../../components/summary_cards/SummaryCards.jsx";
 import ReservationsTable from "../../components/reservations_table/ReservationsTable.jsx";
 import { apiRequest } from "../../api.js";
 import { useAuth } from "../../context/authContext.js";
+import { todayISO } from "../../components/admin_form/formUtils.js";
 
 const LABELS = {
   table: {
@@ -43,6 +44,7 @@ const STATUS = {
 };
 
 const formatDate = (date) => date ? new Intl.DateTimeFormat("es-VE").format(new Date(`${date}T00:00:00`)) : "—";
+const dateOnly = (date) => typeof date === "string" ? date.slice(0, 10) : "";
 
 export default function Reservas() {
   const navigate = useNavigate();
@@ -57,11 +59,9 @@ export default function Reservas() {
     if (!quiet) setError("");
     try {
       const records = await apiRequest("/api/reservations", { cache: "no-store" });
-      const today = new Date().toISOString().slice(0, 10);
+      const today = todayISO();
       const rows = records.map((reservation) => {
-        const statusKey = reservation.status === "confirmada" && reservation.checkIn <= today && reservation.checkOut > today
-          ? "checkin"
-          : reservation.status;
+        const statusKey = reservation.status;
         const [status, statusClass] = STATUS[statusKey] || STATUS.proceso;
         const guest = reservation.usuario?.huesped;
         return {
@@ -82,7 +82,7 @@ export default function Reservas() {
         { label: "Total reservas", value: String(inMonth), sub: "este mes" },
         { label: "Confirmadas", value: String(records.filter((item) => item.status === "confirmada").length), sub: "listas para check-in" },
         { label: "En proceso", value: String(records.filter((item) => item.status === "proceso").length), sub: "pendientes de confirmar" },
-        { label: "Check-ins hoy", value: String(records.filter((item) => item.checkIn === today && item.status === "confirmada").length), sub: "programados para hoy" },
+        { label: "Check-ins hoy", value: String(records.filter((item) => dateOnly(item.checkIn) === today && ["confirmada", "checkin"].includes(item.status)).length), sub: "programados para hoy" },
       ]);
     } catch (requestError) {
       if (!quiet) throw requestError;
@@ -96,23 +96,34 @@ export default function Reservas() {
   }, [refreshReservations, notificationRevision]);
 
   const handleStatusChange = async (reservation, status) => {
+    const isCheckingIn = status === "checkin";
     const isAccepting = status === "confirmada";
-    const isCancellingExisting = reservation.statusKey === "confirmada" || reservation.statusKey === "checkin";
-    const actionLabel = isAccepting ? "aceptar la solicitud" : isCancellingExisting ? "cancelar la reserva" : "rechazar la solicitud";
+    const isCancellingExisting = reservation.statusKey === "confirmada";
+    const actionLabel = isCheckingIn
+      ? "registrar el check-in"
+      : isAccepting
+        ? "aceptar la solicitud"
+        : isCancellingExisting
+          ? "cancelar la reserva"
+          : "rechazar la solicitud";
     if (!window.confirm(`¿Deseas ${actionLabel} ${reservation.id}?`)) return;
+    const documentNumber = isCheckingIn ? window.prompt("Ingresa el documento de identidad del huésped para validar el check-in:") : null;
+    if (isCheckingIn && !documentNumber?.trim()) return;
     setUpdatingReservationId(reservation.id);
     setError("");
     try {
-      await apiRequest(`/api/reservations/${reservation.reservationId}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
+      await apiRequest(`/api/reservations/${reservation.reservationId}/${isCheckingIn ? "check-in" : "status"}`, {
+        method: isCheckingIn ? "POST" : "PATCH",
+        body: JSON.stringify(isCheckingIn ? { documentNumber: documentNumber.trim() } : { status }),
       });
       await refreshReservations();
-      const successMessage = isAccepting
-        ? "La reserva fue aceptada correctamente."
-        : isCancellingExisting
-          ? "La reserva fue cancelada correctamente."
-          : "La solicitud fue rechazada.";
+      const successMessage = isCheckingIn
+        ? "El check-in fue registrado correctamente."
+        : isAccepting
+          ? "La reserva fue aceptada correctamente."
+          : isCancellingExisting
+            ? "La reserva fue cancelada correctamente."
+            : "La solicitud fue rechazada.";
       window.alert(successMessage);
     } catch (requestError) {
       setError(requestError.message);

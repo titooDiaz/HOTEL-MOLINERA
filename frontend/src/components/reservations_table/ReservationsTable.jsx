@@ -56,7 +56,7 @@ export default function ReservationsTable({ reservations, labels, onStatusChange
                 <td>{reservation.checkin}</td><td>{reservation.checkout}</td>
                 <td><span className={`admin-status-badge ${reservation.statusClass}`}>{reservation.status}</span></td>
                 <td>
-                  <div className="client-actions reservation-actions">
+                  {["proceso", "confirmada"].includes(reservation.statusKey) && <div className="client-actions reservation-actions">
                     <button
                       className="admin-table-action"
                       type="button"
@@ -69,7 +69,7 @@ export default function ReservationsTable({ reservations, labels, onStatusChange
                         }
                         const rect = event.currentTarget.getBoundingClientRect();
                         const menuWidth = Math.min(288, window.innerWidth - 24);
-                        const menuHeight = reservation.statusKey === "proceso" ? 128 : 72;
+                        const menuHeight = 128;
                         const top = rect.bottom + menuHeight + 8 > window.innerHeight
                           ? Math.max(12, rect.top - menuHeight - 8)
                           : rect.bottom + 8;
@@ -80,7 +80,7 @@ export default function ReservationsTable({ reservations, labels, onStatusChange
                         });
                       }}
                     >•••</button>
-                  </div>
+                  </div>}
                 </td>
               </tr>
             ))}
@@ -103,13 +103,20 @@ export default function ReservationsTable({ reservations, labels, onStatusChange
               onClick={() => runStatusChange(activeReservation, "cancelada")}
             >Rechazar solicitud</button>
           </>}
-          {(activeReservation.statusKey === "confirmada" || activeReservation.statusKey === "checkin") && <button
-            type="button"
-            disabled={updatingReservationId === activeReservation.id}
-            onClick={() => runStatusChange(activeReservation, "cancelada")}
-          >
-            {updatingReservationId === activeReservation.id ? "Guardando..." : "Cancelar reserva"}
-          </button>}
+          {activeReservation.statusKey === "confirmada" && <>
+            <button
+              type="button"
+              disabled={updatingReservationId === activeReservation.id}
+              onClick={() => runStatusChange(activeReservation, "checkin")}
+            >Registrar check-in</button>
+            <button
+              type="button"
+              disabled={updatingReservationId === activeReservation.id}
+              onClick={() => runStatusChange(activeReservation, "cancelada")}
+            >
+              {updatingReservationId === activeReservation.id ? "Guardando..." : "Cancelar reserva"}
+            </button>
+          </>}
         </div>,
         document.body,
       )}

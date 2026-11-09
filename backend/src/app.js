@@ -9,6 +9,7 @@ const twoFactor = require('./services/twoFactor');
 const chatService = require('./services/chat');
 const reservationService = require('./services/reservations');
 const notificationService = require('./services/notifications');
+const { sendContactMessage } = require('./services/mailer');
 const { verifyCaptcha } = require('./middlewares/captcha');
 const { HttpError, asyncHandler, errorHandler } = require('./middlewares/errors');
 
@@ -189,6 +190,7 @@ const routeContext = {
     ...chatService,
     ...reservationService,
     ...notificationService,
+    sendContactMessage,
     Usuario,
     Huesped,
     Admin,

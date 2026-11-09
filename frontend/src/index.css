@@ -160,6 +160,12 @@ body.guest-dark-mode .btn-light {
   color: var(--text-primary) !important;
 }
 
+select,
+option {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+}
+
 * {
   box-sizing: border-box;
 }

@@ -7,6 +7,7 @@ import DashboardAnalytics from "../../components/dashboard_analytics/DashboardAn
 import ReservationsOverview from "../../components/reservations_overview/ReservationsOverview.jsx";
 import { apiRequest } from "../../api.js";
 import { useAuth } from "../../context/authContext.js";
+import { todayISO } from "../../components/admin_form/formUtils.js";
 
 const QUICK_ACTIONS = [
   { label: "Nueva reserva", to: "/admin/reservas/nueva", variant: "quick-action-btn--rose", icon: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></> },
@@ -18,6 +19,7 @@ const QUICK_ACTIONS = [
 const COLORS = ["var(--blue-500)", "var(--emerald-500)", "var(--orange-500)", "var(--violet-500)", "var(--rose-500)"];
 const STATUS = {
   confirmada: ["Confirmada", "badge-pill-emerald"],
+  checkin: ["Check-in", "badge-pill-orange"],
   proceso: ["En proceso", "badge-pill-amber"],
   cancelada: ["Cancelada", "badge-pill-rose"],
   cancelado: ["Cancelada", "badge-pill-rose"],
@@ -37,13 +39,15 @@ export default function HotelDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayISO();
   const metrics = useMemo(() => {
     const activeReservations = data.reservations.filter((reservation) =>
       reservation.checkIn <= today && reservation.checkOut > today && !["cancelada", "cancelado"].includes(reservation.status),
     );
     const occupiedRoomIds = new Set(activeReservations.map((reservation) => String(reservation.roomId)));
-    const todayReservations = data.reservations.filter((reservation) => reservation.checkIn === today);
+    const todayReservations = data.reservations.filter((reservation) =>
+      reservation.checkIn?.slice(0, 10) === today && ["confirmada", "checkin"].includes(reservation.status),
+    );
     const todaysOrders = data.orders.filter((order) => new Date(order.requestedAt).toISOString().slice(0, 10) === today);
     const paidOrdersToday = todaysOrders.filter((order) => order.paymentStatus === "pagado" && order.status !== "cancelado");
     const clientCount = new Set(activeReservations.map((reservation) => String(reservation.userId))).size;
@@ -101,7 +105,7 @@ export default function HotelDashboard() {
         footerTextColor: "var(--blue-500)",
       },
       {
-        label: "Reservas hoy",
+        label: "Check-ins hoy",
         value: String(todayReservations.length),
         badgeClass: "icon-badge-emerald",
         icon: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
