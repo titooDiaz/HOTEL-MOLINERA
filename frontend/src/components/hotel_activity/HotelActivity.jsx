@@ -8,6 +8,7 @@ export default function HotelActivity({
   description,
   schedule,
   onBook,
+  bookHref,
   bookLabel = "Agendar experiencia",
 }) {
   return (
@@ -50,11 +51,15 @@ export default function HotelActivity({
               </p>
             </div>
           </div>
-          {onBook && (
+          {bookHref ? (
+            <a className="activity-book-button" href={bookHref} target="_blank" rel="noopener noreferrer">
+              {bookLabel}
+            </a>
+          ) : onBook ? (
             <button type="button" className="activity-book-button" onClick={onBook}>
               {bookLabel}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
     </section>

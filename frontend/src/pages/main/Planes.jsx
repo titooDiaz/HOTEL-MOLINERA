@@ -80,14 +80,19 @@ function Planes() {
           title={plan.name}
           description={plan.description || plan.summary || ""}
           schedule={plan.price == null ? "Consulta disponibilidad y precio en recepción." : `Desde ${Number(plan.price).toLocaleString("es-VE")} ${plan.currency} por persona.`}
+          bookHref={plan.price != null && !user
+            ? `https://wa.me/584147015219?text=${encodeURIComponent(`Hola, quisiera consultar la disponibilidad del evento ${plan.name}.`)}`
+            : undefined}
           onBook={plan.price == null
             ? undefined
             : user?.role === "guest"
               ? () => setSelectedPlan(plan)
               : user?.role === "admin"
                 ? undefined
-                : openReserveModal}
-          bookLabel={user?.role === "guest" ? "Agendar sin habitación" : "Inicia sesión para agendar"}
+                : user
+                  ? openReserveModal
+                  : undefined}
+          bookLabel={user?.role === "guest" ? "Agendar sin habitación" : "Consultar disponibilidad"}
         />
       )) : (
         <>
