@@ -3,12 +3,86 @@ import { useId } from "react";
 import DashboardIcon from "../../components/icon/DashboardIcon.jsx";
 import "./DashboardAnalytics.css";
 
-export default function DashboardAnalytics({ roomTypes, recentActivity, labels }) {
+const formatPeakHour = (peak) => peak
+  ? new Intl.DateTimeFormat("es-VE", { weekday: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(peak.hour))
+  : "—";
+
+export default function DashboardAnalytics({ roomTypes, recentActivity, labels, views, viewsPeriod, onViewsPeriodChange }) {
   const gradientId = `area-fill-${useId().replaceAll(":", "")}`;
   const totalRoomCount = roomTypes.reduce((total, room) => total + room.count, 0);
+  const series = views?.series || [];
+  const maxViews = Math.max(...series.map((point) => point.views), 1);
+  const chartPoints = series.map((point, index) => {
+    const x = 42 + (index * 508) / Math.max(series.length - 1, 1);
+    const y = 194 - (point.views / maxViews) * 170;
+    return { ...point, x, y };
+  });
+  const linePath = chartPoints.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
+  const areaPath = chartPoints.length ? `${linePath} L530,194 L42,194 Z` : "";
+  const chartLabels = chartPoints.length
+    ? [chartPoints[0], chartPoints[Math.floor(chartPoints.length / 2)], chartPoints[chartPoints.length - 1]]
+    : [];
 
   return (
     <div className="row g-3 mb-4">
+      <div className="col-12">
+        <div className="card-panel views-analytics-card">
+          <div className="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-3">
+            <div>
+              <h2 className="fw-semibold text-slate-700 mb-1 dashboard-section-title">{labels.viewsTitle}</h2>
+              <p className="text-slate-400 mb-0 views-analytics-caption">Evolución horaria y horas pico de navegación pública</p>
+            </div>
+            <select
+              className="filter-select"
+              value={viewsPeriod}
+              onChange={(event) => onViewsPeriodChange(event.target.value)}
+              aria-label={labels.viewsPeriodLabel}
+            >
+              {labels.periodOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="row g-3 align-items-center">
+            <div className="col-12 col-xl-9">
+              {chartPoints.length ? (
+                <svg viewBox="0 0 560 220" className="w-100 h-auto views-chart" role="img" aria-label={labels.viewsTitle}>
+                  <defs>
+                    <linearGradient id={`${gradientId}-views`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#f43f5e" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <g stroke="currentColor" strokeOpacity="0.08" strokeWidth="1">
+                    <line x1="42" y1="24" x2="530" y2="24" />
+                    <line x1="42" y1="109" x2="530" y2="109" />
+                    <line x1="42" y1="194" x2="530" y2="194" />
+                  </g>
+                  <path d={areaPath} fill={`url(#${gradientId}-views)`} />
+                  <path d={linePath} fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  {chartPoints.filter((_, index) => index === 0 || index === chartPoints.length - 1).map((point) => (
+                    <circle key={point.hour} cx={point.x} cy={point.y} r="3.5" fill="#f43f5e" />
+                  ))}
+                  <g fontSize="10" fill="#94a3b8">
+                    {chartLabels.map((point) => (
+                      <text key={point.hour} x={point.x} y="213" textAnchor="middle">
+                        {new Intl.DateTimeFormat("es-VE", { day: "2-digit", month: "short", hour: "2-digit" }).format(new Date(point.hour))}
+                      </text>
+                    ))}
+                  </g>
+                </svg>
+              ) : <p className="text-slate-400 mb-0 py-5 text-center">{labels.viewsEmpty}</p>}
+            </div>
+            <div className="col-12 col-xl-3">
+              <div className="views-summary-grid">
+                <div><span>{labels.viewsTotalLabel}</span><strong>{views.totalViews.toLocaleString("es-VE")}</strong></div>
+                <div><span>{labels.viewsUniqueLabel}</span><strong>{views.uniqueVisitors.toLocaleString("es-VE")}</strong></div>
+                <div><span>{labels.viewsPeakLabel}</span><strong>{formatPeakHour(views.peak)}</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="col-12 col-xl-6">
         <div className="card-panel h-100">
           <div className="d-flex align-items-center justify-content-between mb-4">

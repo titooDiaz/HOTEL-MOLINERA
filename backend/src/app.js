@@ -12,6 +12,7 @@ const notificationService = require('./services/notifications');
 const { sendContactMessage } = require('./services/mailer');
 const { verifyCaptcha } = require('./middlewares/captcha');
 const { HttpError, asyncHandler, errorHandler } = require('./middlewares/errors');
+const { QueryTypes } = require('sequelize');
 
 const app = express();
 const uploadMiddleware = require('./middlewares/uploads')({ HttpError });
@@ -26,7 +27,7 @@ const CHAT_SYSTEM_PROMPT = [
     'No solicites contraseñas, datos bancarios ni claves de acceso.'
 ].join(' ');
 
-const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, ReservaPlan, Reserva, Pedido, DetallePedido, Pago, Notificacion, MensajeContacto } = models;
+const { Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, ReservaPlan, Reserva, Pedido, DetallePedido, Pago, Notificacion, MensajeContacto, Vista } = models;
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 app.use(require('cors')());
@@ -176,6 +177,7 @@ const routeContext = {
     fs,
     randomBytes,
     Op,
+    QueryTypes,
     models,
     sequelize,
     hashPassword,
@@ -205,6 +207,7 @@ const routeContext = {
     Pago,
     Notificacion,
     MensajeContacto,
+    Vista,
     uploadDirectory,
     cleanupUploadedFiles,
     uploadRoomImagesSafely,

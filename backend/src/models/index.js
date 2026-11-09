@@ -330,6 +330,23 @@ const CodigoVerificacion = sequelize.define('CodigoVerificacion', {
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
 }, { tableName: 'codigos_verificacion', updatedAt: false });
 
+// Registros anónimos de navegación pública, deduplicados mediante una cookie temporal.
+const Vista = sequelize.define('Vista', {
+    id: { type: DataTypes.BIGINT.UNSIGNED, autoIncrement: true, primaryKey: true },
+    visitorHash: { type: DataTypes.STRING(64), allowNull: false },
+    path: { type: DataTypes.STRING(255), allowNull: false },
+    ipAddress: DataTypes.STRING(45),
+    userAgent: DataTypes.STRING(500),
+    viewedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+}, {
+    tableName: 'vistas_sitio',
+    timestamps: false,
+    indexes: [
+        { fields: ['viewedAt'] },
+        { fields: ['visitorHash'] }
+    ]
+});
+
 // Relacionamos usuarios con sus perfiles de huésped y administrador.
 Usuario.hasOne(Huesped, { foreignKey: 'userId', as: 'huesped' });
 Huesped.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
@@ -371,7 +388,7 @@ CodigoVerificacion.belongsTo(Usuario, { foreignKey: 'userId', as: 'usuario' });
 const models = {
     Usuario, Huesped, Admin, Habitacion, CategoriaComida, Comida, Plan, ReservaPlan,
     Reserva, Pedido, DetallePedido, Pago, Notificacion, Auditoria, MensajeContacto,
-    CodigoVerificacion
+    CodigoVerificacion, Vista
 };
 
 // Creamos la base de datos y las tablas que todavía no existan.

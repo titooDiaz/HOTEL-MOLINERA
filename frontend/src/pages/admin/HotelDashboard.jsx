@@ -29,6 +29,8 @@ const formatDate = (date) => date ? new Intl.DateTimeFormat("es-VE").format(new 
 export default function HotelDashboard() {
   const { user } = useAuth();
   const [data, setData] = useState({ rooms: [], reservations: [], orders: [] });
+  const [viewsPeriod, setViewsPeriod] = useState("7");
+  const [views, setViews] = useState({ periodDays: 7, totalViews: 0, uniqueVisitors: 0, peak: null, series: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -38,6 +40,12 @@ export default function HotelDashboard() {
       .catch((requestError) => setError(requestError.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    apiRequest(`/api/admin/analytics/views?period=${viewsPeriod}`, { cache: "no-store" })
+      .then(setViews)
+      .catch((requestError) => setError(requestError.message));
+  }, [viewsPeriod]);
 
   const today = todayISO();
   const metrics = useMemo(() => {
@@ -139,6 +147,12 @@ export default function HotelDashboard() {
       defaultPeriod: "7",
       periodLabel: "Período del gráfico",
       periodOptions: [{ value: "7", label: "Últimos 7 días" }, { value: "30", label: "Últimos 30 días" }],
+      viewsTitle: "Vistas del sitio",
+      viewsPeriodLabel: "Período de vistas",
+      viewsTotalLabel: "Vistas totales",
+      viewsUniqueLabel: "Visitantes únicos",
+      viewsPeakLabel: "Hora pico",
+      viewsEmpty: "Todavía no hay visitas registradas.",
       occupancyAxisLabels: ["100%", "75%", "50%", "25%", "0%"],
       timelineLabels: ["Hace 6 d", "Hace 5 d", "Hace 4 d", "Hace 3 d", "Hace 2 d", "Ayer", "Hoy"],
       roomTypesTitle: "Tipo de habitaciones",
@@ -179,7 +193,14 @@ export default function HotelDashboard() {
       {error && <p className="alert alert-danger" role="alert">{error}</p>}
       {!loading && !error && <>
         <StatsAndActions statCards={metrics.statCards} quickActions={QUICK_ACTIONS} quickActionsTitle={labels.quickActionsTitle} />
-        <DashboardAnalytics roomTypes={metrics.roomTypes} recentActivity={metrics.recentActivity} labels={labels.analytics} />
+        <DashboardAnalytics
+          roomTypes={metrics.roomTypes}
+          recentActivity={metrics.recentActivity}
+          labels={labels.analytics}
+          views={views}
+          viewsPeriod={viewsPeriod}
+          onViewsPeriodChange={setViewsPeriod}
+        />
         <ReservationsOverview
           reservations={metrics.reservations}
           labels={labels.reservations}

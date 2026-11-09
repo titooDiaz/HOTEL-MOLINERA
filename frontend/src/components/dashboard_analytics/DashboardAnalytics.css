@@ -31,3 +31,18 @@
 .analytics-activity-title { font-size: .875rem; line-height: 1.25; }
 .analytics-activity-time,
 .analytics-activity-subtitle { font-size: .75rem; }
+
+.views-analytics-caption { font-size: .75rem; }
+.views-chart { min-height: 220px; }
+.views-summary-grid { display: grid; gap: .75rem; }
+.views-summary-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: .7rem .8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: .65rem;
+  background: var(--bg-subtle);
+}
+.views-summary-grid span { color: var(--text-muted); font-size: .72rem; }
+.views-summary-grid strong { color: var(--text-primary); font-size: 1.05rem; }

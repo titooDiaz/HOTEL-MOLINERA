@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import Navbar from "../components/navbar/Navbar.jsx";
 import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
@@ -26,9 +27,21 @@ export default function PublicLayout() {
   const [selectedRoom, setSelectedRoom] = useState(defaultRoom);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const trackedPaths = useRef(new Set());
   const { user, reservation, login, verifyTwoFactor, resendTwoFactor, register, saveReservation } = useAuth();
   const rooms = apiRooms;
   const reservableRooms = rooms.filter((currentRoom) => currentRoom.isAvailable !== false);
+
+  useEffect(() => {
+    if (trackedPaths.current.has(pathname)) return;
+    trackedPaths.current.add(pathname);
+    fetch("/api/analytics/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: pathname }),
+    }).catch((error) => console.error("No se pudo registrar la visita:", error));
+  }, [pathname]);
 
   useEffect(() => {
     apiRequest("/api/hotel").then((hotel) => {

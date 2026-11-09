@@ -5,6 +5,7 @@ const registerReservations = require('./reservations');
 const registerCatalog = require('./catalog');
 const registerOrders = require('./orders');
 const registerAdmin = require('./admin');
+const registerAnalytics = require('./analytics');
 
 module.exports = (app, context) => {
     registerAuth(app, context);
@@ -14,4 +15,5 @@ module.exports = (app, context) => {
     registerCatalog(app, context);
     registerOrders(app, context);
     registerAdmin(app, context);
+    registerAnalytics(app, context);
 };
