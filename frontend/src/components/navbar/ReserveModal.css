@@ -663,6 +663,31 @@ body.guest-dark-mode .reserve-link:hover {
   color: var(--ink);
 }
 
+.reservation-availability-message {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #e8c878;
+  border-left: 4px solid var(--gold);
+  border-radius: 12px;
+  background: #fff8e7;
+  color: #6f5118;
+  line-height: 1.35;
+}
+
+.reservation-availability-message strong {
+  font-size: 0.9rem;
+}
+
+.reservation-availability-message span {
+  font-size: 0.86rem;
+}
+
+.reservation-availability-message small {
+  color: #8a6a2b;
+  font-size: 0.76rem;
+}
+
 .reservation-room-image {
   width: 86px;
   height: 86px;
@@ -691,13 +716,22 @@ body.guest-dark-mode .reserve-link:hover {
 }
 
 .reservation-room-select {
-  max-width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
+  width: min(100%, 300px);
+  min-height: 42px;
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  padding: 0.55rem 2.25rem 0.55rem 0.75rem;
+  background: var(--gold-soft);
   color: var(--ink);
   font: inherit;
   font-weight: 700;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.reservation-room-select:focus-visible {
+  outline: 3px solid rgba(184, 146, 74, 0.3);
+  outline-offset: 2px;
 }
 
 .reservation-room-summary small {
@@ -770,6 +804,20 @@ body.guest-dark-mode .reserve-link:hover {
 .dark .reservation-room-summary,
 body.guest-dark-mode .reservation-room-summary {
   border-color: var(--border-color);
+}
+
+[data-theme="dark"] .reservation-availability-message,
+.dark .reservation-availability-message,
+body.guest-dark-mode .reservation-availability-message {
+  border-color: #8c6b2b;
+  background: #3a301d;
+  color: #f7d98d;
+}
+
+[data-theme="dark"] .reservation-availability-message small,
+.dark .reservation-availability-message small,
+body.guest-dark-mode .reservation-availability-message small {
+  color: #d7b86c;
 }
 
 [data-theme="dark"] .reservation-fields input,

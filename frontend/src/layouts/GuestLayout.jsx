@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import GuestSidebar from "../components/guest_sidebar/GuestSidebar.jsx";
 import GuestTopbar from "../components/guest_topbar/GuestTopbar.jsx";
 import { useAuth } from "../context/authContext.js";
+import Chatbot from "../components/chatbot/Chatbot.jsx";
 
 const SIDEBAR = {
   brand: {
@@ -47,6 +48,7 @@ export default function GuestLayout() {
         />
         <Outlet />
       </main>
+      <Chatbot />
     </div>
   );
 }

@@ -453,8 +453,21 @@ app.post('/api/reservations/:id/check-in', ...adminOnly, asyncHandler(async (req
             transaction,
             lock: transaction.LOCK.UPDATE
         });
-        if (!room || room.status !== 'disponible') {
+        if (!room) {
             throw new HttpError(409, 'La habitación no está disponible para registrar el check-in.');
+        }
+        const activeCheckIn = await Reserva.findOne({
+            where: {
+                id: { [Op.ne]: reservation.id },
+                roomId: reservation.roomId,
+                status: 'checkin',
+                checkedOutAt: null
+            },
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+        if (activeCheckIn) {
+            throw new HttpError(409, 'La habitación ya tiene otro check-in activo.');
         }
 
         const checkedInAt = new Date();

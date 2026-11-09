@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useRef } from "react";
 import Navbar from "../components/navbar/Navbar.jsx";
 import Footer from "../components/footer/Footer.jsx";
 import WhatsAppButton from "../components/whatsApp_button/WhatsAppButton.jsx";
 import Chatbot from "../components/chatbot/Chatbot.jsx";
 import ReserveModal from "../components/navbar/ReserveModal.jsx";
 import { useAuth } from "../context/authContext.js";
-import { room as defaultRoom, roomFromApi } from "../roomData.js";
+import { roomFromApi } from "../roomData.js";
 import { apiRequest } from "../api.js";
 
 const DEFAULT_NAVBAR_LABELS = {
@@ -24,7 +23,8 @@ const WHATSAPP_NUMBER = "584147015219";
 export default function PublicLayout() {
   const [hotelData, setHotelData] = useState(null);
   const [apiRooms, setApiRooms] = useState([]);
-  const [selectedRoom, setSelectedRoom] = useState(defaultRoom);
+  const [roomsLoaded, setRoomsLoaded] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [isReserveOpen, setIsReserveOpen] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -50,7 +50,8 @@ export default function PublicLayout() {
     }).catch((err) => console.error("Error al obtener información del hotel:", err));
     apiRequest("/api/rooms?catalog=true", { cache: "no-store" })
       .then((records) => setApiRooms(records.map(roomFromApi)))
-      .catch((err) => console.error("Error al obtener habitaciones:", err));
+      .catch((err) => console.error("Error al obtener habitaciones:", err))
+      .finally(() => setRoomsLoaded(true));
   }, []);
 
   const openReserveModal = (requestedRoom = null) => {
@@ -60,7 +61,7 @@ export default function PublicLayout() {
     }
     const availableRoom = requestedRoom?.isAvailable !== false && requestedRoom
       ? requestedRoom
-      : reservableRooms[0] || rooms[0] || selectedRoom;
+      : reservableRooms[0];
     setSelectedRoom(availableRoom);
     setIsReserveOpen(true);
   };
@@ -117,7 +118,7 @@ export default function PublicLayout() {
       />
 
       <main className="public-main flex-grow-1">
-        <Outlet context={{ hotelData, openReserveModal, rooms }} />
+        <Outlet context={{ hotelData, openReserveModal, rooms, roomsLoaded }} />
       </main>
 
       <Footer hotelName={hotelData?.name} />
@@ -136,8 +137,8 @@ export default function PublicLayout() {
         onResendTwoFactor={resendTwoFactor}
         onRegister={handleRegister}
         isAuthenticated={Boolean(user)}
-        room={rooms.find(({ id }) => id === selectedRoom.id) || reservableRooms[0] || rooms[0] || selectedRoom}
-        rooms={rooms}
+        room={selectedRoom || reservableRooms[0]}
+        rooms={reservableRooms}
         onReserve={handleReservation}
       />
     </div>

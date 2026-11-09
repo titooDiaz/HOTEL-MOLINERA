@@ -5,9 +5,18 @@ app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
     const isAdmin = req.user?.role === 'admin';
     const catalogMode = req.query.catalog === 'true';
     const adminManagementMode = isAdmin && !catalogMode;
+    const requestedCheckIn = req.query.checkIn;
+    const requestedCheckOut = req.query.checkOut;
+    const hasRequestedRange = isValidDateOnly(requestedCheckIn)
+        && isValidDateOnly(requestedCheckOut)
+        && requestedCheckOut > requestedCheckIn;
     const where = adminManagementMode
         ? {}
-        : { isVisible: true, isBookable: true, ...(catalogMode ? {} : { status: 'disponible' }) };
+        : {
+            isVisible: true,
+            isBookable: true,
+            ...(!catalogMode && !hasRequestedRange ? { status: 'disponible' } : {})
+        };
     let rooms = await Habitacion.findAll({
         where,
         order: [['number', 'ASC']],
@@ -18,27 +27,53 @@ app.get('/api/rooms', optionalAuthentication, asyncHandler(async (req, res) => {
     if (!adminManagementMode) {
         const today = new Date().toISOString().slice(0, 10);
         const tomorrow = new Date(parseDate(today).getTime() + 86400000).toISOString().slice(0, 10);
+        const availabilityStart = hasRequestedRange ? requestedCheckIn : today;
+        const availabilityEnd = hasRequestedRange ? requestedCheckOut : tomorrow;
         const blockedReservations = await Reserva.findAll({
             attributes: ['roomId'],
             where: {
                 status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
-                checkOut: { [Op.gte]: today }
+                checkIn: { [Op.lt]: availabilityEnd },
+                checkOut: { [Op.gt]: availabilityStart }
             },
             raw: true
         });
+        const reservationsWithRanges = catalogMode
+            ? await Reserva.findAll({
+                attributes: ['roomId', 'checkIn', 'checkOut'],
+                where: {
+                    status: { [Op.notIn]: ['cancelada', 'cancelado', 'finalizada'] },
+                    checkOut: { [Op.gt]: today }
+                },
+                order: [['checkIn', 'ASC']],
+                raw: true
+            })
+            : [];
+        const blockedRangesByRoom = reservationsWithRanges.reduce((ranges, reservation) => {
+            const roomKey = String(reservation.roomId);
+            if (!ranges[roomKey]) ranges[roomKey] = [];
+            ranges[roomKey].push({
+                checkIn: String(reservation.checkIn).slice(0, 10),
+                checkOut: String(reservation.checkOut).slice(0, 10)
+            });
+            return ranges;
+        }, {});
         const blockedRoomIds = new Set(blockedReservations.map(({ roomId }) => String(roomId)));
         if (catalogMode) {
             rooms = rooms.map((room) => {
                 const isReserved = blockedRoomIds.has(String(room.id));
-                const isUnderMaintenance = roomUnavailableForRange(room, today, tomorrow);
+                const isUnderMaintenance = roomUnavailableForRange(room, availabilityStart, availabilityEnd);
                 return {
                     ...room.toJSON(),
                     isReserved,
-                    isAvailable: room.status === 'disponible' && !isReserved && !isUnderMaintenance
+                    blockedRanges: blockedRangesByRoom[String(room.id)] || [],
+                    isAvailable: (hasRequestedRange || room.status === 'disponible')
+                        && !isUnderMaintenance
+                        && (!hasRequestedRange || !isReserved)
                 };
             });
         } else {
-            rooms = rooms.filter((room) => !blockedRoomIds.has(String(room.id)) && !roomUnavailableForRange(room, today, tomorrow));
+            rooms = rooms.filter((room) => !blockedRoomIds.has(String(room.id)) && !roomUnavailableForRange(room, availabilityStart, availabilityEnd));
         }
     }
     res.json(rooms);

@@ -38,7 +38,8 @@ const TEXTOS_PORTADA = {
 
 function App() {
   // Tomamos los datos del hotel y la acción para abrir una reserva.
-  const { hotelData, openReserveModal, rooms = [] } = useOutletContext() || {};
+  const { hotelData, openReserveModal, rooms = [], roomsLoaded = false } = useOutletContext() || {};
+  const availableRooms = rooms.filter((availableRoom) => availableRoom.isAvailable !== false);
 
   return (
     <>
@@ -50,7 +51,7 @@ function App() {
       />
       {/* Recorremos las habitaciones disponibles para mostrarlas. */}
       <section id="habitaciones" aria-label="Habitaciones del hotel">
-        {rooms.map((availableRoom) => (
+        {availableRooms.map((availableRoom) => (
           <RoomSection
             key={availableRoom.id}
             room={availableRoom}
@@ -59,6 +60,12 @@ function App() {
             onReserve={() => openReserveModal(availableRoom)}
           />
         ))}
+        {roomsLoaded && availableRooms.length === 0 && (
+          <div className="container py-5 text-center" role="status">
+            <h2 className="h4">Todas las habitaciones están ocupadas por el momento</h2>
+            <p className="text-secondary mb-0">Vuelve a consultar más tarde o contáctanos para revisar otras fechas.</p>
+          </div>
+        )}
       </section>
     </>
   );

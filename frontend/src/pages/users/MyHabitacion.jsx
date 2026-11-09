@@ -10,7 +10,7 @@ import ReceptionHelp from "../../components/reception_help/ReceptionHelp.jsx";
 import ReservationForm from "../../components/booking/ReservationForm.jsx";
 import PaymentHistory from "../../components/payment_history/PaymentHistory.jsx";
 import { useAuth } from "../../context/authContext.js";
-import { room, roomFromApi, rooms as defaultRooms } from "../../roomData.js";
+import { roomFromApi } from "../../roomData.js";
 import { apiRequest, downloadProtectedFile } from "../../api.js";
 import { useEffect, useState } from "react";
 
@@ -70,7 +70,7 @@ const formatoFecha = (valor) => {
 
 export default function MyRoom() {
     const { reservation, saveReservation } = useAuth();
-    const [availableRooms, setAvailableRooms] = useState(defaultRooms);
+    const [availableRooms, setAvailableRooms] = useState([]);
     const [showReservationDetails, setShowReservationDetails] = useState(false);
     const [downloadingStatement, setDownloadingStatement] = useState(false);
     const [statementError, setStatementError] = useState("");
@@ -115,6 +115,7 @@ export default function MyRoom() {
                         <div className="card border-0 shadow-sm p-4">
                             <h2 className="h4 mb-2">Habitaciones disponibles</h2>
                             <p className="text-secondary mb-4">Encuentra el espacio ideal para tu visita.</p>
+                            {availableRooms.length ? (
                             <div className="d-grid gap-3">
                                 {availableRooms.map((availableRoom) => (
                                     <div className="border rounded-3 p-3" key={availableRoom.id}>
@@ -135,12 +136,23 @@ export default function MyRoom() {
                                     </div>
                                 ))}
                             </div>
+                            ) : (
+                                <p className="text-secondary mb-0" role="status">
+                                    Todas las habitaciones están ocupadas por el momento.
+                                </p>
+                            )}
                         </div>
                     </div>
                     <div className="col-12 col-xl-5">
                         <div className="card border-0 shadow-sm p-4">
                             <h2 className="h4 mb-3">Reserva tu habitación</h2>
-                            <ReservationForm room={availableRooms[0] || room} rooms={availableRooms.length ? availableRooms : [room]} onSubmit={saveReservation} />
+                            {availableRooms.length ? (
+                                <ReservationForm room={availableRooms[0]} rooms={availableRooms} onSubmit={saveReservation} />
+                            ) : (
+                                <p className="text-secondary mb-0" role="status">
+                                    No hay habitaciones disponibles para reservar en este momento.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

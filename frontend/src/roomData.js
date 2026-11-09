@@ -112,6 +112,7 @@ export function roomFromApi(record) {
     maxGuests: record.capacity,
     isAvailable: record.isAvailable ?? record.status === "disponible",
     isReserved: Boolean(record.isReserved),
+    blockedRanges: Array.isArray(record.blockedRanges) ? record.blockedRanges : [],
     image,
     gallery: roomGallery,
   };

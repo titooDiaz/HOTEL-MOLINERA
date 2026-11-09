@@ -37,7 +37,7 @@ function ReserveModalContent({
   onRegister,
   isAuthenticated,
   room,
-  rooms = [room],
+  rooms = [],
   onReserve,
 }) {
   const modalRef = useRef(null);
@@ -345,8 +345,16 @@ function ReserveModalContent({
           <section className="reserve-content reserve-booking-content">
             <span className="reserve-eyebrow">Reserva tu estadía</span>
             <h2 id="reserve-title" className="reserve-title">Completa tu reserva</h2>
-            <p className="reserve-subtitle">Elige tus fechas y revisa toda la información de la habitación.</p>
-            <ReservationForm room={room} rooms={rooms} onSubmit={onReserve} onCancel={onClose} />
+            {room && rooms.length ? (
+              <>
+                <p className="reserve-subtitle">Elige tus fechas y revisa toda la información de la habitación.</p>
+                <ReservationForm room={room} rooms={rooms} onSubmit={onReserve} onCancel={onClose} />
+              </>
+            ) : (
+              <p className="reserve-subtitle" role="status">
+                Todas las habitaciones están ocupadas por el momento.
+              </p>
+            )}
           </section>
         )}
 
