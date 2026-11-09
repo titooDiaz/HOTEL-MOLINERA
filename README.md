@@ -49,6 +49,11 @@ Para iniciar sesión como cliente, abre **Reservar** y selecciona **Iniciar sesi
 
 Las tablas que faltan se crean al arrancar. La aplicación no altera las columnas de tablas existentes.
 
+## Instalación de la IA local
+Abra la terminal de powershell y escriba los siguientes comandos:
+1) irm https://ollama.com/install.ps1 | iex         (La instalación demora unos pocos minutos)
+2) ollama run qwen2.5:0.5b  (UNa vez terminado de correr, realize una pregunta cómo "Hola" y espera la respuesta).
+
 ## Ejecución local
 
 Instala dependencias en cada proyecto y ejecuta el backend y frontend en terminales separadas:

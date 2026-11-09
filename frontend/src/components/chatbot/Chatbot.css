@@ -162,18 +162,20 @@
   box-shadow: 0 2px 6px rgba(28, 25, 23, .05);
 }
 
+.chatbot-message--assistant,
+.chatbot-message--user {
+  color: #fff;
+  background: linear-gradient(135deg, #a97a46, #806039);
+}
+
 .chatbot-message--assistant {
   align-self: flex-start;
-  color: var(--text-primary, #303030);
   border-bottom-left-radius: 5px;
-  background: #f5efe8;
 }
 
 .chatbot-message--user {
   align-self: flex-end;
-  color: #fff;
   border-bottom-right-radius: 5px;
-  background: linear-gradient(135deg, #a97a46, #806039);
 }
 
 .chatbot-typing {

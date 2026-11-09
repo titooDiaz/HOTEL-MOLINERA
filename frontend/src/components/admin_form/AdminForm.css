@@ -141,6 +141,12 @@
   border-radius: .6rem;
 }
 
+[data-theme="dark"] .aform-item.is-selected,
+.dark .aform-item.is-selected,
+body.guest-dark-mode .aform-item.is-selected {
+  background: var(--bg-hover);
+}
+
 .aform-item.is-disabled {
   opacity: .55;
 }
@@ -188,7 +194,7 @@
   justify-content: center;
   padding: 0;
   color: var(--slate-700);
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid var(--slate-200);
   border-radius: .5rem;
   font: inherit;

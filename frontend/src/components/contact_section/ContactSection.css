@@ -119,7 +119,7 @@
 .contact-field input:focus,
 .contact-field textarea:focus {
   outline: none;
-  background: white;
+  background: var(--bg-primary);
   border-color: var(--red-500);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
 }
