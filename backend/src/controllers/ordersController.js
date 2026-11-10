@@ -155,7 +155,11 @@ app.patch('/api/orders/:id/payment', ...adminOnly, asyncHandler(async (req, res)
 app.get('/api/me/orders', authenticate, asyncHandler(async (req, res) => {
     res.json(await Pedido.findAll({
         where: { userId: req.user.id },
-        include: [{ model: DetallePedido, as: 'detalles' }],
+        include: [{
+            model: DetallePedido,
+            as: 'detalles',
+            include: [{ model: Comida, as: 'comida', attributes: ['imageUrl'] }]
+        }],
         order: [['requestedAt', 'DESC']]
     }));
 }));

@@ -72,7 +72,7 @@ export default function RoomRequests() {
         orderId: order.id,
         orderCode,
         orderStatus: order.status,
-        imagen: "/images/restaurant/ravioli-pan-ajo.jpeg",
+        imagen: line.comida?.imageUrl || "/images/restaurant/ravioli-pan-ajo.jpeg",
       };
     })));
   };
@@ -294,7 +294,13 @@ export default function RoomRequests() {
                       <ul className="list-unstyled mb-3">
                         {(order.detalles || []).map((line) => (
                           <li className="food-order-details-line" key={line.id}>
-                            <span>{line.quantity} × {line.foodName}</span>
+                            <div className="food-order-details-product">
+                              <img
+                                src={line.comida?.imageUrl || "/images/restaurant/ravioli-pan-ajo.jpeg"}
+                                alt={line.foodName}
+                              />
+                              <span>{line.quantity} × {line.foodName}</span>
+                            </div>
                             <span>{formatCurrency(line.totalPrice)}</span>
                           </li>
                         ))}

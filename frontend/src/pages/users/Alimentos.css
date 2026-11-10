@@ -250,9 +250,25 @@
 }
 
 .food-order-details-line {
+  align-items: center;
   padding: 0.35rem 0;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+.food-order-details-product {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.food-order-details-product img {
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  border-radius: 0.5rem;
+  object-fit: cover;
 }
 
 .food-order-details-totals > div {
