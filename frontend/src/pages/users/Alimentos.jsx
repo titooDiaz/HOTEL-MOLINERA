@@ -59,8 +59,18 @@ export default function RoomRequests() {
   const [showOrderDetails, setShowOrderDetails] = useState(false);
 
   const updateOrders = (records) => {
-    setOrderDetails(records);
-    setOrders(records.flatMap((order) => (order.detalles || []).map((line) => {
+    const displayedRecords = records.map((order) => {
+      if (order.status !== "cancelado" || order.paymentStatus === "pagado") return order;
+      return {
+        ...order,
+        subtotal: 0,
+        taxes: 0,
+        total: 0,
+        detalles: (order.detalles || []).map((line) => ({ ...line, totalPrice: 0 })),
+      };
+    });
+    setOrderDetails(displayedRecords);
+    setOrders(displayedRecords.flatMap((order) => (order.detalles || []).map((line) => {
       const orderCode = order.orderCode || `#${order.id}`;
       return {
         id: `${order.id}-${line.id}`,
@@ -68,7 +78,7 @@ export default function RoomRequests() {
         detalle: `${line.quantity} × ${line.foodName} · Pedido ${orderCode}`,
         fecha: formatDate(order.requestedAt),
         monto: Number(line.totalPrice),
-        estado: order.paymentStatus === "pagado" ? "pagado" : "pendiente",
+        estado: order.status === "cancelado" ? "cancelado" : order.paymentStatus === "pagado" ? "pagado" : "pendiente",
         orderId: order.id,
         orderCode,
         orderStatus: order.status,
